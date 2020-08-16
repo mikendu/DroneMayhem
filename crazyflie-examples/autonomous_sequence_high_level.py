@@ -158,7 +158,7 @@ def run_sequence(cf, trajectory_id, duration):
     commander = cf.high_level_commander
 
     commander.takeoff(1.0, 2.0)
-    time.sleep(3.0)
+    time.sleep(30.0)
     relative = True
     commander.start_trajectory(trajectory_id, 1.0, relative)
     time.sleep(duration)

@@ -6,7 +6,6 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
 
-from cflib.positioning.motion_commander import MotionCommander
 
 import logging
 import time
@@ -33,8 +32,8 @@ baseStationIndexes = []
 baseStations = [baseOne, baseTwo]
 dataWritten = False
 height = 0
-motionCommander = None
 
+DRONE_HEIGHT = 0.15
 
 # Rotation matrixes to convert to the CF coordinate system
 openvr_to_cf = np.array([
@@ -156,17 +155,31 @@ def mainLoop(scf = None):
 
     cf = scf.cf
     updateBaseStations(cf)
-    targetPosition = (-0.0813, -0.0302, 0.0270, 0)
-    global motionCommander
-    motionCommander = MotionCommander(cf)
+    commander = cf.high_level_commander
+    
     print("\nTaking off...")
-    motionCommander.take_off()
+    commander.takeoff(1.0, 2.0)
+    time.sleep(3.0)
+    
     print("Liftoff!")
-
-    while True:
+    start = time.time()
+    currentTime = time.time()
+    while (currentTime - start) < 5:
         setLED(scf)
         updateBaseStations(cf)
         time.sleep(0.02)
+        currentTime = time.time()
+
+    print("Landing...")
+    commander.land(0.0 + DRONE_HEIGHT, 2.0)
+    time.sleep(2)
+    commander.stop()
+
+    """
+    while True:
+        setLED(scf)
+        updateBaseStations(cf)
+        time.sleep(0.02)"""
 
 
 
@@ -225,7 +238,7 @@ def positionCallback(timestamp, data, logconf):
     x = data['kalman.stateX']
     y = data['kalman.stateY']
     z = data['kalman.stateZ']
-    # print('pos: ({}, {}, {})'.format(x, y, z))
+    print('pos: ({}, {}, {})'.format(x, y, z))
     global height
     height = z
 
@@ -254,6 +267,9 @@ uri = initCrazyflie()
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     cf = scf.cf
     cf.param.set_value('lighthouse.method', '1')
+    cf.param.set_value('stabilizer.controller', '2')
+    cf.param.set_value('commander.enHighLevel', '1')
+    updateBaseStations(cf)
     resetEstimator(scf)
     startPrinting(scf)
     mainLoop(scf)
