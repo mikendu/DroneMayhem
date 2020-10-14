@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4608733695015489811}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.02, z: 0}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 420955675609548645}
@@ -42,8 +42,8 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0, g: 0.7033019, b: 1, a: 0}
-  m_Intensity: 1
+  m_Color: {r: 0, g: 0.6774044, b: 1, a: 0}
+  m_Intensity: 0.15
   m_Range: 3
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 3242776074887003695}
   - component: {fileID: 2028059684323547835}
   - component: {fileID: 6705323070218115062}
+  - component: {fileID: 343611354247924760}
   m_Layer: 0
   m_Name: crazyflie
   m_TagString: Untagged
@@ -154,7 +155,10 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: b16cd18f599d93b4ab1ccae30d12d9bc, type: 2}
+  - {fileID: -1580535799172915004, guid: db903fb515693c9408618c427932faec, type: 3}
   - {fileID: 2100000, guid: ace2396c35fac4345aaef511036165fa, type: 2}
+  - {fileID: 7490952440742008943, guid: db903fb515693c9408618c427932faec, type: 3}
+  - {fileID: -905690159841262435, guid: db903fb515693c9408618c427932faec, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -188,4 +192,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b2a5db1c9f657645a21d8f53d9d55c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LightColor: {r: 0, g: 0.7033019, b: 1, a: 0}
+  LightColor: {r: 0, g: 0.6774044, b: 1, a: 0}
+--- !u!95 &343611354247924760
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8890571352755033182}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
