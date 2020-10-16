@@ -159,10 +159,10 @@ public class TimelineExporter : MonoBehaviour
         // TODO - Coordinate system conversion
         result.Data = new Vector4
         (
-            keyframeValues["m_LocalPosition.x"],
-            keyframeValues["m_LocalPosition.y"],
-            keyframeValues["m_LocalPosition.z"],
-            0.0f
+             keyframeValues["m_LocalPosition.z"],
+            -keyframeValues["m_LocalPosition.x"],
+             keyframeValues["m_LocalPosition.y"],
+             0.0f
         );
         return result;
     }
@@ -173,13 +173,11 @@ public class TimelineExporter : MonoBehaviour
         result.Action = SequenceAction.Light;
         result.Timestamp = timestamp;
         result.Duration = duration;
-
-        // TODO - [0, 1] -> [0, 255]
         result.Data = new Vector4
         (
-            keyframeValues["LightColor.r"],
-            keyframeValues["LightColor.g"],
-            keyframeValues["LightColor.b"],
+            Mathf.RoundToInt(255 * keyframeValues["LightColor.r"]),
+            Mathf.RoundToInt(255 * keyframeValues["LightColor.g"]),
+            Mathf.RoundToInt(255 * keyframeValues["LightColor.b"]),
             0.0f
         );
         return result;
