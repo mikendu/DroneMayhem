@@ -32,7 +32,7 @@ public class CrazyflieLight : MonoBehaviour
 
 
         m_light.color = LightColor;
-        properties.SetColor("_EmissionColor", 3 * LightColor);
+        properties.SetColor("_EmissionColor", 4 * LightColor);
         m_renderer.SetPropertyBlock(properties);
         
     }

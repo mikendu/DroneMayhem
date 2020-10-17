@@ -17,6 +17,13 @@ import openvr
 import math
 import numpy as np
 
+import json
+from enum import Enum
+
+
+class ActionType(Enum): 
+    MOVE = 0
+    LIGHT = 1
 
 uri = None
 vr = None
@@ -62,9 +69,9 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def setLED(scf, r, g, b, time): 
-    cf = scf.cf
-    cf.param.set_value('ring.fadeTime', str(max(time, 0.01)))
+def setLED(cf, r, g, b, time): 
+    print("Fading lights to (" + str(r) + ", " + str(g) + ", " + str(b) + ") over " + str(time) + " seconds")
+    cf.param.set_value('ring.fadeTime', str(time))
     color = (int(r) << 16) | (int(g) << 8) | int(b)
     cf.param.set_value('ring.fadeColor', str(color))
 
@@ -124,80 +131,83 @@ def writeBaseStationData(cf, baseOne, baseTwo):
         time.sleep(0.01)
 
 
-def mainLoop(scf = None):    
-    """
+def getInitialState(desiredActionType):
+    for keyframe in sequence['Keyframes']:
+        for action in keyframe['Actions']:
+            actionType = ActionType(action['ActionType'])
+            if (actionType == desiredActionType):
+                data = action['Data']
+                x, y, z = [data[key] for key in ('x', 'y','z')]
+                return x, y, z
+
+    raise ValueError("Initial state not found for action type: " + str(desiredActionType))
+    
+
+
+def applyInitialState(cf):   
+    cf.param.set_value('ring.effect', '14')
+    r, g, b = getInitialState(ActionType.LIGHT)
+    x, y, z = getInitialState(ActionType.MOVE)
+    setLED(cf, r, g, b, 4.0)
+
+    height = min(z + 1.0, 1.5)
+    commander = cf.high_level_commander    
+    commander.takeoff(height, 4.0)
+    time.sleep(4.0)
+
+    commander.go_to(x, y, height, 0.0, 4.0)
+    time.sleep(4.0)
+
+    commander.go_to(x, y, z, 0.0, 4.0)
+    time.sleep(4.0)
+
+
+def runAction(cf, action):    
+    actionType = ActionType(action['ActionType'])
+    duration = action['Duration']
+    if (duration == 0):
+        return 0
+
+    data = action['Data']
+    x, y, z = [data[key] for key in ('x', 'y','z')]
+
+    if (actionType == ActionType.MOVE):
+        commander = cf.high_level_commander    
+        commander.go_to(x, y, z, 0.0, duration)
+
+    elif (actionType == ActionType.LIGHT):
+        setLED(cf, x, y, z, duration)
+
+    return duration
+
+def landDrone(cf):    
+    commander = cf.high_level_commander
+    commander.land(0.05, 4.0)
+    time.sleep(4.0)
+
+    commander.stop()
+
+def mainLoop(scf = None):  
     if (scf is None):
         print("No crazyflie connection provided, exiting.")
         exit(0)
 
     cf = scf.cf
     updateBaseStations(cf)
-    #commander = cf.high_level_commander"""
+    applyInitialState(cf)    
 
-    setLED(scf, 0, 0, 0, 0.0)
-    print("First red")
-    setLED(scf, 255, 0, 0, 1.0)
-    time.sleep(1.0)
-    
-    print("First green")
-    setLED(scf, 0, 255, 0, 1.0)
-    time.sleep(1.0)
+    for keyframe in sequence['Keyframes']:
 
-    setLED(scf, 0, 0, 255, 1.0)
-    time.sleep(1.0)
+        actions = keyframe['Actions']
+        sleepDuration = 1000
+        for action in actions:
+            duration = runAction(cf, action)
+            sleepDuration = min(sleepDuration, duration)
 
-    setLED(scf, 255, 255, 255, 1.0)
-    time.sleep(1.0)
+        if (sleepDuration > 0):
+            time.sleep(sleepDuration)
 
-    setLED(scf, 255, 0, 0, 0.0)
-    time.sleep(0.1)
-
-    setLED(scf, 0, 0, 0, 0.0)
-    time.sleep(0.1)
-
-    setLED(scf, 255, 0, 0, 0.0)
-    time.sleep(0.1)
-
-    setLED(scf, 0, 0, 0, 0.0)
-    time.sleep(0.1)
-    
-    """
-    commander.takeoff(1.0, 3.0)
-    time.sleep(3.0)
-
-
-
-    commander.go_to(0.0, 0.0, 0.2, 0.0, 3.0)
-    time.sleep(3.0)
-
-    commander.go_to(0.0, 0.0, 1.5, 0.0, 3.0)
-    time.sleep(3.0)
-
-
-
-    commander.go_to(1.0, 0.0, 1.5, 0.0, 3.0)
-    time.sleep(3.0)
-
-    commander.go_to(0.0, 0.0, 1.5, 0.0, 3.0)
-    time.sleep(3.0)
-
-
-
-
-    commander.go_to(0.0, 1.0, 1.5, 0.0, 3.0)
-    time.sleep(3.0)
-
-    commander.go_to(0.0, 0.0, 1.5, 0.0, 3.0)
-    time.sleep(3.0)
-
-
-
-
-    commander.go_to(0.0, 0.0, 0.2, 0.0, 3.0)
-    time.sleep(3.0)
-
-    commander.land(0.05, 3.0)"""
-    #commander.stop()
+    landDrone(cf)
 
 
 
@@ -275,6 +285,12 @@ def startPrinting(scf):
 
 
 
+sequence = None
+with open('./Sequences/Test Sequence.json') as jsonFile:
+    sequenceCollection = json.load(jsonFile)
+    sequences = sequenceCollection['Sequences']
+    sequence = sequences[0]
+
 
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -290,7 +306,7 @@ with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     cf.param.set_value('commander.enHighLevel', '1')    
     cf.param.set_value('ring.effect', '14')
 
-    #updateBaseStations(cf)
-    #resetEstimator(scf)
+    updateBaseStations(cf)
+    resetEstimator(scf)
     mainLoop(scf)
     

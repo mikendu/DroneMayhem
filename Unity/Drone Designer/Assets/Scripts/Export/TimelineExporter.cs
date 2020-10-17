@@ -6,36 +6,53 @@ using System.Linq;
 using UnityEditor;
 using System;
 
-public enum SequenceAction
+public enum SequenceActionType
 {
-    Move,
-    Light
+    Move = 0,
+    Light = 1
 }
 
 [Serializable]
-public struct SequenceStep
+public struct SequenceAction
 {
-    public SequenceAction Action;
-    public float Timestamp;
+    public SequenceActionType ActionType;
     public float Duration;
     public Vector4 Data;
 
     public override string ToString()
     {
-        return $"{Action} | {Timestamp.ToString("N2")} | {Duration.ToString("N2")} | {Data}";
+        return $"{ActionType} | {Duration.ToString("N2")} | {Data}";
     }
 }
 
 [Serializable]
-public class SequenceWrapper
+public class SequenceKeyframe
 {
-    public List<SequenceStep> Sequence = new List<SequenceStep>();
+    public float Timestamp;
+    public List<SequenceAction> Actions = new List<SequenceAction>();
+
+    public SequenceKeyframe(float timestamp)
+    {
+        this.Timestamp = timestamp;
+    }
+
+
+    public override string ToString()
+    {
+        return $"Keyframe [{Timestamp.ToString("N2")}]n\t- {string.Join("\n\t- ", Actions)}";
+    }
+}
+
+[Serializable]
+public class Sequence
+{
+    public List<SequenceKeyframe> Keyframes = new List<SequenceKeyframe>();
 }
 
 [Serializable]
 public class SequenceCollection
 {
-    public List<SequenceWrapper> Sequences = new List<SequenceWrapper>();
+    public List<Sequence> Sequences = new List<Sequence>();
 }
 
 
@@ -52,11 +69,11 @@ public class TimelineExporter : MonoBehaviour
             {
                 AnimationTrack animationTrack = track as AnimationTrack;
                 Vector3 positionOffset = animationTrack.position;
-                SequenceWrapper sequenceWrapper = new SequenceWrapper();
-                sequenceWrapper.Sequence.AddRange(animationTrack.GetClips().SelectMany(ExtractSteps));
-                sequenceWrapper.Sequence.AddRange(ExtractSteps(animationTrack.infiniteClip));
-                sequenceWrapper.Sequence.Sort((x, y) => x.Timestamp.CompareTo(y.Timestamp));
-                sequenceCollection.Sequences.Add(sequenceWrapper);
+                Sequence sequence = new Sequence();
+                sequence.Keyframes.AddRange(animationTrack.GetClips().SelectMany(ExtractKeyframes));
+                sequence.Keyframes.AddRange(ExtractKeyframes(animationTrack.infiniteClip));
+                sequence.Keyframes.Sort((x, y) => x.Timestamp.CompareTo(y.Timestamp));
+                sequenceCollection.Sequences.Add(sequence);
             }
         }
         
@@ -64,14 +81,14 @@ public class TimelineExporter : MonoBehaviour
         return jsonText;
     }
 
-    public static IEnumerable<SequenceStep> ExtractSteps(TimelineClip clip)
+    public static IEnumerable<SequenceKeyframe> ExtractKeyframes(TimelineClip clip)
     {
-        return ExtractSteps(clip.animationClip, clip.start, clip.timeScale);
+        return ExtractKeyframes(clip.animationClip, clip.start, clip.timeScale);
     }
 
-    public static IEnumerable<SequenceStep> ExtractSteps(AnimationClip clip, double startTime = 0.0, double timeScale = 1.0)
+    public static IEnumerable<SequenceKeyframe> ExtractKeyframes(AnimationClip clip, double startTime = 0.0, double timeScale = 1.0)
     {
-        List<SequenceStep> results = new List<SequenceStep>();
+        List<SequenceKeyframe> results = new List<SequenceKeyframe>();
         if (clip != null)
         {
             EditorCurveBinding[] curveBindings = AnimationUtility.GetCurveBindings(clip);
@@ -86,22 +103,28 @@ public class TimelineExporter : MonoBehaviour
         return results;
     }
 
-    private static void  ConvertKeyframes(Dictionary<float, Dictionary<string, float>> keyframes, List<SequenceStep> sequence, float clipStart, float clipSpeed)
+    private static void  ConvertKeyframes(Dictionary<float, Dictionary<string, float>> unityKeyframes, List<SequenceKeyframe> sequenceKeyframes, float clipStart, float clipSpeed)
     {
         float previousTime = Mathf.Max(clipStart, 0.0f);
-        foreach(float timestamp in keyframes.Keys)
+        List<float> sortedTimestamps = new List<float>(unityKeyframes.Keys);
+        sortedTimestamps.Sort();
+
+        foreach(float timestamp in sortedTimestamps)
         {
-            Dictionary<string, float> timestampValues = keyframes[timestamp];
+            Dictionary<string, float> timestampValues = unityKeyframes[timestamp];
             float realTimestamp = clipStart + (timestamp / clipSpeed);
             float duration = realTimestamp - previousTime;
+
+            SequenceKeyframe keyframe = new SequenceKeyframe(realTimestamp);
             
             if (HasMoveKeyframe(timestampValues))
-                sequence.Add(GetMoveStep(timestampValues, realTimestamp, duration));
+                keyframe.Actions.Add(GetMoveStep(timestampValues, duration));
 
             if (HasLightKeyframe(timestampValues))
-                sequence.Add(GetLightStep(timestampValues, realTimestamp, duration));
+                keyframe.Actions.Add(GetLightStep(timestampValues, duration));
 
             previousTime = realTimestamp;
+            sequenceKeyframes.Add(keyframe);
         }
     }
 
@@ -149,14 +172,11 @@ public class TimelineExporter : MonoBehaviour
         return keyframeValues.Keys.Any(propertyName => propertyName.Contains("LightColor"));
     }
 
-    private static SequenceStep GetMoveStep(Dictionary<string, float> keyframeValues, float timestamp, float duration)
+    private static SequenceAction GetMoveStep(Dictionary<string, float> keyframeValues, float duration)
     {
-        SequenceStep result = new SequenceStep();
-        result.Action = SequenceAction.Move;
-        result.Timestamp = timestamp;
+        SequenceAction result = new SequenceAction();
+        result.ActionType = SequenceActionType.Move;
         result.Duration = duration;
-
-        // TODO - Coordinate system conversion
         result.Data = new Vector4
         (
              keyframeValues["m_LocalPosition.z"],
@@ -167,11 +187,10 @@ public class TimelineExporter : MonoBehaviour
         return result;
     }
 
-    private static SequenceStep GetLightStep(Dictionary<string, float> keyframeValues, float timestamp, float duration)
+    private static SequenceAction GetLightStep(Dictionary<string, float> keyframeValues, float duration)
     {
-        SequenceStep result = new SequenceStep();
-        result.Action = SequenceAction.Light;
-        result.Timestamp = timestamp;
+        SequenceAction result = new SequenceAction();
+        result.ActionType = SequenceActionType.Light;
         result.Duration = duration;
         result.Data = new Vector4
         (
