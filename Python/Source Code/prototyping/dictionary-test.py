@@ -21,7 +21,7 @@ def getInitialState(desiredActionType):
 
 
 sequence = None
-with open('./Sequences/Test Sequence.json') as jsonFile:
+with open('../../Sequences/Test Sequence.json') as jsonFile:
     sequenceCollection = json.load(jsonFile)
     sequences = sequenceCollection['Sequences']
     sequence = sequences[0]
