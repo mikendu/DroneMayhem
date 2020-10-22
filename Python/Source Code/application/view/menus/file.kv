@@ -1,0 +1,46 @@
+#:kivy 1.11.1
+#:import utils kivy.utils
+
+<FileMenu>:
+    canvas:
+        Color:
+            rgb: utils.get_color_from_hex('#3b3b3b')
+        Rectangle:
+            pos: 0, 0
+            size: self.width, self.height
+
+    Image:
+        source: './resources/images/app_icon_small.png'
+        size_hint: (None, 1.0)
+        size: 16, 16
+        x: 10.0
+
+    Button:
+        text: 'File'
+        size_hint: (None, 1.0)
+        width: 100
+        x: 36.0
+
+    Label:
+        text: 'Drone Manager'
+        pos_hint: { 'center_x': 0.5 }
+        bold: True
+    
+    Button:
+        text: 'Minimize'
+        size_hint: (None, 1.0)
+        width: 100
+        right: self.parent.right - 200
+    
+    Button:
+        text: 'Maximize'
+        size_hint: (None, 1.0)
+        width: 100
+        right: self.parent.right - 100
+    
+    Button:
+        text: 'Exit'
+        size_hint: (None, 1.0)
+        width: 100
+        right: self.parent.right
+    

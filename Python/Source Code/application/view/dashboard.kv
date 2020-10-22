@@ -2,10 +2,18 @@
 #:import utils kivy.utils
 
 <Dashboard>:
+    menu: fileMenu
+
     canvas:
         Color: 
-            rgb: utils.get_color_from_hex('#3b3b3b')
+            rgb: utils.get_color_from_hex('#292929')
         Rectangle:
-            pos: self.pos
-            size: self.size
+            pos: 0, 0
+            size: root.width, root.height
+
+    FileMenu:
+        id: fileMenu
+        pos: 0, root.top - 30
+        size: root.width, 30
+
     
