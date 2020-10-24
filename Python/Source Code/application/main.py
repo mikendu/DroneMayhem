@@ -1,34 +1,42 @@
-import kivy
-from kivy.app import App
-from kivy.core.window import Window
-from kivy.config import Config
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
-from view.dashboard import Dashboard
+from view import *
+from model import *
+from controllers import *
 
-# Setup
-fontDefinition = [
-    'Montserrat', 
-    './resources/fonts/Montserrat/Montserrat-Light.ttf',
-    './resources/fonts/Montserrat/Montserrat-LightItalic.ttf',
-    './resources/fonts/Montserrat/Montserrat-Regular.ttf',
-    './resources/fonts/Montserrat/Montserrat-Italic.ttf'
-]
+# Subclass QMainWindow to customise your application's main window
+class MainWindow(QMainWindow):
 
-kivy.require('1.11.1')
-Config.set('graphics', 'borderless', 1)
-Config.set('graphics', 'position', 'auto')
-Config.set('graphics', 'top', '1920')
-Config.set('graphics', 'left', '1080')
-Config.set('kivy', 'default_font', fontDefinition)
-Config.write()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setWindowTitle("Swarm Controller")  
+        self.setWindowIcon(QIcon('./application/resources/images/icon_black.png'))       
+
+        self.initializeControllers()
+        menuBar = FileMenu(self.manager)
+        dashboard = MainDashboard(self.manager)
+        statusBar = QStatusBar()
+        
+        self.setMenuBar(menuBar)
+        self.setCentralWidget(dashboard)
+        self.setStatusBar(statusBar)
+
+    def initializeControllers(self):
+        sequenceController = SequenceController()
+        appSettings = AppSettings()
+        print("Sequences: ", appSettings.getSequences())
+        self.manager = SwarmManager(sequenceController, appSettings)
+        
 
 
-class DroneManager(App):
-    def build(self):
-        self.title = 'Drone Manager'
-        self.icon = './resources/images/app_icon_small.png'
-        return Dashboard()
+app = QApplication(sys.argv)
+app.setStyleSheet(open('./application/css/main.css').read())
 
-
-if __name__ == '__main__':
-    DroneManager().run()
+window = MainWindow()
+window.resize(1920, 1080)
+window.show()
+app.exec_()
