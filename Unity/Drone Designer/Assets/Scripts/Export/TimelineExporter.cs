@@ -53,6 +53,8 @@ public class Sequence
 public class SequenceCollection
 {
     public List<Sequence> Sequences = new List<Sequence>();
+    public float TotalSeconds;
+    public int Tracks;
 }
 
 
@@ -76,7 +78,9 @@ public class TimelineExporter : MonoBehaviour
                 sequenceCollection.Sequences.Add(sequence);
             }
         }
-        
+
+        sequenceCollection.TotalSeconds = (float)timeline.duration;
+        sequenceCollection.Tracks = sequenceCollection.Sequences.Count;
         string jsonText = JsonUtility.ToJson(sequenceCollection, true);
         return jsonText;
     }

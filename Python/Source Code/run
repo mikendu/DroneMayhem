@@ -5,4 +5,5 @@ winPy=C:/Users/Michael/AppData/Local/Programs/Python/Python39/python.exe
 
 # clear && $winPy ./prototyping/goto-test.py 
 clear && $winPy ./application/main.py
+# clear && $winPy ./application/main.py -platform windows:dpiawareness=0
  

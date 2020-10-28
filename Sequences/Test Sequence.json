@@ -329,5 +329,7 @@
                 }
             ]
         }
-    ]
+    ],
+    "TotalSeconds": 20.0,
+    "Tracks": 1
 }

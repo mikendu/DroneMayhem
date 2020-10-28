@@ -14,6 +14,7 @@ class AppSettings():
     def loadSequences(self):
         self.sequences = self.settings.value('recentSequences', [], str)
         #self.sequences = filter(lambda file: path.exists(file), self.sequences)
+        del self.sequences[10:] 
         self.settings.setValue('recentSequences', self.sequences)
 
 
@@ -22,11 +23,4 @@ class AppSettings():
 
     def setFlag(self, key, value):
         self.settings.setValue(key, value)
-
-    def getSequences(self):
-        return self.sequences
-
-    def addSequence(self, file):
-        if not file in self.sequences:
-            self.sequences.insert(0, file)
 

@@ -1,3 +1,7 @@
+* { 
+    font-family: 'Segoe UI'; 
+    color: #b1b1b1;
+}
 
 /* ---------- STATUS BAR ---------- */
 QMainWindow {
@@ -13,7 +17,6 @@ QStatusBar {
 /* ---------- MENU / TITLE BAR ---------- */
 QMenuBar { 
     background: #363636; 
-    color: #b1b1b1;
 }
 QMenuBar::item {
     background: #363636;
@@ -26,7 +29,6 @@ QMenuBar::item:pressed { background: #4b4b4b; color: #ffffff; }
 QMenu { padding: 0; margin: 0; }
 QMenu::item {
     background: #252525;
-    color: #b1b1b1;
     padding: 10px 30px;
 }
 QMenu::item:selected {
@@ -42,5 +44,70 @@ QMenu::separator {
 
 /* ---------- MAIN PAGE ---------- */
 
-MainDashboard {
+RecentPanel {
+    background: #101010;
 }
+
+SequencePanel { 
+    background: #2B2B2B; 
+}
+SettingsPanel { 
+    background: #1A1A1A; 
+}
+
+#LowerHalf {
+    /*border-top: 1px solid #4B4A4A; */
+}
+
+
+QLabel.titleText {
+    background: transparent;
+    font-size: 20px;
+    padding-left: 20px;
+    border-bottom: 1px solid #4B4A4A; 
+    max-height: 65px;
+    min-height: 65px;
+    color: white;
+}
+
+QLabel.boldText {
+    font-weight: bold;
+}
+
+QLabel.italicText {
+    font-style: italic;
+}
+
+QScrollArea {
+    background: transparent;
+    border: none;
+}
+
+#SequenceHolder {
+    background: #101010;
+}
+
+QFrame.sequenceCard {
+    background: #222222;
+    min-height: 120px;
+    border-bottom: 1px solid #303030;
+    border-top: 1px solid #303030;
+    /*padding: 10px 0px 10px 30px;*/
+}
+
+QFrame.sequenceCard QLabel {
+    font-size: 15px;
+    padding: 3px 0px;
+    margin: 0px 0px;
+}
+QFrame.sequenceCard QLabel.locationLabel {
+    color: #737373;
+}
+.sequenceButton {
+    width: 100px;
+    background: #292929;
+    color: white;
+    border: none;
+}
+.sequenceButton:hover { background: #5a5a5a; }
+.sequenceButton:pressed { background: #3a3a3a; }
