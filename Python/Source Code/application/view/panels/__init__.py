@@ -1,3 +1,4 @@
-from .recents import *
-from .sequence import *
-from .settings import *
+from .recentsPanel import *
+from .sequencePanel import *
+from .swarmPanel import *
+from .baseStationPanel import *

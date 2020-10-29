@@ -12,30 +12,19 @@ class MainDashboard(QFrame):
         super().__init__(*args, **kwargs)
         self.manager = manager
         
-        layout = createLayout(LayoutType.VERTICAL, self)
-        layout.addWidget(self.createUpperHalf(), 50)
-        layout.addWidget(self.createLowerHalf(), 50)
-
-
-    def createUpperHalf(self):
-        frame = QFrame(self)
-        layout = createLayout(LayoutType.HORIZONTAL, frame)
-
+        layout = createLayout(LayoutType.HORIZONTAL, self)
+        
         self.recentPanel = RecentPanel(self.manager)
-        layout.addWidget(self.recentPanel, 20)
+        self.baseStations = BaseStationPanel(self.manager)
+        leftLayout = createLayout(LayoutType.VERTICAL)
+        leftLayout.addWidget(self.recentPanel)
+        leftLayout.addWidget(self.baseStations)
+        layout.addLayout(leftLayout, 20)
 
         self.sequencePanel = SequencePanel(self.manager)
-        layout.addWidget(self.sequencePanel, 60)
+        layout.addWidget(self.sequencePanel, 40)
 
-        self.settingsPanel = SettingsPanel(self.manager)
-        layout.addWidget(self.settingsPanel, 20)
+        self.swarmPanel = SwarmPanel(self.manager)
+        layout.addWidget(self.swarmPanel, 40)
 
-        frame.setObjectName("UpperHalf")
-        return frame
-
-    def createLowerHalf(self):
-        frame = QFrame(self)
-        layout = createLayout(LayoutType.HORIZONTAL, frame)        
-        frame.setObjectName("LowerHalf")
-        return frame
 

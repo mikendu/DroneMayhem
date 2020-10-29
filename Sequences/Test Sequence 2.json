@@ -1,0 +1,335 @@
+{
+    "Sequences": [
+        {
+            "Keyframes": [
+                {
+                    "Timestamp": 0.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 0.0,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.20000000298023225,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.0,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 2.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 2.0,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.699999988079071,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 2.0,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 155.0,
+                                "z": 255.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 4.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 2.0,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.20000000298023225,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 2.0,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 4.5,
+                    "Actions": [
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.5,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 4.583333492279053,
+                    "Actions": [
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.08333349227905274,
+                            "Data": {
+                                "x": 255.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 4.666666507720947,
+                    "Actions": [
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.08333301544189453,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 4.75,
+                    "Actions": [
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.08333349227905274,
+                            "Data": {
+                                "x": 255.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 4.833333492279053,
+                    "Actions": [
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.08333349227905274,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 5.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 0.16666650772094727,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.20000000298023225,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 0.16666650772094727,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 7.5,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": -0.5,
+                                "y": 0.0,
+                                "z": 0.20000000298023225,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 171.0,
+                                "y": 126.0,
+                                "z": 255.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 9.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 1.5,
+                            "Data": {
+                                "x": 2.3841860752327195e-7,
+                                "y": -0.5,
+                                "z": 0.5,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 1.5,
+                            "Data": {
+                                "x": 241.0,
+                                "y": 80.0,
+                                "z": 212.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 11.5,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 0.5,
+                                "y": 0.0,
+                                "z": 1.0,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 255.0,
+                                "y": 116.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 14.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.5,
+                                "z": 1.5,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 57.0,
+                                "y": 255.0,
+                                "z": 127.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 16.5,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 1.5,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 2.5,
+                            "Data": {
+                                "x": 255.0,
+                                "y": 255.0,
+                                "z": 255.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Timestamp": 20.0,
+                    "Actions": [
+                        {
+                            "ActionType": 0,
+                            "Duration": 3.5,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.20000000298023225,
+                                "w": 0.0
+                            }
+                        },
+                        {
+                            "ActionType": 1,
+                            "Duration": 3.5,
+                            "Data": {
+                                "x": 0.0,
+                                "y": 0.0,
+                                "z": 0.0,
+                                "w": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "TotalSeconds": 20.0,
+    "Tracks": 1
+}

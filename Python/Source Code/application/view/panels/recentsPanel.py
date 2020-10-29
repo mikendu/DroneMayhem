@@ -40,7 +40,7 @@ class SequenceCard(QFrame):
         button.setCursor(Qt.PointingHandCursor)
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         button.setIcon(QIcon("./application/resources/images/right.png"))
-        button.setStatusTip("Load Sequence")
+        button.setStatusTip("Select \"" + sequence.name + "\"")
         button.clicked.connect(self.onClick)
 
         outerLayout.addStretch(1)
@@ -59,6 +59,7 @@ class RecentPanel(QFrame):
         
         self.layout = createLayout(LayoutType.VERTICAL, self)
         self.refreshList()
+        self.manager.sequenceLoaded.connect(self.refreshList)
 
 
     def refreshList(self):

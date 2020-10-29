@@ -18,31 +18,42 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Swarm Controller")  
         self.setWindowIcon(QIcon('./application/resources/images/icon_black.png'))       
 
-        self.initializeControllers()
-        menuBar = FileMenu(self.manager)
+        self.initializeController()
+        menuBar = FileMenu(self.manager, self)
         dashboard = MainDashboard(self.manager)
         statusBar = QStatusBar()
+        statusBar.messageChanged.connect(self.onStatusMessageChange)
         
         self.setMenuBar(menuBar)
         self.setCentralWidget(dashboard)
         self.setStatusBar(statusBar)
         self.setupWindow()
 
-    def initializeControllers(self):
-        sequenceController = SequenceController()
+
+    def onStatusMessageChange(self, message):
+        self.statusBar().setProperty("class", [])
+        self.statusBar().style().polish(self.statusBar())
+
+    def showStatusMessage(self, message, timeout = 3000):
+        self.statusBar().showMessage(message, timeout)
+        self.statusBar().setProperty("class", "highlighted")
+        self.statusBar().style().polish(self.statusBar())
+
+    def initializeController(self):
         appSettings = AppSettings()
-        self.manager = SwarmManager(sequenceController, appSettings)
+        self.manager = ApplicationManager(appSettings)
 
 
     def setupWindow(self):       
-        settings = self.manager.appSettings.settings       
-        if not settings.value("windowGeometry") == None and not RESET_WINDOW_GEOMETRY: 
-            self.restoreGeometry(settings.value("windowGeometry"))
+        self.setMinimumSize(1600, 900)
+        settings = self.manager.appSettings     
+        if not settings.getValue("windowGeometry") == None and not RESET_WINDOW_GEOMETRY: 
+            self.restoreGeometry(settings.getValue("windowGeometry"))
         else:
             self.resize(1920, 1080)
 
     def closeEvent(self, event):
-        settings = self.manager.appSettings.settings
+        settings = self.manager.appSettings
         settings.setValue("windowGeometry", self.saveGeometry())
         super().closeEvent(event)
         

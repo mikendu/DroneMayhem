@@ -1,2 +1,1 @@
-from .sequenceController import *
-from .swarmManager import *
+from .applicationManager import *

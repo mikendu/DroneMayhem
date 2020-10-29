@@ -1,20 +1,24 @@
 import sys 
+from os import path
+from pathlib import Path
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtSvg import *
 
+from util import *
 
 class FileMenu(QMenuBar):
 
     fileMenu = None
     manager = None
 
-    def __init__(self, manager, *args, **kwargs):
+    def __init__(self, manager, mainWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.mainWindow = mainWindow
         self.manager = manager
         self.setupMenus()
+        
 
     def setupMenus(self):
         quitAction = QAction("&Exit", self)
@@ -33,7 +37,27 @@ class FileMenu(QMenuBar):
         self.fileMenu.addAction(quitAction)
 
     def openSequence(self):
-        print("----- TEST ------")
+        if self.manager.sequencePlaying:
+            self.mainWindow.showStatusMessage("Cannot open file while a sequence is playing.")
+            return
+
+        dialogLocation = './'
+        savedLocation = self.manager.appSettings.getValue("openFileLocation", None, str)
+        if savedLocation is not None and path.exists(savedLocation):
+            dialogLocation = savedLocation
+
+        fileInfo = QFileDialog.getOpenFileName(self, 'Open Sequence File', dialogLocation, "Sequence files (*.json)")
+        selectedFile = fileInfo[0]
+
+        if selectedFile:
+            pathObject = Path(selectedFile)
+            containingDirectory = pathObject.parent
+            self.manager.appSettings.setValue("openFileLocation", str(containingDirectory))
+            if self.manager.openSequence(selectedFile):
+                pass
+            else:
+                self.mainWindow.showStatusMessage("ERROR - Could not load sequence file!")
+
 
 
     def exit(self):

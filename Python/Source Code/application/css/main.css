@@ -1,6 +1,7 @@
 * { 
     font-family: 'Segoe UI'; 
     color: #b1b1b1;
+    font-size: 15px;
 }
 
 /* ---------- STATUS BAR ---------- */
@@ -12,6 +13,11 @@ QStatusBar {
     background: #363636;
     color: #aaaaaa;
     min-height: 40px;
+}
+QStatusBar.highlighted {
+    background: #cfcfcf;
+    color: #000000;
+    font-weight: bold;
 }
 
 /* ---------- MENU / TITLE BAR ---------- */
@@ -42,23 +48,13 @@ QMenu::separator {
 
 
 
-/* ---------- MAIN PAGE ---------- */
+/* ---------- MAIN PAGE: RECENT SEQUENCES ---------- */
 
 RecentPanel {
     background: #101010;
+    padding-right: 1px;
+    border-right: 1px solid #4B4A4A;
 }
-
-SequencePanel { 
-    background: #2B2B2B; 
-}
-SettingsPanel { 
-    background: #1A1A1A; 
-}
-
-#LowerHalf {
-    /*border-top: 1px solid #4B4A4A; */
-}
-
 
 QLabel.titleText {
     background: transparent;
@@ -111,3 +107,43 @@ QFrame.sequenceCard QLabel.locationLabel {
 }
 .sequenceButton:hover { background: #5a5a5a; }
 .sequenceButton:pressed { background: #3a3a3a; }
+
+
+/* ---------- MAIN PAGE: BASE STATIONS ---------- */
+BaseStationPanel { 
+    border-right: 1px solid #4B4A4A;
+}
+
+BaseStationDisplay {
+    background: #1F1F1F;
+    border-top: 1px solid #333333;
+}
+BaseStationDisplay > QLabel {
+    padding: 25px;
+    color: rgb(180, 180, 180);
+    font-size: 17px;
+}
+
+.baseStationIndicator {
+    background: #a83116;
+    max-width: 30px;
+}
+
+.baseStationIndicator.connected {
+    background: #16a81b;
+}
+
+
+/* ---------- MAIN PAGE: SEQUENCE RUNNER ---------- */
+
+
+SequencePanel { 
+    background: #1F1F1F; 
+    border-right: 1px solid #4B4A4A;
+}
+
+
+/* ---------- MAIN PAGE: SWARM ---------- */
+SwarmPanel { 
+    background: #1A1A1A; 
+}
