@@ -11,12 +11,12 @@ from util import *
 class FileMenu(QMenuBar):
 
     fileMenu = None
-    manager = None
+    appController = None
 
-    def __init__(self, manager, mainWindow, *args, **kwargs):
+    def __init__(self, appController, mainWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mainWindow = mainWindow
-        self.manager = manager
+        self.appController = appController
         self.setupMenus()
         
 
@@ -37,12 +37,12 @@ class FileMenu(QMenuBar):
         self.fileMenu.addAction(quitAction)
 
     def openSequence(self):
-        if self.manager.sequencePlaying:
+        if self.appController.sequencePlaying:
             self.mainWindow.showStatusMessage("Cannot open file while a sequence is playing.")
             return
 
         dialogLocation = './'
-        savedLocation = self.manager.appSettings.getValue("openFileLocation", None, str)
+        savedLocation = self.appController.appSettings.getValue("openFileLocation", None, str)
         if savedLocation is not None and path.exists(savedLocation):
             dialogLocation = savedLocation
 
@@ -52,8 +52,8 @@ class FileMenu(QMenuBar):
         if selectedFile:
             pathObject = Path(selectedFile)
             containingDirectory = pathObject.parent
-            self.manager.appSettings.setValue("openFileLocation", str(containingDirectory))
-            if self.manager.openSequence(selectedFile):
+            self.appController.appSettings.setValue("openFileLocation", str(containingDirectory))
+            if self.appController.openSequence(selectedFile):
                 pass
             else:
                 self.mainWindow.showStatusMessage("ERROR - Could not load sequence file!")

@@ -29,8 +29,8 @@ class SequenceController:
     sequences = []
     currentSequence = None
 
-    def __init__(self, manager, settings):
-        self.manager = manager
+    def __init__(self, appController, settings):
+        self.appController = appController
         self.settings = settings
         self.loadSequences()
 

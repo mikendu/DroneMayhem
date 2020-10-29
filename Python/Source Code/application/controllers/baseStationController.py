@@ -36,17 +36,17 @@ class BaseStation():
             raiseError("Got invalid pose for OpenVR device with index: " + str(self.index), OpenVRException)
 
 
-class BaseStationManager():
+class BaseStationController():
 
     baseStations = []
     dataWritten = False
 
-    def __init__(self, manager):
-        self.manager = manager
+    def __init__(self, appController):
+        self.appController = appController
         self.connectToBaseStations()
 
     def connectToBaseStations(self):
-        vrSystem = self.manager.vrSystem
+        vrSystem = self.appController.vrSystem
         for i in range(openvr.k_unMaxTrackedDeviceCount):
             device_class = vrSystem.getTrackedDeviceClass(i)
             if device_class == openvr.TrackedDeviceClass_TrackingReference:

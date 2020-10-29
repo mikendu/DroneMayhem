@@ -28,9 +28,9 @@ class BaseStationDisplay(QFrame):
 
 class BaseStationPanel(QFrame):
     
-    def __init__(self, manager, *args, **kwargs):
+    def __init__(self, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.manager = manager
+        self.appController = appController
         self.stationOne = BaseStationDisplay("Base Station I")
         self.stationTwo = BaseStationDisplay("Base Station II")
 
@@ -42,5 +42,5 @@ class BaseStationPanel(QFrame):
         self.stationTwo.setConnected(self.isBaseStationConnected(1))
 
     def isBaseStationConnected(self, index):
-        baseStations = self.manager.baseStationManager.baseStations
+        baseStations = self.appController.baseStationController.baseStations
         return len(baseStations) > index and baseStations[index] and baseStations[index].initialized

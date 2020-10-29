@@ -19,8 +19,8 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon('./application/resources/images/icon_black.png'))       
 
         self.initializeController()
-        menuBar = FileMenu(self.manager, self)
-        dashboard = MainDashboard(self.manager)
+        menuBar = FileMenu(self.appController, self)
+        dashboard = MainDashboard(self.appController)
         statusBar = QStatusBar()
         statusBar.messageChanged.connect(self.onStatusMessageChange)
         
@@ -41,19 +41,19 @@ class MainWindow(QMainWindow):
 
     def initializeController(self):
         appSettings = AppSettings()
-        self.manager = ApplicationManager(appSettings)
+        self.appController = ApplicationController(self, appSettings)
 
 
     def setupWindow(self):       
         self.setMinimumSize(1600, 900)
-        settings = self.manager.appSettings     
+        settings = self.appController.appSettings     
         if not settings.getValue("windowGeometry") == None and not RESET_WINDOW_GEOMETRY: 
             self.restoreGeometry(settings.getValue("windowGeometry"))
         else:
             self.resize(1920, 1080)
 
     def closeEvent(self, event):
-        settings = self.manager.appSettings
+        settings = self.appController.appSettings
         settings.setValue("windowGeometry", self.saveGeometry())
         super().closeEvent(event)
         

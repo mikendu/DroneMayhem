@@ -4,21 +4,35 @@ from PyQt5.QtCore import *
 
 from model import *
 from .sequenceController import *
-from .baseStationManager import *
+from .baseStationController import *
+from .swarmController import *
 
 
-class ApplicationManager(QObject):
+class ApplicationController(QObject):
     
     sequencePlaying = False
     sequenceLoaded = pyqtSignal()
+    dronesLoaded = pyqtSignal()
 
-    def __init__(self, appSettings):
+    def __init__(self, mainWindow, appSettings):
         super().__init__()
         
         self.sequenceController = SequenceController(self, appSettings)
         self.vrSystem = openvr.init(openvr.VRApplication_Other)
-        self.baseStationManager = BaseStationManager(self)
+        self.baseStationController = BaseStationController(self)
+        self.swarmController = SwarmController(self)
         self.appSettings = appSettings
+        self.mainWindow = mainWindow
+
+        self.scanForDrones()
+
+    def scanForDrones(self):
+        if self.sequencePlaying:
+            self.mainWindow.showStatusMessage("Cannot scan for drones while sequence is playing.")
+            return
+
+        self.swarmController.scan()
+        self.dronesLoaded.emit()
 
     def openSequence(self, file):
         if self.sequenceController.loadSequence(file):

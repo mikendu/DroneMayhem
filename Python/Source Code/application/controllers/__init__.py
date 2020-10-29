@@ -1,1 +1,1 @@
-from .applicationManager import *
+from .applicationController import *

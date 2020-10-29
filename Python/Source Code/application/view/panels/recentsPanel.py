@@ -9,10 +9,10 @@ from ..widgets import *
 
 class SequenceCard(QFrame):
     
-    def __init__(self, sequence, index, manager, *args, **kwargs):
+    def __init__(self, sequence, index, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.index = index
-        self.manager = manager
+        self.appController = appController
 
         self.setProperty("class", "sequenceCard")
         outerLayout = createLayout(LayoutType.HORIZONTAL, self)
@@ -48,49 +48,48 @@ class SequenceCard(QFrame):
 
     def onClick(self):
         print("-- CLICKED:", self.index, "--")
-        # self.manager.loadSequenc(self.index)
+        # self.appController.loadSequenc(self.index)
 
 
 class RecentPanel(QFrame):
     
-    def __init__(self, manager, *args, **kwargs):
+    def __init__(self, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.manager = manager
+        self.appController = appController
         
         self.layout = createLayout(LayoutType.VERTICAL, self)
-        self.refreshList()
-        self.manager.sequenceLoaded.connect(self.refreshList)
-
-
-    def refreshList(self):
-        clearLayout(self.layout)
         self.layout.addWidget(self.createTitle())
-        self.layout.addWidget(self.createCards())
-
+        self.layout.addWidget(self.createCardHolder())
+        self.refreshList()
+        self.appController.sequenceLoaded.connect(self.refreshList)
 
     def createTitle(self):
         title = QLabel("Recent Sequences")
         title.setProperty("class", "titleText")
         return title
 
-
-    def createCards(self):
+    def createCardHolder(self):
         scrollArea = QScrollArea()       
         self.cardList = QFrame()
 
-        layout = createLayout(LayoutType.VERTICAL, self.cardList)
+        self.listLayout = createLayout(LayoutType.VERTICAL, self.cardList)
         self.cardList.setObjectName("SequenceHolder")
 
-        for index, sequence in enumerate(self.manager.sequenceController.sequences):
-            layout.addWidget(SequenceCard(sequence, index, self.manager))
-
-        layout.addStretch(1)
         scrollArea.setWidget(self.cardList)
         scrollArea.setWidgetResizable(True)
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.verticalScrollBar().setSingleStep(10)
-        return scrollArea        
+        return scrollArea    
+
+    def refreshList(self):
+        clearLayout(self.listLayout)
+        for index, sequence in enumerate(self.appController.sequenceController.sequences):
+            self.listLayout.addWidget(SequenceCard(sequence, index, self.appController))
+        
+        self.listLayout.addStretch(1)
+
+      
         
     def resizeEvent(self, event):
         self.cardList.setFixedWidth(event.size().width())

@@ -48,16 +48,10 @@ QMenu::separator {
 
 
 
-/* ---------- MAIN PAGE: RECENT SEQUENCES ---------- */
-
-RecentPanel {
-    background: #101010;
-    padding-right: 1px;
-    border-right: 1px solid #4B4A4A;
-}
+/* ---------- MAIN PAGE: GENERAL ---------- */
 
 QLabel.titleText {
-    background: transparent;
+    background: #000000;
     font-size: 20px;
     padding-left: 20px;
     border-bottom: 1px solid #4B4A4A; 
@@ -74,6 +68,18 @@ QLabel.italicText {
     font-style: italic;
 }
 
+
+
+
+/* ---------- MAIN PAGE: RECENT SEQUENCES ---------- */
+
+
+RecentPanel {
+    background: #101010;
+    padding-right: 1px;
+    border-right: 1px solid #4B4A4A;
+}
+
 QScrollArea {
     background: transparent;
     border: none;
@@ -85,7 +91,7 @@ QScrollArea {
 
 QFrame.sequenceCard {
     background: #222222;
-    min-height: 120px;
+    height: 120px;
     border-bottom: 1px solid #303030;
     border-top: 1px solid #303030;
     /*padding: 10px 0px 10px 30px;*/
@@ -147,3 +153,31 @@ SequencePanel {
 SwarmPanel { 
     background: #1A1A1A; 
 }
+
+#DroneHolder {
+    background: transparent; 
+}
+
+DroneCard {
+    background: #2E2E2E;
+    border-bottom: 1px solid #4B4A4A;
+    border-right: 1px solid #4B4A4A;
+    max-height: 120px;
+    min-height: 120px;
+}
+QLabel.droneName {
+    font-size: 20px;
+    font-weight: bold;
+}
+.droneStatusIndicator { 
+    background: #707070; 
+    min-width: 30px;
+    margin: 0px 0px 1px 0px;
+}
+
+.droneStatusIndicator.idle { background: #bebebe; }
+.droneStatusIndicator.initializing { background: #E2DD52; }
+.droneStatusIndicator.positioning { background: #2d9acc; }
+.droneStatusIndicator.ready { background: #126615; }
+.droneStatusIndicator.in_flight { background: #16a81b; }
+.droneStatusIndicator.landing { background: #cf8e2d; }
