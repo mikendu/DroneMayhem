@@ -5,11 +5,11 @@ from PyQt5.QtCore import *
 from util import *
 
 class BaseStationDisplay(QFrame):
-    indicator = None
-
     def __init__(self, text, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        self.indicator = None
+
         layout = createLayout(LayoutType.HORIZONTAL, self)
         layout.addWidget(QLabel(text))
         layout.addWidget(self.createIndicator())

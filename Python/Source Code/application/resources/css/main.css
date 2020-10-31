@@ -68,7 +68,17 @@ QLabel.italicText {
     font-style: italic;
 }
 
+Spinner {
+}
 
+QMessageBox {
+    background: #4B4A4A;
+}
+QMessageBox QLabel {
+    color: #ffffffff;
+    font-size: 20px;
+    min-width: 250px;
+}
 
 
 /* ---------- MAIN PAGE: RECENT SEQUENCES ---------- */
@@ -162,9 +172,11 @@ DroneCard {
     background: #2E2E2E;
     border-bottom: 1px solid #4B4A4A;
     border-right: 1px solid #4B4A4A;
-    max-height: 120px;
-    min-height: 120px;
+    max-height: 150px;
+    min-height: 150px;
 }
+
+
 QLabel.droneName {
     font-size: 20px;
     font-weight: bold;
@@ -181,3 +193,16 @@ QLabel.droneName {
 .droneStatusIndicator.ready { background: #126615; }
 .droneStatusIndicator.in_flight { background: #16a81b; }
 .droneStatusIndicator.landing { background: #cf8e2d; }
+
+.refreshButton {
+    max-width: 65px;
+    max-height: 65px;
+    color: white;
+    background: black;
+    border: 1px solid #4B4A4A; 
+    border-top: none;
+    border-left: none;    
+}
+
+.refreshButton:hover { background: #303030; }
+.refreshButton:pressed { background: #1f1f1f; }

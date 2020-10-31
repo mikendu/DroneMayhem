@@ -11,5 +11,5 @@ $winPip install cflib
 $winPip install keyboard
 $winPip install openvr
 $winPip install numpy
-$winPy -m pip install docutils pygments pypiwin32 kivy_deps.sdl2==0.3.0 kivy_deps.glew==0.3.0
-$winPy -m pip install kivy==1.11.1
+$winPy -m pip install docutils pygments pypiwin32 PyQt5
+$winPy -m pip install pyqt5ac

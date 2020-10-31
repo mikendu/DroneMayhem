@@ -1,16 +1,18 @@
 from enum import Enum
 
 class DroneState(Enum):
-    IDLE = 0
-    INITIALIZING = 1
-    POSITIONING = 2
-    READY = 3
-    IN_FLIGHT = 4
-    LANDING = 5
+    DISCONNECTED = 0
+    IDLE = 1
+    INITIALIZING = 2
+    POSITIONING = 3
+    READY = 4
+    IN_FLIGHT = 5
+    LANDING = 6
 
 class Drone():
 
-    crazyflie = None
-    address = None
-    swarmIndex = None
-    state = None
+    def __init__(self):
+        self.crazyflie = None
+        self.address = None
+        self.swarmIndex = None
+        self.state = DroneState.DISCONNECTED

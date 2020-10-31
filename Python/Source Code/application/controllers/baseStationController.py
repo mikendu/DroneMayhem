@@ -8,13 +8,11 @@ from util.coordinateUtil import *
 
 class BaseStation():
 
-    index = None
-    positionGeometry = LighthouseBsGeometry()
-    initialized = False
-
     def __init__(self, index, vrSystem):
         self.index = index
         self.vrSystem = vrSystem
+        self.positionGeometry = LighthouseBsGeometry()
+        self.initialized = False
         self.initialize()
 
     def initialize(self):        

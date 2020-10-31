@@ -2,6 +2,7 @@
 
 
 winPy=C:/Users/Michael/AppData/Local/Programs/Python/Python39/python.exe
+pyqt5ac --config ./application/config.yml
 
 # clear && $winPy ./prototyping/goto-test.py 
 clear && $winPy ./application/main.py

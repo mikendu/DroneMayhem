@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/images">
+    <file alias="window_icon.png">resources/images/icon_black.png</file>
+    <file alias="refresh.svg">resources/images/refresh.svg</file>
+    <file alias="refresh_two.svg">resources/images/refresh_two.svg</file>
+    <file alias="right_button.png">resources/images/right.png</file>
+    <file alias="spinner.png">resources/images/spinner.png</file>
+    <file alias="spinner_two.png">resources/images/spinner_2.png</file>
+</qresource>
+<qresource prefix="/stylesheets">
+    <file alias="main.css">resources/css/main.css</file>
+</qresource>
+</RCC>

@@ -10,13 +10,11 @@ from util import *
 
 class FileMenu(QMenuBar):
 
-    fileMenu = None
-    appController = None
-
     def __init__(self, appController, mainWindow, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mainWindow = mainWindow
         self.appController = appController
+        self.fileMenu = None
         self.setupMenus()
         
 
@@ -61,4 +59,4 @@ class FileMenu(QMenuBar):
 
 
     def exit(self):
-        sys.exit()
+        self.mainWindow.close()

@@ -8,6 +8,8 @@ from ..widgets import *
 
 
 class SequenceCard(QFrame):
+
+    ICON = None
     
     def __init__(self, sequence, index, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,11 +37,14 @@ class SequenceCard(QFrame):
         innerLayout.addWidget(locationLabel)
         innerLayout.addStretch(1)
 
+        if not SequenceCard.ICON:
+            SequenceCard.ICON = QIcon(":/images/right_button.png")
+
         button = QPushButton()
         button.setProperty("class", "sequenceButton")
         button.setCursor(Qt.PointingHandCursor)
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        button.setIcon(QIcon("./application/resources/images/right.png"))
+        button.setIcon(SequenceCard.ICON)
         button.setStatusTip("Select \"" + sequence.name + "\"")
         button.clicked.connect(self.onClick)
 
@@ -80,6 +85,7 @@ class RecentPanel(QFrame):
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.verticalScrollBar().setSingleStep(10)
+        QScroller.grabGesture(scrollArea.viewport(), QScroller.LeftMouseButtonGesture)
         return scrollArea    
 
     def refreshList(self):

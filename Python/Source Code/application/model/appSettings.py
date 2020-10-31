@@ -3,11 +3,9 @@ from os import path
 
 class AppSettings():
 
-    settings = None
-    sequences = None
-
     def __init__(self): 
         self.settings = QSettings('DroneMayhem', 'SwarmController')
+        self.sequences = None
         self.loadSequences()
 
 

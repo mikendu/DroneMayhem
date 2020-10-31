@@ -3,9 +3,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+import app_resources
 from view import *
 from model import *
 from controllers import *
+
+from util.threadUtil import *
+from util.dialogUtil import *
 
 RESET_WINDOW_GEOMETRY = False
 
@@ -16,7 +20,7 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
         self.setWindowTitle("Swarm Controller")  
-        self.setWindowIcon(QIcon('./application/resources/images/icon_black.png'))       
+        self.setWindowIcon(QIcon(':/images/window_icon.png'))       
 
         self.initializeController()
         menuBar = FileMenu(self.appController, self)
@@ -52,18 +56,36 @@ class MainWindow(QMainWindow):
         else:
             self.resize(1920, 1080)
 
+        
+
     def closeEvent(self, event):
+        event.ignore()
+        if self.appController.sequencePlaying:
+            self.showStatusMessage("Please stop sequence before exiting!")
+        
+        else:
+            showDialog(self, " ", "Cleaning up & exiting...")
+            QTimer.singleShot(1, self.cleanupAndExit)
+
+    def cleanupAndExit(self):
+        self.appController.cleanup()
         settings = self.appController.appSettings
         settings.setValue("windowGeometry", self.saveGeometry())
-        super().closeEvent(event)
-        
+        QThreadPool.globalInstance().waitForDone()
+        self.teardownFinished = True
+        sys.exit(0)
 
 
 app = QApplication(sys.argv)
-app.setStyleSheet(open('./application/css/main.css').read())
+
+styleSheet = QFile(":/stylesheets/main.css")
+styleSheet.open(QFile.ReadOnly | QFile.Text)
+styleContent = QTextStream(styleSheet).readAll()
+
+app.setStyleSheet(styleContent)
+app.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
 window = MainWindow()
 window.show()
-
 
 app.exec_()

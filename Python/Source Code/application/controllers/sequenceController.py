@@ -26,12 +26,13 @@ class Sequence():
 
 class SequenceController:
 
-    sequences = []
-    currentSequence = None
 
     def __init__(self, appController, settings):
         self.appController = appController
         self.settings = settings
+
+        self.sequences = []
+        self.currentSequence = None
         self.loadSequences()
 
     def loadSequences(self):

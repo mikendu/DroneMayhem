@@ -8,9 +8,15 @@ from util import *
 from model import *
 from ..widgets import *
 
+class EmptyCard(QFrame):
+
+    def __init__(self, index, *args, **kwargs):
+        super().__init__(*args, **kwargs)        
+        self.index = index
+
+
 class DroneCard(QFrame):
 
-    index = None
     def __init__(self, drone, *args, **kwargs):
         super().__init__(*args, **kwargs)        
 
@@ -26,7 +32,7 @@ class DroneCard(QFrame):
 
         innerLayout.addStretch(1)
         innerLayout.addWidget(nameLabel)
-        innerLayout.addWidget(ElidedLabel("Address:  " + drone.address))
+        innerLayout.addWidget(ElidedLabel("URI (Address):  " + drone.address))
         innerLayout.addWidget(self.createStatusLabel())
         innerLayout.addStretch(1)
 
@@ -48,25 +54,25 @@ class DroneCard(QFrame):
 
     def setDroneState(self, drone):
         if drone.state == DroneState.IDLE:
-            self.statusLabel.setText('''Status:  <span style="color:#ffffff">Idle</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#ffffff">IDLE</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "idle"])
         elif drone.state == DroneState.INITIALIZING:
-            self.statusLabel.setText('''Status:  <span style="color:#E2DD52">Initializing</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#E2DD52">INITIALIZING</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])
         elif drone.state == DroneState.POSITIONING:
-            self.statusLabel.setText('''Status:  <span style="color:#29bcff">Positioning</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#29bcff">POSITIONING</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "positioning"])
         elif drone.state == DroneState.READY:
-            self.statusLabel.setText('''Status:  <span style="color:#16a81b">Ready</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#16a81b">READY</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "ready"])
         elif drone.state == DroneState.IN_FLIGHT:
-            self.statusLabel.setText('''Status:  <span style="color:#04ff00">In Flight</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#04ff00">IN FLIGHT</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "in_flight"])
         elif drone.state == DroneState.LANDING:
-            self.statusLabel.setText('''Status:  <span style="color:#e09422">Landing</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#e09422">LANDING</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "landing"])
         else:
-            self.statusLabel.setText('''Status:  <span style="color:#b1b1b1">--</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#b1b1b1">NOT CONNECTED</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator"])
 
 
@@ -77,17 +83,32 @@ class SwarmPanel(QFrame):
         self.appController = appController        
         
         self.layout = createLayout(LayoutType.VERTICAL, self)
-        self.layout.addWidget(self.createTitle())
-        self.layout.addWidget(self.createDroneList())
-        self.refreshList()  
+        self.createTitle()
+        self.createDroneList()
 
-        self.appController.dronesLoaded.connect(self.refreshList) 
+        self.appController.scanStarted.connect(self.clearList) 
+        self.appController.scanFinished.connect(self.updateList) 
+        self.clearList()
 
 
     def createTitle(self):
+        titleLayout = createLayout(LayoutType.HORIZONTAL)
         title = QLabel("Swarm")
         title.setProperty("class", "titleText")
-        return title
+        titleLayout.addWidget(title)        
+
+        refreshButton = QPushButton()
+        refreshButton.setProperty("class", "refreshButton")
+        refreshButton.setCursor(Qt.PointingHandCursor)
+        refreshButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        refreshButton.setIcon(QIcon(":/images/refresh.svg"))
+        refreshButton.setStatusTip("Scan for drones")
+        refreshButton.setIconSize(QSize(25, 25))
+        refreshButton.clicked.connect(self.appController.scanForDrones)
+        titleLayout.addWidget(refreshButton)
+
+
+        self.layout.addLayout(titleLayout)
 
     def createDroneList(self):        
         scrollArea = QScrollArea()       
@@ -101,22 +122,42 @@ class SwarmPanel(QFrame):
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.verticalScrollBar().setSingleStep(10)
-        return scrollArea   
-    
+        QScroller.grabGesture(scrollArea.viewport(), QScroller.LeftMouseButtonGesture)
 
-    def refreshList(self):
+        self.layout.addWidget(scrollArea)
+    
+    def clearList(self):
+        clearLayout(self.listLayout)
+        self.listLayout.addWidget(Spinner(), 0, 0) 
+        self.listLayout.setRowStretch(0, 1)    
+        self.listLayout.setRowStretch(1, 0)   
+
+    def updateList(self):
+        clearLayout(self.listLayout)   
         numColumns = round(self.width() / 300.0)
-        clearLayout(self.listLayout)       
-        for i, drone in enumerate(self.appController.swarmController.drones):
+        droneList = self.appController.swarmController.drones
+        for i, drone in enumerate(droneList):
             row = math.floor(i / numColumns)
             col = i % numColumns
             self.listLayout.addWidget(DroneCard(drone), row, col)
             self.listLayout.setRowStretch(i, 1) 
 
+        # Add "empty" cards if there's only 1 drone
+        if len(droneList) == 1:
+            for i in range(1, 2):
+                row = math.floor(i / numColumns)
+                col = i % numColumns
+                self.listLayout.addWidget(EmptyCard(i), row, col)
+                self.listLayout.setRowStretch(i, 1) 
+
+
     def repositionCards(self):
         numColumns = round(self.width() / 300.0)
         for i in reversed(range(self.listLayout.count())): 
             card = self.listLayout.itemAt(i).widget()
+            if isinstance(card, Spinner):
+                return
+
             index = card.index
             row = math.floor(index / numColumns)
             col = index % numColumns
