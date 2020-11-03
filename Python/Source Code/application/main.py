@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
             self.showStatusMessage("Please stop sequence before exiting!")
         
         else:
-            showDialog(self, " ", "Cleaning up & exiting...")
+            showDialog(" ", "Cleaning up & exiting...", self, False)
             QTimer.singleShot(1, self.cleanupAndExit)
 
     def cleanupAndExit(self):

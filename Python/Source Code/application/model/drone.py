@@ -12,7 +12,8 @@ class DroneState(Enum):
 class Drone():
 
     def __init__(self):
-        self.crazyflie = None
+        self.crazyflie = None # SyncCrazyflie instance
         self.address = None
         self.swarmIndex = None
         self.state = DroneState.DISCONNECTED
+        self.dataWritten = False

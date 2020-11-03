@@ -3,13 +3,21 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
-def showDialog(parentWidget, title, message):
+def showDialog(title, message, parentWidget = None, modal = True, showButton = False):
+
     dialog = QMessageBox(
         QMessageBox.NoIcon, title, message,
         buttons = QMessageBox.NoButton,
         parent = parentWidget)
-    dialog.setStandardButtons(QMessageBox.NoButton)
-    dialog.setWindowModality(Qt.NonModal)
-    dialog.show()
-    return dialog
+
+    if (modal):
+        dialog.setWindowIcon(QIcon(':/images/window_icon.png'))    
+        dialog.exec()
+    else:
+        if not showButton:
+            dialog.setStandardButtons(QMessageBox.NoButton)
+            
+        dialog.setWindowModality(Qt.NonModal)
+        dialog.show()
+        return dialog
     

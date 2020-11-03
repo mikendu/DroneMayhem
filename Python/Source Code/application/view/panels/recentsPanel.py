@@ -52,8 +52,7 @@ class SequenceCard(QFrame):
         outerLayout.addWidget(button)
 
     def onClick(self):
-        print("-- CLICKED:", self.index, "--")
-        # self.appController.loadSequenc(self.index)
+        self.appController.selectSequence(self.index)
 
 
 class RecentPanel(QFrame):
@@ -67,6 +66,7 @@ class RecentPanel(QFrame):
         self.layout.addWidget(self.createCardHolder())
         self.refreshList()
         self.appController.sequenceLoaded.connect(self.refreshList)
+        # self.appController.sequenceSelected.connect(self.refreshList)
 
     def createTitle(self):
         title = QLabel("Recent Sequences")

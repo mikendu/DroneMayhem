@@ -76,9 +76,19 @@ QMessageBox {
 }
 QMessageBox QLabel {
     color: #ffffffff;
-    font-size: 20px;
+    font-size: 15px;
     min-width: 250px;
 }
+QMessageBox QPushButton {
+    color: #ffffffff;
+    background: rgb(22, 22, 22);
+    border: none;
+    min-width: 120px;
+    min-height: 30px;
+}
+QMessageBox QPushButton:hover { background: #303030; }
+QMessageBox QPushButton:pressed { background: #1f1f1f; }
+
 
 
 /* ---------- MAIN PAGE: RECENT SEQUENCES ---------- */
@@ -158,6 +168,93 @@ SequencePanel {
     border-right: 1px solid #4B4A4A;
 }
 
+#StartButton {
+    max-width: 200px;
+    max-height: 65px;
+    color: white;
+    border: 1px solid #4B4A4A; 
+    border-top: none;
+    border-left: none;   
+
+    font-weight: 900;
+    font-size: 20px;
+}
+
+#StartButton.stopped { background: #16a81b; }
+#StartButton.stopped:hover { background: #57c756; }
+#StartButton.stopped:pressed { background: #0ba108; }
+
+#StartButton.running { background: #a83116 }
+#StartButton.running:hover { background: #cc4e32 }
+#StartButton.running:pressed { background: #c02907 }
+
+#StartButton:disabled { background: #949494; }
+
+
+SequenceData {
+    padding: 0px;
+}
+
+SequenceData QLabel {
+    margin: 0px;
+    padding: 0px;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.sequenceTitle {
+    color: white;
+    font-size: 30px;
+}
+
+QProgressBar {
+    border-top: 1px solid #4B4A4A; 
+    border-right: 1px solid #4B4A4A; 
+    background: black;
+    height: 25px;
+}
+
+SequenceLog {
+    background: black;
+    border-top: 1px solid #4B4A4A; 
+    border-right: 1px solid #4B4A4A; 
+}
+
+.sequenceLogTitle {
+    color: white;
+    min-height: 40px;
+    max-height: 40px;
+    background: transparent;
+    font-size: 15px;
+    padding-left: 30px;
+    
+    border: 1px solid #4B4A4A; 
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+#LogHolder {
+    background: black;
+}
+
+LogEntry {
+    background: #262626;
+    max-height: 35px;
+    min-height: 35px;
+    border-bottom: 1px solid #4B4A4A;
+}
+
+LogEntry QLabel {
+    font-family: 'Consolas'; 
+    margin-left: 30px;
+}
+
+.sequenceDroneLabel { max-width: 200px; }
+.timeLabel {
+    max-width: 200px;
+    min-width: 200px;
+}
 
 /* ---------- MAIN PAGE: SWARM ---------- */
 SwarmPanel { 
