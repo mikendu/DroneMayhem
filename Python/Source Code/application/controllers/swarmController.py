@@ -63,7 +63,7 @@ class SwarmController():
         print(errorMessage)
         drone = self.droneMapping[uri]
         drone.state = DroneState.DISCONNECTED
-        self.appController.droneDisconnected.emit()
+        self.appController.droneDisconnected.emit(uri)
         self.appController.sequenceUpdated.emit()
 
         
@@ -131,7 +131,7 @@ def waitForEstimator(syncCrazyflie):
     var_z_history = [1000] * 10
 
     threshold = 0.001
-
+    print("\n\n\n-- WAITING FOR POSITION -- ")
     with SyncLogger(syncCrazyflie, log_config) as logger:
         for log_entry in logger:
             
@@ -152,6 +152,6 @@ def waitForEstimator(syncCrazyflie):
             min_z = min(var_z_history)
             max_z = max(var_z_history)
 
-            # print("{} {} {}".format(max_x - min_x, max_y - min_y, max_z - min_z))
+            
             if (max_x - min_x) < threshold and (max_y - min_y) < threshold and (max_z - min_z) < threshold:
                 break

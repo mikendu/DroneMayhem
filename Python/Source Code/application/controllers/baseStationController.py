@@ -22,16 +22,16 @@ class BaseStation():
         self.initialized = True
 
     def updatePositionMatrix(self):
-        poses = self.vrSystem.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, self.index, self.index)
+        poses = self.vrSystem.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0, self.index)
         
-        if not poses or len(poses) == 0:
+        if not poses or len(poses) < self.index + 1:
             raiseError("Could not get pose for OpenVR device with index: " + str(self.index), OpenVRException)
 
-        pose = poses[0]
+        pose = poses[self.index]
         if pose and pose.bPoseIsValid:
             poseMatrix = pose.mDeviceToAbsoluteTracking
             self.positionGeometry.origin = getPosition(poseMatrix)
-            self.positionGeometry.rotation_matrix = getRotation(poseMatrix)        
+            self.positionGeometry.rotation_matrix = getRotation(poseMatrix)  
         else:
             raiseError("Got invalid pose for OpenVR device with index: " + str(self.index), OpenVRException)
 

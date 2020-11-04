@@ -8,12 +8,13 @@ def runInBackground(function, *args, **kwargs):
     QThreadPool.globalInstance().start(runnable)
 
 
-def interruptibleSleep(duration, interval):
+def interruptibleSleep(duration, interval = 0.25):
     start = time.time()
     elapsed = time.time() - start
 
     while elapsed < duration:
-        time.sleep(interval)
+        sleepTime = max(min(interval, duration - elapsed), 0)
+        time.sleep(sleepTime)
         checkInterrupt()
         elapsed = time.time() - start
 

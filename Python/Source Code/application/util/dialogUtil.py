@@ -3,7 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 
-def showDialog(title, message, parentWidget = None, modal = True, showButton = False):
+def showDialog(title, message, parentWidget = None, modal = True, showButton = True):
 
     dialog = QMessageBox(
         QMessageBox.NoIcon, title, message,

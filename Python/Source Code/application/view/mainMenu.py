@@ -54,7 +54,8 @@ class FileMenu(QMenuBar):
             if self.appController.openSequence(selectedFile):
                 pass
             else:
-                self.mainWindow.showStatusMessage("ERROR - Could not load sequence file!")
+                #self.mainWindow.showStatusMessage("ERROR - Could not load sequence file!")
+                showDialog("Invalid Sequence", "ERROR - Could not load sequence file!", None, True, True)
 
 
 

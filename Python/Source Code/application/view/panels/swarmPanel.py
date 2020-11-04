@@ -123,7 +123,7 @@ class SwarmPanel(QFrame):
         scrollArea.setWidget(self.cardList)
         scrollArea.setWidgetResizable(True)
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scrollArea.verticalScrollBar().setSingleStep(10)
         QScroller.grabGesture(scrollArea.viewport(), QScroller.LeftMouseButtonGesture)
 

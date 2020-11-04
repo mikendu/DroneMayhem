@@ -5,6 +5,7 @@ import time
 
 from util import *
 from ..widgets import *
+import random
 
 
 class SequencePanel(QFrame):
@@ -78,6 +79,7 @@ class SequenceData(QFrame):
         super().__init__(*args, **kwargs)
         self.appController = appController
         self.appController.sequenceSelected.connect(self.onSequenceSelected)
+        self.appController.sequenceUpdated.connect(self.updateProgress)
 
         self.layout = createLayout(LayoutType.VERTICAL, self)
         innerLayout = createLayout(LayoutType.VERTICAL)
@@ -109,13 +111,22 @@ class SequenceData(QFrame):
         return progressBar
 
     def onSequenceSelected(self):
-        sequence = self.appController.sequenceController.currentSequence
+        sequence = self.appController.sequenceController.CURRENT
         if (sequence):
             self.durationString = time.strftime('%M:%S', time.gmtime(sequence.duration))
             self.sequenceTitle.setText(sequence.name)
             self.droneText.setText(str(sequence.drones) + " Drone Sequence")
             self.progressText.setText("00:00 / " + self.durationString)
             self.progressBar.setValue(0)
+
+    def updateProgress(self):
+        
+        timeString = time.strftime('%M:%S', time.gmtime(self.appController.elapsedTime))
+        progress = round(self.appController.sequenceProgress * 1000)
+
+        self.progressText.setText(timeString  + " / " + self.durationString)
+        self.progressBar.setValue(progress)
+
             
 
 
@@ -125,6 +136,10 @@ class SequenceLog(QFrame):
         super().__init__(*args, **kwargs)
         self.appController = appController
         self.appController.sequenceSelected.connect(self.clearLog)
+        self.appController.sequenceStarted.connect(self.clearLog)
+        # self.appController.sequenceFinished.connect(self.clearLog)
+        self.appController.addLogEntry.connect(self.addLogEntry)
+        self.appController.sequenceUpdated.connect(self.scrollBottom)
         
         self.layout = createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
@@ -133,36 +148,42 @@ class SequenceLog(QFrame):
 
     
     def createTitle(self):
-        label = QLabel("Sequence Log")
+        label = QLabel("Action Log")
         label.setProperty("class", "sequenceLogTitle")
         self.layout.addWidget(label)
 
     def createLogPanel(self):
-        scrollArea = QScrollArea()       
+        self.scrollArea = QScrollArea()       
         self.logList = QFrame()
         self.listLayout = createLayout(LayoutType.VERTICAL, self.logList)
         self.listLayout.setAlignment(Qt.AlignTop)
         self.logList.setObjectName("LogHolder")
 
-        scrollArea.setWidget(self.logList)
-        scrollArea.setWidgetResizable(True)
-        scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scrollArea.verticalScrollBar().setSingleStep(10)
-        QScroller.grabGesture(scrollArea.viewport(), QScroller.LeftMouseButtonGesture)
+        self.scrollArea.setWidget(self.logList)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollArea.verticalScrollBar().setSingleStep(10)
+        QScroller.grabGesture(self.scrollArea.viewport(), QScroller.LeftMouseButtonGesture)
 
-        self.layout.addWidget(scrollArea)
+        self.layout.addWidget(self.scrollArea)
 
     def clearLog(self):
         clearLayout(self.listLayout)
         self.logEntries = []
+        self.latestEntry = None
 
-        # TODO - Figure out how to populate log
-        """
-        for i in range(0, 10):
-            entry = LogEntry(i, "FLY TO position (0, 0, 0)", 0.75)
-            self.listLayout.addWidget(entry)
-        """
+    def addLogEntry(self, logData):
+        swarmIndex, actionString, x, y, z, time = logData
+        dataString = "({:4.2f}, {:4.2f}, {:4.2f})".format(x, y, z)
+        entry = LogEntry(swarmIndex, actionString + dataString, time)
+        self.listLayout.addWidget(entry)
+        self.latestEntry = entry
+
+    def scrollBottom(self):
+        if self.latestEntry:
+            self.scrollArea.ensureWidgetVisible(self.latestEntry)
+        
 
 
 

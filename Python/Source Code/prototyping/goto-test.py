@@ -205,11 +205,15 @@ def mainLoop(scf = None):
     updateBaseStations(cf)
     commander = cf.high_level_commander
     
-    
-    commander.takeoff(1.0, 3.0)
+    print('Taking off')
+    commander.takeoff(0.5, 3.0)
+    time.sleep(5.0)
+
+    print('Going to height 0.7')
+    commander.go_to(0.0, 0.0, 0.7, 0.0, 3.0)
     time.sleep(3.0)
 
-
+    """
 
     commander.go_to(0.0, 0.0, 0.2, 0.0, 3.0)
     time.sleep(3.0)
@@ -239,9 +243,13 @@ def mainLoop(scf = None):
 
     commander.go_to(0.0, 0.0, 0.2, 0.0, 3.0)
     time.sleep(3.0)
-
+    """
+    
+    print('Landing')
     commander.land(0.05, 3.0)
+    time.sleep(5.0)
     commander.stop()
+    print('Sequence done!!')
 
 
 
@@ -254,6 +262,9 @@ def waitForEstimator(scf):
     log_config.add_variable('kalman.varPX', 'float')
     log_config.add_variable('kalman.varPY', 'float')
     log_config.add_variable('kalman.varPZ', 'float')
+    log_config.add_variable('kalman.stateX', 'float')
+    log_config.add_variable('kalman.stateY', 'float')
+    log_config.add_variable('kalman.stateZ', 'float')
 
     var_y_history = [1000] * 10
     var_x_history = [1000] * 10
@@ -279,12 +290,17 @@ def waitForEstimator(scf):
             min_z = min(var_z_history)
             max_z = max(var_z_history)
 
-            # print("{} {} {}".
-            #       format(max_x - min_x, max_y - min_y, max_z - min_z))
+            x = data['kalman.stateX']
+            y = data['kalman.stateY']
+            z = data['kalman.stateZ']
+            print("{:6.4f} {:6.4f} {:6.4f}".format(x, y, z))
 
             if (max_x - min_x) < threshold and (
                     max_y - min_y) < threshold and (
                     max_z - min_z) < threshold:
+                
+                print("-- POSITION FOUND --")
+                print("Found position: (", x, ",", y, ",", z, ")")
                 break
 
 
@@ -325,6 +341,7 @@ signal.signal(signal.SIGINT, signal_handler)
 vr = openvr.init(openvr.VRApplication_Other)
 findBaseStations()
 print('\n\n')
+print("Found crazyflie with URI: ", uri)
 
 uri = initCrazyflie()
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
