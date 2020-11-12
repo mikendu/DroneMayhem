@@ -1,0 +1,2 @@
+class VRException(Exception):
+    pass

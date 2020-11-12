@@ -1,0 +1,2 @@
+class DroneException(Exception):
+    pass

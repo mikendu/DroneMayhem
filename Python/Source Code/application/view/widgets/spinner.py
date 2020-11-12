@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtProperty
 
 
 class Spinner(QLabel):
@@ -35,7 +35,6 @@ class Spinner(QLabel):
     def rotation(self, value):
         self.angle = value
         self.update()
-
 
     def paintEvent(self, event=None):
         painter = QPainter(self)

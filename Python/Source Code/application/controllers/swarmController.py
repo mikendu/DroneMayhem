@@ -1,15 +1,13 @@
 import time
-import traceback
-import cflib.crtp
-
 from cflib.crtp.radiodriver import RadioDriver
 from cflib.crazyflie.swarm import CachedCfFactory
 from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncLogger import SyncLogger
 
-from model import *   
-from util.exceptionUtil import * 
+from application.model import Drone, DroneState
+from application.util import exceptionUtil
+
 
 class SwarmController():
 
@@ -26,7 +24,7 @@ class SwarmController():
 
     def scan(self):
         self.removeDisconnected()
-        
+
         # crazyflies = cflib.crtp.scan_interfaces(self.RADIO_ADDRESS)
         crazyflies = self.radioDriver.scan_interface(self.RADIO_ADDRESS)
         for crazyflie in crazyflies: 
@@ -102,12 +100,12 @@ def initializePositioning(syncCrazyflie, drone, appController):
     crazyflie.param.set_value('stabilizer.controller', '2') # Mellinger controller
     crazyflie.param.set_value('commander.enHighLevel', '1')    
     crazyflie.param.set_value('ring.effect', '14')
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
 
     appController.baseStationController.writeBaseStationData(crazyflie, drone)
     resetEstimator(syncCrazyflie)
     drone.state = DroneState.IDLE
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
     
 
 def resetEstimator(syncCrazyflie):
@@ -116,7 +114,7 @@ def resetEstimator(syncCrazyflie):
     crazyflie.param.set_value('kalman.resetEstimation', '1')
     time.sleep(0.1)
     
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
     crazyflie.param.set_value('kalman.resetEstimation', '0')
     waitForEstimator(crazyflie)
 
@@ -135,7 +133,7 @@ def waitForEstimator(syncCrazyflie):
     with SyncLogger(syncCrazyflie, log_config) as logger:
         for log_entry in logger:
             
-            checkInterrupt()
+            exceptionUtil.checkInterrupt()
             data = log_entry[1]
 
             var_x_history.append(data['kalman.varPX'])

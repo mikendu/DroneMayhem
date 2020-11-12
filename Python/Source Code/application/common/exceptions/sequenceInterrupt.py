@@ -1,0 +1,2 @@
+class SequenceInterrupt(Exception):
+    pass

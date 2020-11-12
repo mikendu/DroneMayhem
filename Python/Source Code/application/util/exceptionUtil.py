@@ -1,18 +1,7 @@
 from threading import Event
+from application.common.exceptions import UnknownException, SequenceInterrupt
 
 INTERRUPT_FLAG = Event()
-
-class DroneException(Exception):
-    pass
-
-class OpenVRException(Exception):
-    pass
-
-class UnknownException(Exception):
-    pass
-
-class SequenceInterrupt(Exception):
-    pass
 
 def raiseError(message, exceptionType = UnknownException):
     print(message)
@@ -22,3 +11,10 @@ def checkInterrupt():
     global INTERRUPT_FLAG
     if INTERRUPT_FLAG.is_set():
         raise SequenceInterrupt()
+
+def setInterrupt(value):
+    global INTERRUPT_FLAG
+    if value:
+        INTERRUPT_FLAG.set()
+    else:
+        INTERRUPT_FLAG.clear()

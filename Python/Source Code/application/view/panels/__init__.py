@@ -1,4 +1,5 @@
 from .recentsPanel import *
 from .sequencePanel import *
 from .swarmPanel import *
-from .baseStationPanel import *
+from .baseStationPanel import BaseStationPanel
+from .mainDashboard import MainDashboard

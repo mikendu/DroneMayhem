@@ -1,11 +1,9 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy, QProgressBar
+from PyQt5.QtCore import Qt
 import time
 
-from util import *
-from ..widgets import *
-import random
+from application.util import layoutUtil
+from application.view import LayoutType
 
 
 class SequencePanel(QFrame):
@@ -19,13 +17,13 @@ class SequencePanel(QFrame):
         self.appController.sequenceFinished.connect(self.onSequenceFinished)
         self.appController.droneDisconnected.connect(self.onButtonClick)
 
-        self.layout = createLayout(LayoutType.VERTICAL, self)
+        self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
         self.createDataPanel()
         self.createSequenceLog()
 
     def createTitle(self):
-        titleLayout = createLayout(LayoutType.HORIZONTAL)
+        titleLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL)
         title = QLabel("Sequence Runner")
         title.setProperty("class", "titleText")
         titleLayout.addWidget(title)        
@@ -73,7 +71,11 @@ class SequencePanel(QFrame):
         self.startButton.setProperty("class", "stopped")
         self.startButton.style().polish(self.startButton)
 
+
+## ----- INTERNAL CLASSES  ----- ##
+
 class SequenceData(QFrame):
+    """ Used only in this file"""
     
     def __init__(self, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,8 +83,8 @@ class SequenceData(QFrame):
         self.appController.sequenceSelected.connect(self.onSequenceSelected)
         self.appController.sequenceUpdated.connect(self.updateProgress)
 
-        self.layout = createLayout(LayoutType.VERTICAL, self)
-        innerLayout = createLayout(LayoutType.VERTICAL)
+        self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
+        innerLayout = layoutUtil.createLayout(LayoutType.VERTICAL)
         innerLayout.setContentsMargins(30, 30, 30, 0)
         self.layout.addLayout(innerLayout)
 
@@ -127,8 +129,6 @@ class SequenceData(QFrame):
         self.progressText.setText(timeString  + " / " + self.durationString)
         self.progressBar.setValue(progress)
 
-            
-
 
 class SequenceLog(QFrame):
         
@@ -141,7 +141,7 @@ class SequenceLog(QFrame):
         self.appController.addLogEntry.connect(self.addLogEntry)
         self.appController.sequenceUpdated.connect(self.scrollBottom)
         
-        self.layout = createLayout(LayoutType.VERTICAL, self)
+        self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
         self.createLogPanel()
         self.clearLog()
@@ -155,7 +155,7 @@ class SequenceLog(QFrame):
     def createLogPanel(self):
         self.scrollArea = QScrollArea()       
         self.logList = QFrame()
-        self.listLayout = createLayout(LayoutType.VERTICAL, self.logList)
+        self.listLayout = layoutUtil.createLayout(LayoutType.VERTICAL, self.logList)
         self.listLayout.setAlignment(Qt.AlignTop)
         self.logList.setObjectName("LogHolder")
 
@@ -169,7 +169,7 @@ class SequenceLog(QFrame):
         self.layout.addWidget(self.scrollArea)
 
     def clearLog(self):
-        clearLayout(self.listLayout)
+        layoutUtil.clearLayout(self.listLayout)
         self.logEntries = []
         self.latestEntry = None
 
@@ -185,8 +185,6 @@ class SequenceLog(QFrame):
             self.scrollArea.ensureWidgetVisible(self.latestEntry)
         
 
-
-
 class LogEntry(QFrame):
     
     def __init__(self, droneNumber, actionText, timeDuration, *args, **kwargs):
@@ -196,7 +194,7 @@ class LogEntry(QFrame):
         self.action = actionText
         self.time = timeDuration
         
-        self.layout = createLayout(LayoutType.HORIZONTAL, self)
+        self.layout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
         self.createDroneLabel()
         self.createActionText()
         self.createTimeLabel()

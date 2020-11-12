@@ -1,6 +1,4 @@
-
 import numpy as np
-
 
 # Rotation matrixes to convert to the CF coordinate system
 OpenVR_To_CF = np.array([
@@ -16,15 +14,15 @@ CF_To_OpenVR = np.array([
 ])
 
 
-
 def getPosition(poseMatrix):
     rawPosition = [
-        poseMatrix[0][3], 
-        poseMatrix[1][3], 
+        poseMatrix[0][3],
+        poseMatrix[1][3],
         poseMatrix[2][3]
     ]
     return np.dot(OpenVR_To_CF, rawPosition)
 
-def getRotation(poseMatrix): 
+
+def getRotation(poseMatrix):
     rawRotation = [poseMatrix[0][:3], poseMatrix[1][:3], poseMatrix[2][:3]]
     return np.dot(OpenVR_To_CF, np.dot(rawRotation, CF_To_OpenVR))

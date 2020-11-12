@@ -1,7 +1,6 @@
 import time
-
-from PyQt5.QtCore import *
-from .exceptionUtil import * 
+from PyQt5.QtCore import QRunnable, QThreadPool, pyqtSlot
+from application.util import exceptionUtil
 
 def runInBackground(function, *args, **kwargs):
     runnable = GenericRunnable(function, *args, **kwargs)
@@ -15,7 +14,7 @@ def interruptibleSleep(duration, interval = 0.25):
     while elapsed < duration:
         sleepTime = max(min(interval, duration - elapsed), 0)
         time.sleep(sleepTime)
-        checkInterrupt()
+        exceptionUtil.checkInterrupt()
         elapsed = time.time() - start
 
 class GenericRunnable(QRunnable):

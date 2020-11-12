@@ -87,3 +87,5 @@ crashlytics-build.properties
 __pycache__/
 *.py[cod]
 **/app_resources.py
+**/venv/
+**/.idea

@@ -1,19 +1,12 @@
+import time
 import openvr
 import cflib.crtp
-import time
+from PyQt5.QtCore import QObject, QTimer, QThreadPool, pyqtSignal
 
-from cflib.crazyflie import Crazyflie
-from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
-
-from PyQt5.QtCore import *
-
-from model import *
-from .sequenceController import *
-from .baseStationController import *
-from .swarmController import *
-from util.threadUtil import *
-from util.dialogUtil import *
-from util.exceptionUtil import *
+from application.util import dialogUtil, threadUtil, exceptionUtil
+from .sequenceController import SequenceController
+from .baseStationController import BaseStationController
+from .swarmController import SwarmController
 
 
 class ApplicationController(QObject):
@@ -32,7 +25,6 @@ class ApplicationController(QObject):
     def __init__(self, mainWindow, appSettings):
         super().__init__()
         
-        INTERRUPT_FLAG = False
         self.sequencePlaying = False
         self.appSettings = appSettings
         self.mainWindow = mainWindow
@@ -77,7 +69,7 @@ class ApplicationController(QObject):
 
         self.scanInProgress = True
         self.scanStarted.emit()
-        runInBackground(self.performScan)
+        threadUtil.runInBackground(self.performScan)
         
 
     def performScan(self):
@@ -114,12 +106,10 @@ class ApplicationController(QObject):
         availableDrones = len(self.swarmController.drones)
         if availableDrones < requiredDrones:
             message = "Sequence requires " + str(requiredDrones) + " drone(s).\n" + str(availableDrones) + " drone(s) available."
-            showDialog("Cannot start sequence", message, None, True)
+            dialogUtil.modalDialog("Cannot start sequence", message)
             return
-        
-        
-        global INTERRUPT_FLAG
-        INTERRUPT_FLAG.clear()
+
+        exceptionUtil.setInterrupt(False)
         self.sequencePlaying = True
         self.sequenceStarted.emit()
         self.killTimer.stop()
@@ -130,7 +120,7 @@ class ApplicationController(QObject):
         self.startTimestamp = None
         self.sequenceUpdated.emit()
 
-        runInBackground(self.sequenceController.run)
+        threadUtil.runInBackground(self.sequenceController.run)
         
 
     def startSequenceTimer(self):
@@ -144,8 +134,7 @@ class ApplicationController(QObject):
 
     def abortSequence(self): 
         if self.sequencePlaying:
-            global INTERRUPT_FLAG 
-            INTERRUPT_FLAG.set()
+            exceptionUtil.setInterrupt(True)
             self.stopSequenceTimer()
             self.killTimer.start(5000)
 
@@ -178,17 +167,17 @@ class ApplicationController(QObject):
     def onDroneDisconnected(self, uri):
         print("-- Drone Disconnected: " + uri + " --")
         if self.swarm and uri in self.swarm._cfs:
-            showDialog("Drone Connection Error", "Lost connection to a drone!\nAborting sequence.", self.mainWindow, False, True)
+            dialogUtil.nonModalDialog(
+                "Drone Connection Error",
+                "Lost connection to a drone!\nAborting sequence.",
+                self.mainWindow
+            )
             self.abortSequence()
             QThreadPool.globalInstance().waitForDone()
             self.scanForDrones(True)
 
-
     def cleanup(self):
         self.swarmController.disconnectSwarm()
-
-
-
     
     @property
     def swarm(self):

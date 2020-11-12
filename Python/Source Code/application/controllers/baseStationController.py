@@ -1,12 +1,10 @@
-import sys
 import openvr
 import time
-
 from cflib.crazyflie.mem import MemoryElement
 from cflib.crazyflie.mem import LighthouseBsGeometry
 
-from util.exceptionUtil import *
-from util.coordinateUtil import *
+from application.common.exceptions import VRException
+from application.util import exceptionUtil, transformUtil
 
 class BaseStation():
 
@@ -25,15 +23,15 @@ class BaseStation():
         poses = self.vrSystem.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0, self.index)
         
         if not poses or len(poses) < self.index + 1:
-            raiseError("Could not get pose for OpenVR device with index: " + str(self.index), OpenVRException)
+            exceptionUtil.raiseError("Could not get pose for OpenVR device with index: " + str(self.index), VRException)
 
         pose = poses[self.index]
         if pose and pose.bPoseIsValid:
             poseMatrix = pose.mDeviceToAbsoluteTracking
-            self.positionGeometry.origin = getPosition(poseMatrix)
-            self.positionGeometry.rotation_matrix = getRotation(poseMatrix)  
+            self.positionGeometry.origin = transformUtil.getPosition(poseMatrix)
+            self.positionGeometry.rotation_matrix = transformUtil.getRotation(poseMatrix)
         else:
-            raiseError("Got invalid pose for OpenVR device with index: " + str(self.index), OpenVRException)
+            exceptionUtil.raiseError("Got invalid pose for OpenVR device with index: " + str(self.index), VRException)
 
 
 class BaseStationController():
@@ -53,7 +51,7 @@ class BaseStationController():
                 try:
                     station = BaseStation(i, vrSystem)
                     self.baseStations.append(station)
-                except OpenVRException:
+                except VRException:
                     continue
                 
     def writeBaseStationData(self, crazyflie, drone):
@@ -70,7 +68,7 @@ class BaseStationController():
         while not drone.dataWritten:
             time.sleep(0.01)
         
-        checkInterrupt()
+        exceptionUtil.checkInterrupt()
             
 
     def onWriteFinished(self, mem, addr):

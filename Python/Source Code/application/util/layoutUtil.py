@@ -1,18 +1,12 @@
-from enum import Enum
-from PyQt5.QtWidgets import *
-
-
-class LayoutType(Enum):
-    VERTICAL = 0
-    HORIZONTAL = 1
-    GRID = 2
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGridLayout
+from application.view import LayoutType
 
 def clearLayout(layout):
     for i in reversed(range(layout.count())): 
         widgetToRemove = layout.itemAt(i).widget()
-        layout.removeWidget(widgetToRemove) # remove it from the layout list
+        layout.removeWidget(widgetToRemove)  # remove it from the layout list
         if widgetToRemove:
-            widgetToRemove.setParent(None) # remove it from the gui
+            widgetToRemove.setParent(None)  # remove it from the gui
 
 def createLayout(layoutType, parentWidget = None):
     newLayout = None

@@ -1,11 +1,7 @@
-
 import os
-from enum import Enum
+from .droneActionType import DroneActionType
 
 
-class ActionType(Enum): 
-    MOVE = 0
-    LIGHT = 1
 
 class Sequence():
 
@@ -41,7 +37,7 @@ class Sequence():
         track = self.getTrack(swarmIndex)
         for keyframe in track['Keyframes']:
             for action in keyframe['Actions']:
-                actionType = ActionType(action['ActionType'])
+                actionType = DroneActionType(action['ActionType'])
                 if (actionType == desiredActionType):
                     data = action['Data']
                     x, y, z = [data[key] for key in ('x', 'y','z')]

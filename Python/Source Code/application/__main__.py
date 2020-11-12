@@ -1,17 +1,16 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QMainWindow, QStatusBar, QApplication
+from PyQt5.QtCore import Qt, QFile, QTextStream, QTimer, QThreadPool
+from PyQt5.QtGui import QIcon
 
-import app_resources
-from view import *
-from model import *
-from controllers import *
+import application.resource_bundle
+from application.common import AppSettings
+from application.controllers import ApplicationController
+from application.view.panels import MainDashboard
+from application.view.widgets import FileMenu
+from application.util import dialogUtil
 
-from util.threadUtil import *
-from util.dialogUtil import *
 
-RESET_WINDOW_GEOMETRY = False
 
 # Subclass QMainWindow to customise your application's main window
 class MainWindow(QMainWindow):
@@ -33,7 +32,6 @@ class MainWindow(QMainWindow):
         self.setStatusBar(statusBar)
         self.setupWindow()
 
-
     def onStatusMessageChange(self, message):
         self.statusBar().setProperty("class", [])
         self.statusBar().style().polish(self.statusBar())
@@ -51,12 +49,10 @@ class MainWindow(QMainWindow):
     def setupWindow(self):       
         self.setMinimumSize(1600, 900)
         settings = self.appController.appSettings     
-        if not settings.getValue("windowGeometry") == None and not RESET_WINDOW_GEOMETRY: 
+        if not settings.getValue("windowGeometry") == None:
             self.restoreGeometry(settings.getValue("windowGeometry"))
         else:
             self.resize(1920, 1080)
-
-        
 
     def closeEvent(self, event):
         event.ignore()
@@ -64,7 +60,7 @@ class MainWindow(QMainWindow):
             self.showStatusMessage("Please stop sequence before exiting!")
         
         else:
-            showDialog(" ", "Cleaning up & exiting...", self, False)
+            dialogUtil.nonModalDialog(" ", "Cleaning up & exiting...", self, False)
             QTimer.singleShot(1, self.cleanupAndExit)
 
     def cleanupAndExit(self):
@@ -76,16 +72,17 @@ class MainWindow(QMainWindow):
         sys.exit(0)
 
 
-app = QApplication(sys.argv)
 
-styleSheet = QFile(":/stylesheets/main.css")
-styleSheet.open(QFile.ReadOnly | QFile.Text)
-styleContent = QTextStream(styleSheet).readAll()
 
-app.setStyleSheet(styleContent)
-app.setAttribute(Qt.AA_DisableWindowContextHelpButton)
+if (__name__ == "__main__"):
+    app = QApplication(sys.argv)
+    styleSheet = QFile(":/stylesheets/main.css")
+    styleSheet.open(QFile.ReadOnly | QFile.Text)
+    styleContent = QTextStream(styleSheet).readAll()
 
-window = MainWindow()
-window.show()
+    app.setStyleSheet(styleContent)
+    app.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
-app.exec_()
+    window = MainWindow()
+    window.show()
+    app.exec_()

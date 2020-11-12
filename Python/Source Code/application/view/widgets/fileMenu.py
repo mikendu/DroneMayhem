@@ -1,12 +1,7 @@
-import sys 
 from os import path
 from pathlib import Path
-
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-
-from util import *
+from PyQt5.QtWidgets import QMenuBar, QAction, QFileDialog
+from application.util import dialogUtil
 
 class FileMenu(QMenuBar):
 
@@ -16,7 +11,6 @@ class FileMenu(QMenuBar):
         self.appController = appController
         self.fileMenu = None
         self.setupMenus()
-        
 
     def setupMenus(self):
         quitAction = QAction("&Exit", self)
@@ -55,9 +49,7 @@ class FileMenu(QMenuBar):
                 pass
             else:
                 #self.mainWindow.showStatusMessage("ERROR - Could not load sequence file!")
-                showDialog("Invalid Sequence", "ERROR - Could not load sequence file!", None, True, True)
-
-
+                dialogUtil.modalDialog("Invalid Sequence", "ERROR - Could not load sequence file!")
 
     def exit(self):
         self.mainWindow.close()

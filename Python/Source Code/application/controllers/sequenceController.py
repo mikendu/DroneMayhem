@@ -1,17 +1,11 @@
-from pathlib import Path
 import json
 import os
 import time
-import traceback
+import pathlib
 
-from model import *
-from util.exceptionUtil import *
-from util.threadUtil import *
-
-
-import cflib.crtp
-from cflib.crazyflie import Crazyflie
-from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
+from application.model import Sequence, DroneState, DroneActionType
+from application.common.exceptions import SequenceInterrupt
+from application.util import exceptionUtil, threadUtil
 
 
 class SequenceController:
@@ -38,7 +32,7 @@ class SequenceController:
         return None
 
     def loadSequence(self, file):
-        path = Path(file)
+        path = pathlib.Path(file)
         location = str(path.parent)
         name = os.path.splitext(path.name)[0]
         with open(file, 'r') as jsonFile:
@@ -112,7 +106,7 @@ class SequenceController:
     def takeoffDrones(self):
         print("\n-- Getting Drones into Position --")          
         self.appController.swarm.parallel(applyInitialState, self.appController.swarmArguments)
-        interruptibleSleep(1.0)
+        threadUtil.interruptibleSleep(1.0)
 
     def runSequence(self):
         print("\n-- Running Sequence --")
@@ -127,7 +121,7 @@ class SequenceController:
 
 def applyInitialState(syncCrazyflie, drone, appController):
     
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
     drone.state = DroneState.POSITIONING
     appController.updateSequence()
 
@@ -135,25 +129,25 @@ def applyInitialState(syncCrazyflie, drone, appController):
     crazyflie.param.set_value('ring.effect', '14')
     sequence = SequenceController.CURRENT
 
-    r, g, b = sequence.getInitialState(drone.swarmIndex, ActionType.LIGHT)
-    x, y, z = sequence.getInitialState(drone.swarmIndex, ActionType.MOVE)
+    r, g, b = sequence.getInitialState(drone.swarmIndex, DroneActionType.LIGHT)
+    x, y, z = sequence.getInitialState(drone.swarmIndex, DroneActionType.MOVE)
 
     setLED(appController, drone.swarmIndex, crazyflie, r, g, b, 4.0)
     commander = crazyflie.high_level_commander    
     commander.takeoff(0.5, 3.0)
-    interruptibleSleep(3.0)
+    threadUtil.interruptibleSleep(3.0)
 
     moveTo(appController, drone.swarmIndex, crazyflie, x, y, z, 3.0)
-    interruptibleSleep(3.0)
+    threadUtil.interruptibleSleep(3.0)
 
     drone.state = DroneState.READY
     appController.updateSequence()
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
 
 
 def runSequenceSteps(syncCrazyflie, drone, appController):
     
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
     drone.state = DroneState.IN_FLIGHT
     crazyflie = syncCrazyflie.cf
     sequence = SequenceController.CURRENT
@@ -169,9 +163,9 @@ def runSequenceSteps(syncCrazyflie, drone, appController):
             sleepDuration = min(sleepDuration, duration)
 
         if (sleepDuration > 0):
-            interruptibleSleep(sleepDuration)
+            threadUtil.interruptibleSleep(sleepDuration)
             
-    checkInterrupt()
+    exceptionUtil.checkInterrupt()
 
 
 
@@ -196,7 +190,7 @@ def landDrone(syncCrazyflie, drone, appController):
 
 
 def runAction(controller, index, crazyflie, action):    
-    actionType = ActionType(action['ActionType'])
+    actionType = DroneActionType(action['ActionType'])
     duration = action['Duration']
     if (duration == 0):
         return 0
@@ -204,10 +198,10 @@ def runAction(controller, index, crazyflie, action):
     data = action['Data']
     x, y, z = [data[key] for key in ('x', 'y','z')]
 
-    if (actionType == ActionType.MOVE):
+    if (actionType == DroneActionType.MOVE):
         moveTo(controller, index, crazyflie, x, y, z, duration)
 
-    elif (actionType == ActionType.LIGHT):
+    elif (actionType == DroneActionType.LIGHT):
         setLED(controller, index, crazyflie, x, y, z, duration)
 
     return duration

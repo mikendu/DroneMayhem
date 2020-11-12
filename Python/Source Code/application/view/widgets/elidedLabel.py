@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QPainter, QFontMetrics
+from PyQt5.QtCore import Qt
 
 class ElidedLabel(QLabel):
     def paintEvent(self, event):

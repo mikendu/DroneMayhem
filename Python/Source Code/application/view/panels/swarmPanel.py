@@ -1,82 +1,12 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 import math
+from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QSize
 
-
-from util import *
-from model import *
-from ..widgets import *
-
-class EmptyCard(QFrame):
-
-    def __init__(self, index, *args, **kwargs):
-        super().__init__(*args, **kwargs)        
-        self.index = index
-
-
-class DroneCard(QFrame):
-
-    def __init__(self, drone, *args, **kwargs):
-        super().__init__(*args, **kwargs)        
-
-        self.index = drone.swarmIndex
-        self.setProperty("class", "droneCard")
-        outerLayout = createLayout(LayoutType.HORIZONTAL, self)
-        innerLayout = createLayout(LayoutType.VERTICAL)        
-        outerLayout.addLayout(innerLayout)
-        innerLayout.setContentsMargins(25, 12, 25, 12)
-
-        nameLabel = ElidedLabel( "Drone " + str(drone.swarmIndex))
-        nameLabel.setProperty("class", ["droneName"])
-
-        innerLayout.addStretch(1)
-        innerLayout.addWidget(nameLabel)
-        innerLayout.addWidget(ElidedLabel("URI (Address):  " + drone.address))
-        innerLayout.addWidget(self.createStatusLabel())
-        innerLayout.addStretch(1)
-
-        outerLayout.addStretch(1)
-        outerLayout.addWidget(self.createIndicator())
-        self.setDroneState(drone)
-
-    def createStatusLabel(self):
-        labelText = '''Status:  <span style="color:#b1b1b1">--</span>'''
-        self.statusLabel = QLabel(labelText)
-        self.statusLabel.setProperty("class", ["statusLabel"])
-        return self.statusLabel
-    
-    def createIndicator(self):
-        self.indicator = QFrame()
-        self.indicator.setProperty("class", ["droneStatusIndicator"])
-        return self.indicator
-
-
-    def setDroneState(self, drone):
-        if drone.state == DroneState.IDLE:
-            self.statusLabel.setText('''Status:  <span style="color:#ffffff;font-weight:bold">IDLE</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "idle"])
-        elif drone.state == DroneState.INITIALIZING:
-            self.statusLabel.setText('''Status:  <span style="color:#E2DD52;font-weight:bold">INITIALIZING</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])
-        elif drone.state == DroneState.POSITIONING:
-            self.statusLabel.setText('''Status:  <span style="color:#29bcff;font-weight:bold">POSITIONING</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "positioning"])
-        elif drone.state == DroneState.READY:
-            self.statusLabel.setText('''Status:  <span style="color:#16a81b;font-weight:bold">READY</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "ready"])
-        elif drone.state == DroneState.IN_FLIGHT:
-            self.statusLabel.setText('''Status:  <span style="color:#04ff00;font-weight:bold">IN FLIGHT</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "in_flight"])
-        elif drone.state == DroneState.LANDING:
-            self.statusLabel.setText('''Status:  <span style="color:#e09422;font-weight:bold">LANDING</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "landing"])
-        else:
-            self.statusLabel.setText('''Status:  <span style="color:#b1b1b1;font-weight:bold">NOT CONNECTED</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator"])
-        
-        
-        self.indicator.style().polish(self.indicator)
+from application.util import layoutUtil
+from application.model import DroneState
+from application.view import LayoutType
+from application.view.widgets import Spinner, ElidedLabel
 
 
 class SwarmPanel(QFrame):
@@ -85,7 +15,7 @@ class SwarmPanel(QFrame):
         super().__init__(*args, **kwargs)
         self.appController = appController        
         
-        self.layout = createLayout(LayoutType.VERTICAL, self)
+        self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
         self.createDroneList()
 
@@ -96,7 +26,7 @@ class SwarmPanel(QFrame):
 
 
     def createTitle(self):
-        titleLayout = createLayout(LayoutType.HORIZONTAL)
+        titleLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL)
         title = QLabel("Swarm")
         title.setProperty("class", "titleText")
         titleLayout.addWidget(title)        
@@ -117,7 +47,7 @@ class SwarmPanel(QFrame):
         scrollArea = QScrollArea()       
         self.cardList = QFrame()
 
-        self.listLayout = createLayout(LayoutType.GRID, self.cardList)
+        self.listLayout = layoutUtil.createLayout(LayoutType.GRID, self.cardList)
         self.cardList.setObjectName("DroneHolder")
 
         scrollArea.setWidget(self.cardList)
@@ -130,13 +60,13 @@ class SwarmPanel(QFrame):
         self.layout.addWidget(scrollArea)
     
     def clearList(self):
-        clearLayout(self.listLayout)
-        self.listLayout.addWidget(Spinner(), 0, 0) 
+        layoutUtil.clearLayout(self.listLayout)
+        self.listLayout.addWidget(Spinner(), 0, 0)
         self.listLayout.setRowStretch(0, 1)    
         self.listLayout.setRowStretch(1, 0)   
 
     def updateList(self):
-        clearLayout(self.listLayout)   
+        layoutUtil.clearLayout(self.listLayout)   
         numColumns = round(self.width() / 300.0)
         droneList = self.appController.swarmController.drones
         for i, drone in enumerate(droneList):
@@ -183,3 +113,76 @@ class SwarmPanel(QFrame):
                 swarmIndex = card.index
                 drone = droneList[swarmIndex]
                 card.setDroneState(drone)
+
+
+
+
+## ----- INTERNAL CLASSES  ----- ##
+
+class EmptyCard(QFrame):
+
+    def __init__(self, index, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.index = index
+
+
+class DroneCard(QFrame):
+
+    def __init__(self, drone, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.index = drone.swarmIndex
+        self.setProperty("class", "droneCard")
+        outerLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
+        innerLayout = layoutUtil.createLayout(LayoutType.VERTICAL)
+        outerLayout.addLayout(innerLayout)
+        innerLayout.setContentsMargins(25, 12, 25, 12)
+
+        nameLabel = ElidedLabel("Drone " + str(drone.swarmIndex))
+        nameLabel.setProperty("class", ["droneName"])
+
+        innerLayout.addStretch(1)
+        innerLayout.addWidget(nameLabel)
+        innerLayout.addWidget(ElidedLabel("URI (Address):  " + drone.address))
+        innerLayout.addWidget(self.createStatusLabel())
+        innerLayout.addStretch(1)
+
+        outerLayout.addStretch(1)
+        outerLayout.addWidget(self.createIndicator())
+        self.setDroneState(drone)
+
+    def createStatusLabel(self):
+        labelText = '''Status:  <span style="color:#b1b1b1">--</span>'''
+        self.statusLabel = QLabel(labelText)
+        self.statusLabel.setProperty("class", ["statusLabel"])
+        return self.statusLabel
+
+    def createIndicator(self):
+        self.indicator = QFrame()
+        self.indicator.setProperty("class", ["droneStatusIndicator"])
+        return self.indicator
+
+    def setDroneState(self, drone):
+        if drone.state == DroneState.IDLE:
+            self.statusLabel.setText('''Status:  <span style="color:#ffffff;font-weight:bold">IDLE</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "idle"])
+        elif drone.state == DroneState.INITIALIZING:
+            self.statusLabel.setText('''Status:  <span style="color:#E2DD52;font-weight:bold">INITIALIZING</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])
+        elif drone.state == DroneState.POSITIONING:
+            self.statusLabel.setText('''Status:  <span style="color:#29bcff;font-weight:bold">POSITIONING</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "positioning"])
+        elif drone.state == DroneState.READY:
+            self.statusLabel.setText('''Status:  <span style="color:#16a81b;font-weight:bold">READY</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "ready"])
+        elif drone.state == DroneState.IN_FLIGHT:
+            self.statusLabel.setText('''Status:  <span style="color:#04ff00;font-weight:bold">IN FLIGHT</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "in_flight"])
+        elif drone.state == DroneState.LANDING:
+            self.statusLabel.setText('''Status:  <span style="color:#e09422;font-weight:bold">LANDING</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "landing"])
+        else:
+            self.statusLabel.setText('''Status:  <span style="color:#b1b1b1;font-weight:bold">NOT CONNECTED</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator"])
+
+        self.indicator.style().polish(self.indicator)

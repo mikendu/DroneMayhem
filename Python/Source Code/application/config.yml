@@ -1,7 +1,7 @@
 ioPaths:
   -
     - "./application/resources.qrc"
-    - "./application/app_resources.py"
+    - "./application/resource_bundle.py"
 
 uic_options: --from-imports
 init_package: False
