@@ -96,7 +96,7 @@ class SwarmController():
 
 def initializePositioning(syncCrazyflie, drone, appController):
     crazyflie = syncCrazyflie.cf
-    crazyflie.param.set_value('lighthouse.method', '1')
+    crazyflie.param.set_value('lighthouse.method', '0')
     crazyflie.param.set_value('stabilizer.controller', '2') # Mellinger controller
     crazyflie.param.set_value('commander.enHighLevel', '1')    
     crazyflie.param.set_value('ring.effect', '14')

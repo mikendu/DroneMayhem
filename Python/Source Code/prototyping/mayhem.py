@@ -319,7 +319,7 @@ print('\n\n')
 uri = initCrazyflie()
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     cf = scf.cf
-    cf.param.set_value('lighthouse.method', '1')
+    cf.param.set_value('lighthouse.method', '0')
     cf.param.set_value('stabilizer.controller', '2')
     cf.param.set_value('commander.enHighLevel', '1')    
     duration = upload_trajectory(cf, 1, figure8)

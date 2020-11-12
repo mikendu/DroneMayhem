@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         cf = scf.cf
-        cf.param.set_value('lighthouse.method', '1')
+        cf.param.set_value('lighthouse.method', '0')
         reset_estimator(scf)
         start_position_printing(scf)
         run_sequence(scf, sequence)

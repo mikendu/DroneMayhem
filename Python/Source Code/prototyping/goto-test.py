@@ -12,7 +12,7 @@ import logging
 import time
 import signal
 import sys
-import keyboard
+# import keyboard
 import openvr
 import math
 import numpy as np
@@ -293,13 +293,13 @@ def waitForEstimator(scf):
             x = data['kalman.stateX']
             y = data['kalman.stateY']
             z = data['kalman.stateZ']
-            print("{:6.4f} {:6.4f} {:6.4f}".format(x, y, z))
+            # print("{:6.4f} {:6.4f} {:6.4f}".format(x, y, z))
 
             if (max_x - min_x) < threshold and (
                     max_y - min_y) < threshold and (
                     max_z - min_z) < threshold:
                 
-                print("-- POSITION FOUND --")
+                #print("-- POSITION FOUND --")
                 print("Found position: (", x, ",", y, ",", z, ")")
                 break
 
@@ -317,13 +317,14 @@ def positionCallback(timestamp, data, logconf):
     x = data['kalman.stateX']
     y = data['kalman.stateY']
     z = data['kalman.stateZ']
-    print('pos: ({}, {}, {})'.format(x, y, z))
-    global height
-    height = z
+    print(f"pos: ({x:6.4f} {y:6.4f} {z:6.4f})\r", end="")
+    # global height
+    # height = z
 
 
 def startPrinting(scf):
-    log_conf = LogConfig(name='Position', period_in_ms=100)
+    print("\n-- STARTING PRINT LOOP --\n\n")
+    log_conf = LogConfig(name='Position', period_in_ms=15)
     log_conf.add_variable('kalman.stateX', 'float')
     log_conf.add_variable('kalman.stateY', 'float')
     log_conf.add_variable('kalman.stateZ', 'float')
@@ -340,19 +341,20 @@ def startPrinting(scf):
 signal.signal(signal.SIGINT, signal_handler)
 vr = openvr.init(openvr.VRApplication_Other)
 findBaseStations()
-print('\n\n')
+#print('\n\n')
 print("Found crazyflie with URI: ", uri)
 
 uri = initCrazyflie()
 with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     cf = scf.cf
-    cf.param.set_value('lighthouse.method', '1')
+    cf.param.set_value('lighthouse.method', '0')
     cf.param.set_value('stabilizer.controller', '2') # Mellinger controller
     cf.param.set_value('commander.enHighLevel', '1')    
     # duration = upload_trajectory(cf, 1, figure8)
     # print('The sequence is {:.1f} seconds long'.format(duration))
     updateBaseStations(cf)
     resetEstimator(scf)
-    # startPrinting(scf)
+    #startPrinting(scf)
+    #time.sleep(40)
     mainLoop(scf)
     
