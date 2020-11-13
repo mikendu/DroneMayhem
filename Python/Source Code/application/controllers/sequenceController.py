@@ -19,6 +19,7 @@ class SequenceController:
         self.sequences = []
         self.sequencePlaying = False
         self.loadSequences()
+        self.sequenceIndex = None
 
     def loadSequences(self):
         for sequenceFile in reversed(self.settings.sequences):
@@ -55,11 +56,16 @@ class SequenceController:
     def selectSequence(self, index):
         if (index >= 0 and index < len(self.sequences)):
             SequenceController.CURRENT = self.sequences[index]
-            # self.sequences.insert(0, self.sequences.pop(index))
+            self.sequenceIndex = index
             return True
         return False
 
     def run(self):
+
+        # Update the order of the recent sequences
+        self.sequences.insert(0, self.sequences.pop(self.sequenceIndex))
+        self.appController.sequenceOrderUpdated.emit()
+
         try: 
             print("\n\n\n\n-------------- SEQUENCE STARTING --------------")
             # connect to required drones
@@ -83,11 +89,15 @@ class SequenceController:
             
             # Wrap up
             self.completeSequence()
-
         
         except SequenceInterrupt:
             print("-- Aborting Sequence --")
             self.abort()
+
+        except ConnectionAbortedError:
+            print("-- Drone connection failed, cancelling sequence --")
+            self.appController.connectionFailed.emit()
+            return
         
         # Re-throw all other exceptions
         except Exception:

@@ -13,3 +13,4 @@ $winPip install openvr
 $winPip install numpy
 $winPy -m pip install docutils pygments pypiwin32 PyQt5
 $winPy -m pip install pyqt5ac
+$winPy -m pip install vispy

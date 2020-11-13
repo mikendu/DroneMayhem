@@ -106,13 +106,15 @@ class SwarmPanel(QFrame):
 
     def updateDroneState(self):
         droneList = self.appController.swarmController.drones
+        droneCount = len(droneList)
         for i in reversed(range(self.listLayout.count())): 
             card = self.listLayout.itemAt(i).widget()
             if isinstance(card, DroneCard):
 
                 swarmIndex = card.index
-                drone = droneList[swarmIndex]
-                card.setDroneState(drone)
+                if swarmIndex >= 0 and swarmIndex < droneCount:
+                    drone = droneList[swarmIndex]
+                    card.setDroneState(drone)
 
 
 

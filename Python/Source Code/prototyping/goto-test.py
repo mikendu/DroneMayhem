@@ -258,7 +258,7 @@ def mainLoop(scf = None):
 def waitForEstimator(scf):
     print('Waiting for estimator to find position...')
 
-    log_config = LogConfig(name='Kalman Variance', period_in_ms=500)
+    log_config = LogConfig(name='Kalman Variance', period_in_ms=50)
     log_config.add_variable('kalman.varPX', 'float')
     log_config.add_variable('kalman.varPY', 'float')
     log_config.add_variable('kalman.varPZ', 'float')
@@ -270,7 +270,7 @@ def waitForEstimator(scf):
     var_x_history = [1000] * 10
     var_z_history = [1000] * 10
 
-    threshold = 0.001
+    threshold = 0.01
 
     with SyncLogger(scf, log_config) as logger:
         for log_entry in logger:
@@ -332,7 +332,6 @@ def startPrinting(scf):
     scf.cf.log.add_config(log_conf)
     log_conf.data_received_cb.add_callback(positionCallback)
     log_conf.start()
-
 
 
 

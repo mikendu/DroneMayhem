@@ -19,7 +19,7 @@ class RecentPanel(QFrame):
         self.layout.addWidget(self.createCardHolder())
         self.refreshList()
         self.appController.sequenceLoaded.connect(self.refreshList)
-        # self.appController.sequenceSelected.connect(self.refreshList)
+        self.appController.sequenceOrderUpdated.connect(self.refreshList)
 
     def createTitle(self):
         title = QLabel("Recent Sequences")

@@ -15,6 +15,7 @@ class SequencePanel(QFrame):
         self.appController.sequenceSelected.connect(self.onSequenceSelected)
         self.appController.sequenceStarted.connect(self.onSequenceStarted)
         self.appController.sequenceFinished.connect(self.onSequenceFinished)
+        self.appController.scanFinished.connect(self.updateButtonStatus)
         self.appController.droneDisconnected.connect(self.onButtonClick)
 
         self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
@@ -49,12 +50,16 @@ class SequencePanel(QFrame):
         self.startButton.setEnabled(False)
         self.startButton.style().polish(self.startButton)
 
+    def updateButtonStatus(self):
+        self.startButton.setEnabled(self.appController.droneRequirementMet)
+
+
     def createSequenceLog(self):
         self.sequenceLog = SequenceLog(self.appController)
         self.layout.addWidget(self.sequenceLog, 75)
 
     def onSequenceSelected(self):
-        self.startButton.setEnabled(True)
+        self.updateButtonStatus()
         self.startButton.setText("START")
         self.startButton.setProperty("class", "stopped")
         self.startButton.style().polish(self.startButton)
@@ -66,7 +71,7 @@ class SequencePanel(QFrame):
         self.startButton.style().polish(self.startButton)
 
     def onSequenceFinished(self):
-        self.startButton.setEnabled(True)
+        self.updateButtonStatus()
         self.startButton.setText("START")
         self.startButton.setProperty("class", "stopped")
         self.startButton.style().polish(self.startButton)

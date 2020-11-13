@@ -34,6 +34,7 @@ All coordinates are (x, y, z, yaw)
 import math
 
 import numpy as np
+from vispy.geometry import curves
 
 
 class Node:
@@ -202,13 +203,19 @@ class Segment:
     def _draw(self, polys, color, visualizer):
         step = self._scale / 32
         prev = None
+
+        points = np.empty((32, 3), np.float32)
+        point_index = 0
         for t in np.arange(0.0, self._scale + step, step):
             p = self._eval_xyz(polys, t)
-
             if prev is not None:
-                visualizer.line(p, prev, color=color)
+                points[point_index] = p
+                point_index += 1
+                # visualizer.line(p, prev, color=color)
 
             prev = p
+
+        visualizer.lines(points, color=color)
 
     def velocity(self, t):
         return self._eval_xyz(self._vel, t)
@@ -317,7 +324,7 @@ class Segment:
 
 class Visualizer:
     def __init__(self):
-        self.canvas = scene.SceneCanvas(keys='interactive', size=(800, 600),
+        self.canvas = scene.SceneCanvas(keys='interactive', size=(1920, 1080),
                                         show=True)
         view = self.canvas.central_widget.add_view()
         view.bgcolor = '#ffffff'
@@ -331,10 +338,11 @@ class Visualizer:
                 parent=self.scene, size=size)
 
     def lines(self, points, color='black'):
-        LinePlot(points, color=color, parent=self.scene)
+        Line(points, parent=self.scene, color=color)
 
     def line(self, a, b, color='black'):
-        self.lines([a, b], color)
+        joined = np.stack((a, b), axis=0)
+        self.lines(joined, color)
 
     def run(self):
         self.canvas.app.run()
@@ -399,27 +407,38 @@ segments.append(Segment(n8, n9, segment_time))
 segments.append(Segment(n9, n10, segment_time))
 segments.append(Segment(n10, n0, segment_time))
 
-
+"""
 print('Paste this code into the autonomous_sequence_high_level.py example to '
       'see it fly')
 for s in segments:
     s.print_poly_python()
-
+"""
 
 # Enable this if you have Vispy installed and want a visualization of the
 # trajectory
-if False:
+if True:
     # Import here to avoid problems for users that do not have Vispy
     from vispy import scene
     from vispy.scene import XYZAxis, LinePlot, TurntableCamera, Markers
+    from vispy.scene.visuals import Line
+    from vispy.visuals import LineVisual
 
     visualizer = Visualizer()
-    for s in segments:
+    # start = 0
+    start = 4
+    # end = len(segments)
+    end = 8
+    # end = 4
+    for i in range(start, end):
+        s = segments[i]
         s.draw_trajectory(visualizer)
-        # s.draw_vel(visualizer)
+        #s.draw_vel(visualizer)
+        #s.draw_acc(visualizer)
+        #s.draw_jerk(visualizer)
         # s.draw_control_points(visualizer)
 
-    for n in [n0, n1, n2, n3, n5, n6, n7, n8, n9, n10]:
-        n.draw_unscaled_controlpoints(visualizer)
+
+    # for n in [n0, n1, n2, n3, n5, n6, n7, n8, n9, n10]:
+        # n.draw_unscaled_controlpoints(visualizer)
 
     visualizer.run()

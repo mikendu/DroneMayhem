@@ -10,17 +10,22 @@ from .swarmController import SwarmController
 
 
 class ApplicationController(QObject):
-    
-    sequenceLoaded = pyqtSignal()    
+
     scanStarted = pyqtSignal()
     scanFinished = pyqtSignal()
+
     sequenceSelected = pyqtSignal()
+    sequenceLoaded = pyqtSignal()
+    sequenceOrderUpdated = pyqtSignal()
+
     startTimer = pyqtSignal()
     sequenceStarted = pyqtSignal()
     sequenceUpdated = pyqtSignal()
-    sequenceFinished = pyqtSignal()
-    droneDisconnected = pyqtSignal(str)
     addLogEntry = pyqtSignal(tuple)
+    sequenceFinished = pyqtSignal()
+
+    droneDisconnected = pyqtSignal(str)
+    connectionFailed = pyqtSignal()
 
     def __init__(self, mainWindow, appSettings):
         super().__init__()
@@ -33,7 +38,6 @@ class ApplicationController(QObject):
         self.initializePositioning()
         self.initializeSwarm()
         self.scanInProgress = False
-        self.scanForDrones()
         self.sequenceTimer = QTimer()
         self.sequenceTimer.timeout.connect(self.updateSequence)
         self.sequenceTimer.setInterval(20) # in MS
@@ -48,6 +52,9 @@ class ApplicationController(QObject):
         self.startTimer.connect(self.startSequenceTimer)
         self.sequenceFinished.connect(self.stopSequenceTimer)
         self.droneDisconnected.connect(self.onDroneDisconnected)
+        self.sequenceOrderUpdated.connect(self.saveSequenceSettings)
+        self.connectionFailed.connect(self.onConnectionFailed)
+        self.scanForDrones()
 
 
     def initializePositioning(self):
@@ -77,11 +84,13 @@ class ApplicationController(QObject):
         self.scanFinished.emit()
         self.scanInProgress = False
 
+    def saveSequenceSettings(self):
+        sequenceFileList = list(map(lambda seq: seq.fullPath, self.sequenceController.sequences))
+        self.appSettings.updateSequences(sequenceFileList)
 
     def openSequence(self, file):
         if self.sequenceController.loadSequence(file):
-            sequenceFileList = list(map(lambda seq: seq.fullPath, self.sequenceController.sequences))
-            self.appSettings.updateSequences(sequenceFileList)
+            self.saveSequenceSettings()
             self.sequenceLoaded.emit()
             return True
             
@@ -102,10 +111,8 @@ class ApplicationController(QObject):
             self.abortSequence()
 
     def startSequence(self):
-        requiredDrones = SequenceController.CURRENT.drones
-        availableDrones = len(self.swarmController.drones)
-        if availableDrones < requiredDrones:
-            message = "Sequence requires " + str(requiredDrones) + " drone(s).\n" + str(availableDrones) + " drone(s) available."
+        if not self.droneRequirementMet:
+            message = "Sequence requires " + str(self.requiredDrones) + " drone(s).\n" + str(self.availableDrones) + " drone(s) available."
             dialogUtil.modalDialog("Cannot start sequence", message)
             return
 
@@ -113,7 +120,6 @@ class ApplicationController(QObject):
         self.sequencePlaying = True
         self.sequenceStarted.emit()
         self.killTimer.stop()
-
         
         self.elapsedTime = 0
         self.sequenceProgress = 0
@@ -142,8 +148,8 @@ class ApplicationController(QObject):
         if (self.sequencePlaying):    
             self.swarmController.disconnectSwarm()
             self.sequenceFinished.emit()
-            self.sequenceUpdated.emit()
             self.sequencePlaying = False
+            self.sequenceUpdated.emit()
 
     def onSequenceCompleted(self):
         self.sequenceFinished.emit()
@@ -163,6 +169,16 @@ class ApplicationController(QObject):
             self.sequenceProgress = 0
 
         self.sequenceUpdated.emit()
+
+    def onConnectionFailed(self):
+        self.hardKill()
+        self.scanForDrones(True)
+        dialogUtil.nonModalDialog(
+            "Drone Connection Error",
+            "Connection attempt failed,\ncancelling sequence.",
+            self.mainWindow
+        )
+
 
     def onDroneDisconnected(self, uri):
         print("-- Drone Disconnected: " + uri + " --")
@@ -186,3 +202,20 @@ class ApplicationController(QObject):
     @property
     def swarmArguments(self):
         return self.swarmController.swarmArguments
+
+    @property
+    def requiredDrones(self):
+        return SequenceController.CURRENT.drones if SequenceController.CURRENT else 0
+
+    @property
+    def availableDrones(self):
+        return len(self.swarmController.drones)
+
+    @property
+    def droneRequirementMet(self):
+        return self.checkDroneRequirement()
+
+    def checkDroneRequirement(self):
+        available = len(self.swarmController.drones)
+        required = SequenceController.CURRENT.drones if SequenceController.CURRENT else 0
+        return  (available > 0 and required > 0 and available >= required)

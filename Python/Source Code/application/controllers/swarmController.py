@@ -48,15 +48,20 @@ class SwarmController():
             end = max(0, min(numDrones, listLength))
             uris = uris[:end]
 
-        self.swarm = Swarm(uris, factory = SwarmController.FACTORY)            
-        self.swarm.open_links()
+        self.swarm = Swarm(uris, factory=SwarmController.FACTORY)
+        try:
+            self.swarm.parallel_safe(connectToDrone, self.swarmArguments)
+            #self.swarm.open_links()
+        except Exception:
+            raise ConnectionAbortedError()
+
         for uri in self.swarm._cfs.keys():
             drone = self.droneMapping[uri]
             crazyflie = self.swarm._cfs[uri]
             drone.crazyflie = crazyflie
             drone.state = DroneState.INITIALIZING
             crazyflie.cf.connection_lost.add_callback(lambda uri, error: self.onDisconnect(uri, error))
-    
+
     def onDisconnect(self, uri, errorMessage):
         print(errorMessage)
         drone = self.droneMapping[uri]
@@ -92,6 +97,16 @@ class SwarmController():
 
         self.drones = filtered
 
+
+def connectToDrone(syncCrazyflie, drone, appController):
+    try:
+        syncCrazyflie.open_link()
+    except Exception as e:
+        if "Too many packets lost" in str(e):
+            drone.state = DroneState.DISCONNECTED
+            raise ConnectionAbortedError()
+        else:
+            raise
 
 
 def initializePositioning(syncCrazyflie, drone, appController):
