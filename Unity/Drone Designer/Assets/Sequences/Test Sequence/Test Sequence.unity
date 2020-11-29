@@ -246,7 +246,7 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 0.009615385, g: 0.5589412, b: 0.9904838, a: 1}
+  m_Color: {r: 0, g: 0.5643678, b: 1, a: 1}
   m_Intensity: 0.7
   m_Range: 3
   m_SpotAngle: 179
@@ -467,6 +467,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 8711280548208592316, guid: c4223a72ed6a04c458ce29860b982948, type: 3}
+      propertyPath: m_SceneBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8711280548208592316, guid: c4223a72ed6a04c458ce29860b982948, type: 3}
       propertyPath: m_SceneBindings.Array.data[1].value
       value: 
       objectReference: {fileID: 4941615829502038372}
@@ -478,6 +482,14 @@ PrefabInstance:
       propertyPath: m_ExposedReferences.m_References.Array.data[1].second
       value: 
       objectReference: {fileID: 4941615829502038371}
+    - target: {fileID: 8711280548208592316, guid: c4223a72ed6a04c458ce29860b982948, type: 3}
+      propertyPath: m_SceneBindings.Array.data[0].key
+      value: 
+      objectReference: {fileID: -5326146300499088704, guid: d6c730318eacf18448448f9e56909336, type: 2}
+    - target: {fileID: 8711280548208592316, guid: c4223a72ed6a04c458ce29860b982948, type: 3}
+      propertyPath: m_SceneBindings.Array.data[0].value
+      value: 
+      objectReference: {fileID: 4941615829502038372}
     - target: {fileID: 8711280548625477112, guid: c4223a72ed6a04c458ce29860b982948, type: 3}
       propertyPath: m_Name
       value: System
