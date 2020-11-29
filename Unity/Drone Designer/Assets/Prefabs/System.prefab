@@ -41,15 +41,19 @@ PlayableDirector:
   m_Enabled: 1
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: d6c730318eacf18448448f9e56909336, type: 2}
-  m_InitialState: 1
+  m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
   m_SceneBindings:
-  - key: {fileID: -1232057232917737955, guid: d6c730318eacf18448448f9e56909336, type: 2}
+  - key: {fileID: -1086906190942226739, guid: d6c730318eacf18448448f9e56909336, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -5326146300499088704, guid: d6c730318eacf18448448f9e56909336, type: 2}
     value: {fileID: 0}
   m_ExposedReferences:
-    m_References: []
+    m_References:
+    - d519d49e3549eaf40aa179c79c8dd68f: {fileID: 0}
+    - 505020dd3d8da6047b23472cb6e3b2c9: {fileID: 0}
 --- !u!1 &8711280548625477112
 GameObject:
   m_ObjectHideFlags: 0
@@ -109,13 +113,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8711280549726823803}
-  m_LocalRotation: {x: -0, y: -0.38268343, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 0.7, y: 0.7, z: -0.7}
+  m_LocalRotation: {x: 0.31598538, y: -0.3596048, z: 0.13088542, w: 0.8681629}
+  m_LocalPosition: {x: 2, y: 2, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8711280548625477119}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 15, y: -45, z: 0}
+  m_LocalEulerAnglesHint: {x: 40, y: -45, z: 0}
 --- !u!20 &8711280549726823806
 Camera:
   m_ObjectHideFlags: 0

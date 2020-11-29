@@ -1,0 +1,13 @@
+Waypoint
+{
+   width:20px;
+   height:20px;
+   background-image: resource("Assets/Textures/Editor/marker_two.png");
+}
+
+ColorKeyframe
+{
+   width:20px;
+   height:20px;
+   background-image: resource("Assets/Textures/Editor/color_wheel_two.png");
+}
