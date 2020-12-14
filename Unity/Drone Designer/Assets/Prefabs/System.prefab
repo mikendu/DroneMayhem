@@ -46,8 +46,6 @@ PlayableDirector:
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
   m_SceneBindings:
-  - key: {fileID: -1086906190942226739, guid: d6c730318eacf18448448f9e56909336, type: 2}
-    value: {fileID: 0}
   - key: {fileID: -5326146300499088704, guid: d6c730318eacf18448448f9e56909336, type: 2}
     value: {fileID: 0}
   m_ExposedReferences:
@@ -194,7 +192,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_RenderPostProcessing: 1
-  m_Antialiasing: 0
+  m_Antialiasing: 2
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0

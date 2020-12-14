@@ -69,8 +69,8 @@ public static class KeyframeUtil
 
         Vector3 startPos = currentKeyframe.Position;
         Vector3 endPos = nextKeyframe.Position;
-        Vector3 startTangent = linearStart ? startPos : startPos + currentKeyframe.StartTangent;
-        Vector3 endTangent = linearEnd ? endPos : endPos + currentKeyframe.EndTangent;
+        Vector3 startTangent = linearStart ? startPos : startPos + currentKeyframe.Tangent;
+        Vector3 endTangent = linearEnd ? endPos : endPos - nextKeyframe.Tangent;
 
         Vector3 quadOne = EvaluateQuadratic(startPos, startTangent, endTangent, interpolation);
         Vector3 quadTwo = EvaluateQuadratic(startTangent, endTangent, endPos, interpolation);

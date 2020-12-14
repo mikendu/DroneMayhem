@@ -1,19 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8832400511660383635
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: Color Keyframe
-  m_EditorClassIdentifier: 
-  m_Time: 2
-  LightColor: {r: 0, g: 1, b: 0.11560202, a: 1}
 --- !u!114 &-7154642143732759065
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -26,11 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: Position Keyframe
   m_EditorClassIdentifier: 
-  m_Time: 2
+  m_Time: 11.4
   JointType: 0
-  Position: {x: -0.54159355, y: 0.64160883, z: 0}
-  StartTangent: {x: -0.25, y: 0, z: 0}
-  EndTangent: {x: 0.25, y: 0, z: 0}
+  Position: {x: 0.8513357, y: 0.35415286, z: 1.2027977}
+  Tangent: {x: 0.25, y: 0, z: 0}
 --- !u!114 &-5326146300499088704
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -54,12 +39,15 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects:
-    - {fileID: -3468243245964376617}
     - {fileID: -989487789281904854}
     - {fileID: -3229855137182886468}
     - {fileID: -7154642143732759065}
-    - {fileID: -8832400511660383635}
---- !u!114 &-3468243245964376617
+    - {fileID: 3923247455504915657}
+    - {fileID: 8574530548098283913}
+    - {fileID: -939552349328334209}
+    - {fileID: -4332693402872548181}
+    - {fileID: 6892563550071957937}
+--- !u!114 &-4332693402872548181
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,10 +57,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: Color Keyframe
+  m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 0
-  LightColor: {r: 0, g: 0.5643678, b: 1, a: 1}
+  m_Time: 9.65
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &-3229855137182886468
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -85,11 +73,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: Position Keyframe
   m_EditorClassIdentifier: 
-  m_Time: 1
+  m_Time: 3.316666666666667
   JointType: 1
-  Position: {x: -0.28471658, y: 0.616633, z: 0}
-  StartTangent: {x: -0.13909908, y: 0.045150816, z: -0.05148369}
-  EndTangent: {x: 0.25, y: 0, z: 0}
+  Position: {x: 0.23792654, y: 0.25600925, z: 0.38607782}
+  Tangent: {x: 0.17178649, y: 0.0054597557, z: 0.04405144}
 --- !u!114 &-989487789281904854
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -104,9 +91,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 0
   JointType: 0
-  Position: {x: -0.094954, y: 0.46068844, z: 0.14100388}
-  StartTangent: {x: -0.25, y: 0, z: 0}
-  EndTangent: {x: 0.13909908, y: -0.045150816, z: 0.05148369}
+  Position: {x: 0.024797678, y: 0.20008421, z: -0.34304482}
+  Tangent: {x: 0.25, y: 0, z: 0}
+--- !u!114 &-939552349328334209
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2.35
+  LightColor: {r: 1, g: 0.11337265, b: 0, a: 1}
 --- !u!114 &-449733013552933555
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Version: 0
   m_Tracks:
   - {fileID: -5326146300499088704}
-  m_FixedDuration: 16.499999999998998
+  m_FixedDuration: 1.999999999999
   m_EditorSettings:
     m_Framerate: 60
   m_DurationMode: 0
@@ -164,6 +164,20 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects: []
+--- !u!114 &3923247455504915657
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: Color Keyframe
+  m_EditorClassIdentifier: 
+  m_Time: 0.7833333333333333
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &4285468700507274217
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -187,3 +201,33 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects: []
+--- !u!114 &6892563550071957937
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 7.133333333333334
+  JointType: 1
+  Position: {x: 0.6223531, y: 0.3210528, z: 0.8654834}
+  Tangent: {x: -0.008341134, y: 0.013473928, z: 0.16820621}
+--- !u!114 &8574530548098283913
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 7.566666666666666
+  LightColor: {r: 0.015686274, g: 0.8633222, b: 1, a: 1}

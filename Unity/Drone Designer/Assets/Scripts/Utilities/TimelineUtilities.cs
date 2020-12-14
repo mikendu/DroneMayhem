@@ -8,8 +8,43 @@ using UnityEditor.Timeline;
 using System.IO;
 using System.Reflection;
 
+[InitializeOnLoad]
 public class TimelineUtilities : MonoBehaviour
 {
+
+    private static PlayableDirector director;
+    private static TimelineAsset timeline;
+
+    static TimelineUtilities()
+    {
+        director = FindObjectOfType<PlayableDirector>();
+        timeline = director?.playableAsset as TimelineAsset;
+    }
+
+    public static PlayableDirector Director
+    {
+        get
+        {
+            if (director == null)
+                director = FindObjectOfType<PlayableDirector>();
+
+            return director;
+        }
+    }
+
+    public static TimelineAsset Timeline
+    {
+        get
+        {
+            if (timeline == null)
+                timeline = Director?.playableAsset as TimelineAsset;
+
+            return timeline;
+        }
+    }
+
+
+
 
     [MenuItem("Drone Tools/Show Timeline %t", false, 0)]
     static void ShowTimeline()
@@ -119,4 +154,5 @@ public class TimelineUtilities : MonoBehaviour
         }
         return result.ToArray();
     }
+
 }

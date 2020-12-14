@@ -10,9 +10,7 @@ using UnityEngine.Playables;
 
 [Serializable]
 [CustomStyle("ColorKeyframe")]
-public class ColorKeyframe : Marker, INotification
+public class ColorKeyframe : DroneKeyframe
 {
-    public Color LightColor = Color.black;
-
-    public PropertyName id => new PropertyName();
+    public Color LightColor = Color.white;
 }

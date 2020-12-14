@@ -10,4 +10,12 @@ using UnityEngine.Timeline;
 [TrackClipType(typeof(CrazyflieControlClip))]
 public class CrazyflieTrack : TrackAsset 
 {
+
+    public Crazyflie Drone
+    {
+        get
+        {
+            return TimelineUtilities.Director.GetGenericBinding(this) as Crazyflie;
+        }
+    }
 }

@@ -15,12 +15,9 @@ public enum JointType
 
 [Serializable]
 [CustomStyle("Waypoint")]
-public class PositionKeyframe : Marker, INotification
+public class PositionKeyframe : DroneKeyframe
 {
     public JointType JointType = JointType.Linear;
     public Vector3 Position = Vector3.zero;
-    public Vector3 StartTangent = 0.25f * Vector3.left;
-    public Vector3 EndTangent = 0.25f * Vector3.right;
-
-    public PropertyName id => new PropertyName();
+    public Vector3 Tangent = 0.25f * Vector3.right;
 }
