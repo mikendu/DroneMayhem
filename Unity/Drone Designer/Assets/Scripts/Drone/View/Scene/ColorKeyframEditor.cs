@@ -11,7 +11,9 @@ public class ColorKeyframEditor : CustomEditor<ColorKeyframe>
 {
     protected override void OnDrawScene(SceneView scene)
     {
-        Handles.color = Color.blue;
-        Handles.DrawSolidDisc(new Vector3(1, 1, 1), Vector3.up, 0.5f);
+        ColorKeyframe keyframe = Target;
+        Crazyflie drone = keyframe.Drone;
+        CrazyflieEditor.Draw(drone);
+
     }
 }

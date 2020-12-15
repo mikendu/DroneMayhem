@@ -36,12 +36,12 @@ public class CrazyflieEditor : Editor
 
     private void OnSceneGUI()
     {
-        Draw(Drone);
+        Draw(Drone, true);
     }
 
-    public static void Draw(Crazyflie drone)
+    public static void Draw(Crazyflie drone, bool active = false)
     {
-        DrawDroneHandles(drone);
+        DrawDroneHandles(drone, active);
         DrawDroneGUI(drone);
     }
 
@@ -56,7 +56,7 @@ public class CrazyflieEditor : Editor
     {
         if (DronePathMenu.AlwaysOn)
         {
-            DrawDroneBounds(drone, Palette.UltraTranslucent);
+            // DrawDroneBounds(drone, Palette.UltraTranslucent);
             List<PositionKeyframe> waypoints = drone.PositionKeyframes;
             CustomHandles.DrawBezierPath(waypoints, Palette.UltraTranslucent, 2.0f);
         }
@@ -65,9 +65,10 @@ public class CrazyflieEditor : Editor
 
     /// -------- DRONE HANDLES -------- ///
 
-    public static void DrawDroneHandles(Crazyflie drone)
+    public static void DrawDroneHandles(Crazyflie drone, bool active)
     {
-        DrawDroneBounds(drone, Color.white);
+        if (active)
+            DrawDroneBounds(drone, Color.white);
 
         List<PositionKeyframe> waypoints = drone.PositionKeyframes;
         CustomHandles.DrawBezierPath(waypoints, Color.white, 2.0f);

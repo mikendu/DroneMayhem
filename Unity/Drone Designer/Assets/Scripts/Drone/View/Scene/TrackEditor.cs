@@ -11,7 +11,8 @@ public class TrackEditor : CustomEditor<CrazyflieTrack>
 {
     protected override void OnDrawScene(SceneView scene)
     {
-        Handles.color = Color.green;
-        Handles.DrawSolidDisc(new Vector3(1, 1, -1), Vector3.up, 0.5f);
+        Crazyflie drone = Target.Drone;
+        CrazyflieEditor.Draw(drone);
+
     }
 }
