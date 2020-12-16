@@ -20,4 +20,22 @@ public class PositionKeyframe : DroneKeyframe
     public JointType JointType = JointType.Linear;
     public Vector3 Position = Vector3.zero;
     public Vector3 Tangent = 0.25f * Vector3.right;
+
+    public void SetPosition(Vector3 position)
+    {
+        this.Position = position;
+    }
+
+    public void SetTangent(Vector3 tangent)
+    {
+        this.Tangent = (tangent - Position);
+    }
+
+    public void SetInverseTangent(Vector3 tangent)
+    {
+        this.Tangent = (Position - tangent);
+    }
+
+    public Vector3 WorldTangent { get { return Position + Tangent; } }
+    public Vector3 InverseWorldTangent { get { return Position - Tangent; } }
 }

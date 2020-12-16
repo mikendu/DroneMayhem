@@ -10,6 +10,7 @@ using UnityEngine;
 [CustomEditor(typeof(PositionKeyframe))]
 public class WaypointEditor : CustomEditor<PositionKeyframe>
 {
+    private static readonly Vector3 DefaultSnap = 0.01f * Vector3.one;
     protected static int targetPoint = 0;
 
     protected override void OnEnable()
@@ -31,15 +32,22 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         }
 
         if (targetPoint == 0)
-            CustomHandles.DrawCircle(keyframe.Position, 0.0375f, Color.green);
+        {
+            CustomHandles.DrawCircle(keyframe.Position, 0.0375f, Color.yellow);
+            MoveHandle(keyframe, keyframe.Position, 0.06f, 0.045f, keyframe.SetPosition);
+        }
         else
+        {
             CustomHandles.DrawCircle(keyframe.Position, 0.0375f, Color.white);
+        }
+        
     }
 
     protected void DrawTangent(PositionKeyframe keyframe, bool invert)
     {
         Vector3 position = keyframe.Position;
-        Vector3 tangentPosition = position + (invert ? keyframe.Tangent : -keyframe.Tangent);
+        Vector3 tangentPosition = invert ? keyframe.InverseWorldTangent : keyframe.WorldTangent;
+        Action<Vector3> applyFunction = invert ? (Action<Vector3>)keyframe.SetInverseTangent : keyframe.SetTangent;
 
         Handles.color = Color.white;
         Handles.SphereHandleCap(0, tangentPosition, Quaternion.identity, 0.01f, EventType.Repaint);
@@ -50,20 +58,16 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         if (CustomHandles.SelectableButton(tangentPosition, 0.015f, Color.white))
             targetPoint = (invert ? 2 : 1);
 
-        EditorGUI.BeginChangeCheck();
-        Vector3 newTangent = Handles.FreeMoveHandle(tangentPosition, Quaternion.identity, 0.015f, 0.01f * Vector3.one, CustomHandles.CircleCap);
-        if (EditorGUI.EndChangeCheck())
-        {
-            Undo.RecordObject(keyframe, "Change Waypoint");
-            Vector3 delta = newTangent - position;
-            keyframe.Tangent = (invert ? delta : -delta);
-        }
+        // Circle
+        FreeMove(keyframe, tangentPosition, 0.015f, CustomHandles.CircleCap, applyFunction);
 
+        // Selected
         if ((!invert && targetPoint == 1) || (invert && targetPoint == 2))
         {
-            CustomHandles.DrawCircle(tangentPosition, 0.015f, Color.green);
-
-        }    }
+            CustomHandles.DrawCircle(tangentPosition, 0.015f, Color.yellow);
+            MoveHandle(keyframe, tangentPosition, 0.04f, 0.025f, applyFunction);
+        }
+    }
 
 
     public static void DrawSelector(PositionKeyframe keyframe)
@@ -84,12 +88,30 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         }
 
         // -- MOVEMENT -- // 
+        FreeMove(keyframe, position, hitboxSize, CustomHandles.NullCap, keyframe.SetPosition);
+    }
+
+    private static void FreeMove(PositionKeyframe keyframe, Vector3 position, float size, Handles.CapFunction capFunction, Action<Vector3> applyFunction)
+    {
         EditorGUI.BeginChangeCheck();
-        Vector3 newPosition = Handles.FreeMoveHandle(position, Quaternion.identity, hitboxSize, 0.01f * Vector3.one, CustomHandles.NullCap);
+        Vector3 newPosition = Handles.FreeMoveHandle(position, Quaternion.identity, size, DefaultSnap, capFunction);
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(keyframe, "Change Waypoint");
-            keyframe.Position = newPosition;
+            applyFunction.Invoke(newPosition);
         }
+
+    }
+
+    private static void MoveHandle(PositionKeyframe keyframe, Vector3 position, float size, float offset, Action<Vector3> applyFunction)
+    {
+        EditorGUI.BeginChangeCheck();
+        Vector3 updatedPosition = CustomHandles.MoveHandle(position, offset, size);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(keyframe, "Change Waypoint");
+            applyFunction.Invoke(updatedPosition);
+        }
+
     }
 }
