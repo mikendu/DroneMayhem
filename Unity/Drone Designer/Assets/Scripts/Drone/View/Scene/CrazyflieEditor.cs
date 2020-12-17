@@ -70,9 +70,11 @@ public class CrazyflieEditor : Editor
         if (active)
             DrawDroneBounds(drone, Color.white);
 
-        List<PositionKeyframe> waypoints = drone.PositionKeyframes;
+        List<PositionKeyframe> waypoints = drone.PositionKeyframes;        
+
         CustomHandles.DrawBezierPath(waypoints, Color.white, 2.0f);
         DrawWaypoints(waypoints);
+        ColorKeyframeEditor.DrawColorKeyframes(drone, waypoints);
     }
 
 
@@ -93,8 +95,9 @@ public class CrazyflieEditor : Editor
     }
 
 
+
     /// -------- DRONE GUI -------- ///
-    
+
 
     public static void DrawDroneGUI(Crazyflie drone)
     {

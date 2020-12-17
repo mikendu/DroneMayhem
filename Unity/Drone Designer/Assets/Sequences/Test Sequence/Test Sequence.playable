@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: Position Keyframe
   m_EditorClassIdentifier: 
-  m_Time: 11.4
+  m_Time: 8
   JointType: 0
-  Position: {x: 0.8513357, y: 0.35415286, z: 1.2027977}
+  Position: {x: -0.027902931, y: 0.42405534, z: 0.80245274}
   Tangent: {x: 0.25, y: 0, z: 0}
 --- !u!114 &-5326146300499088704
 MonoBehaviour:
@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 9.65
+  m_Time: 8
   LightColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &-3229855137182886468
 MonoBehaviour:
@@ -73,10 +73,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: Position Keyframe
   m_EditorClassIdentifier: 
-  m_Time: 3.316666666666667
+  m_Time: 2
   JointType: 1
-  Position: {x: 0.21102114, y: 0.25378418, z: 0.31899837}
-  Tangent: {x: 0.15673222, y: 0.023168862, z: -0.06144303}
+  Position: {x: -0.13803363, y: 0.2678455, z: 0.04546103}
+  Tangent: {x: 0.00009545684, y: 0.02625823, z: 0.19852221}
 --- !u!114 &-989487789281904854
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 2.35
+  m_Time: 4
   LightColor: {r: 1, g: 0.11337265, b: 0, a: 1}
 --- !u!114 &-449733013552933555
 MonoBehaviour:
@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: Color Keyframe
   m_EditorClassIdentifier: 
-  m_Time: 0.7833333333333333
+  m_Time: 0
   LightColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &4285468700507274217
 MonoBehaviour:
@@ -213,10 +213,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 7.133333333333334
+  m_Time: 4
   JointType: 1
-  Position: {x: 0.6223531, y: 0.3210528, z: 0.8654834}
-  Tangent: {x: -0.008341134, y: 0.013473928, z: 0.16820621}
+  Position: {x: 0.12775162, y: 0.34267205, z: 0.5036755}
+  Tangent: {x: -0.008341134, y: 0.034674227, z: 0.16820621}
 --- !u!114 &8574530548098283913
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -229,5 +229,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 7.566666666666666
+  m_Time: 2
   LightColor: {r: 0.015686274, g: 0.8633222, b: 1, a: 1}

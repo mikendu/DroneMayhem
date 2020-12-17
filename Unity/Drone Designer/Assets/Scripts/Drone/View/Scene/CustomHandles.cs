@@ -26,6 +26,18 @@ public class CustomHandles
         }
     }
 
+
+    public static void DrawDisc(Vector3 position, float size, Color color)
+    {
+        Color previousColor = Handles.color;
+        Handles.color = color;
+
+        Vector3 normal = GetNormal(position);
+        Handles.DrawSolidDisc(position, normal, size);
+
+        Handles.color = previousColor;
+    }
+
     public static void CircleCap(int controlId, Vector3 position, Quaternion rotation, float size, EventType eventType)
     {
         if (eventType == EventType.Layout)

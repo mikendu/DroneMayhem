@@ -99,6 +99,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         {
             Undo.RecordObject(keyframe, "Change Waypoint");
             applyFunction.Invoke(newPosition);
+            keyframe.Drone.UpdateView();
         }
 
     }
@@ -111,6 +112,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         {
             Undo.RecordObject(keyframe, "Change Waypoint");
             applyFunction.Invoke(updatedPosition);
+            keyframe.Drone.UpdateView();
         }
 
     }
