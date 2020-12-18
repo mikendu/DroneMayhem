@@ -10,6 +10,8 @@ using UnityEngine;
 [CustomEditor(typeof(ColorKeyframe))]
 public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
 {
+    private static int ControlHint = "ColorHandle".GetHashCode();
+
     protected override void OnDrawScene(SceneView scene)
     {
         ColorKeyframe keyframe = Target;
@@ -21,30 +23,29 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
     }
 
 
-    public static void DrawColorKeyframes(Crazyflie drone, List<PositionKeyframe> waypoints)
+    public static void DrawColorKeyframes(Crazyflie drone, List<Waypoint> waypoints)
     {
-        List<ColorKeyframe> colorKeyframes = drone.UnsortedKeyframes;
-        List<ColorKeyframe> sorted = new List<ColorKeyframe>(colorKeyframes);
-
-        sorted.Sort((x, y) => x.time.CompareTo(y.time));
+        List<ColorKeyframe> colorKeyframes = drone.ColorKeyframes;
         Vector3 dronePosition = drone.transform.position;
 
-        for (int i = 0; i < sorted.Count; i++)
+        for (int i = 0; i < colorKeyframes.Count; i++)
         {
-            ColorKeyframe keyframe = sorted[i];
+            ColorKeyframe keyframe = colorKeyframes[i];
             keyframe.Position = KeyframeUtil.GetPosition(waypoints, keyframe.time, dronePosition);
-            keyframe.Tangent = KeyframeUtil.GetTangent(waypoints, keyframe.time, true);
-            keyframe.Offset = GetOffset(i, sorted);
-            keyframe.SortedIndex = i;
+            keyframe.Tangent = KeyframeUtil.GetTangent(waypoints, keyframe.time, true, true);
+            keyframe.Offset = GetOffset(i, colorKeyframes);
+
+            DrawSelector(keyframe);
         }
         
-        foreach(ColorKeyframe keyframe in colorKeyframes)
-            DrawSelector(keyframe);
-        
+        //foreach(ColorKeyframe keyframe in colorKeyframes)
+            
     }
 
     public static void DrawSelector(ColorKeyframe keyframe)
     {
+        int hint = (ControlHint * keyframe.MarkerIndex) + keyframe.MarkerIndex;
+        int controlId = GUIUtility.GetControlID(hint, FocusType.Passive);
         Vector3 offsetPosition = keyframe.Position + new Vector3(0, keyframe.Offset, 0);
 
         float size = 0.02f;
@@ -66,7 +67,7 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
         
         /// -- MOVEMENT -- //
         EditorGUI.BeginChangeCheck();
-        Vector3 newPosition = Handles.FreeMoveHandle(offsetPosition, Quaternion.identity, size, DefaultSnap, CustomHandles.NullCap);
+        Vector3 newPosition = Handles.FreeMoveHandle(controlId, offsetPosition, Quaternion.identity, size, DefaultSnap, CustomHandles.NullCap);
         if (EditorGUI.EndChangeCheck() && selected)
         {
             Undo.RecordObject(keyframe, "Change Color Keyframe");

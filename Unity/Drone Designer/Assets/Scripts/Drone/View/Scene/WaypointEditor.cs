@@ -7,8 +7,8 @@ using UnityEditor;
 using UnityEngine;
 
 
-[CustomEditor(typeof(PositionKeyframe))]
-public class WaypointEditor : CustomEditor<PositionKeyframe>
+[CustomEditor(typeof(Waypoint))]
+public class WaypointEditor : CustomEditor<Waypoint>
 {
     protected static int targetPoint = 0;
 
@@ -20,7 +20,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
 
     protected override void OnDrawScene(SceneView scene)
     {
-        PositionKeyframe keyframe = Target;
+        Waypoint keyframe = Target;
         Crazyflie drone = keyframe.Drone;
         CrazyflieEditor.Draw(drone);
 
@@ -45,7 +45,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
 
     }
 
-    protected void DrawTangent(PositionKeyframe keyframe, bool invert)
+    protected void DrawTangent(Waypoint keyframe, bool invert)
     {
         Vector3 position = keyframe.Position;
         Vector3 tangentPosition = invert ? keyframe.InverseWorldTangent : keyframe.WorldTangent;
@@ -72,7 +72,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
     }
 
 
-    public static void DrawSelector(PositionKeyframe keyframe)
+    public static void DrawSelector(Waypoint keyframe)
     {
         Vector3 position = keyframe.Position;
         float size = 0.025f;
@@ -93,7 +93,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         FreeMove(keyframe, position, hitboxSize, CustomHandles.NullCap, keyframe.SetPosition);
     }
 
-    private static void FreeMove(PositionKeyframe keyframe, Vector3 position, float size, Handles.CapFunction capFunction, Action<Vector3> applyFunction)
+    private static void FreeMove(Waypoint keyframe, Vector3 position, float size, Handles.CapFunction capFunction, Action<Vector3> applyFunction)
     {
         EditorGUI.BeginChangeCheck();
         Vector3 newPosition = Handles.FreeMoveHandle(position, Quaternion.identity, size, DefaultSnap, capFunction);
@@ -106,7 +106,7 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
 
     }
 
-    private static void MoveHandle(PositionKeyframe keyframe, Vector3 position, float size, float offset, Action<Vector3> applyFunction)
+    private static void MoveHandle(Waypoint keyframe, Vector3 position, float size, float offset, Action<Vector3> applyFunction)
     {
         EditorGUI.BeginChangeCheck();
         Vector3 updatedPosition = CustomHandles.MoveHandle(position, offset, size);

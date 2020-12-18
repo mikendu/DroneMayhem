@@ -13,6 +13,7 @@ public class CrazyflieEditor : Editor
 {
     private static Vector3 DroneSize = new Vector3(0.125f, 0.075f, 0.125f);
     private static Vector3 DroneOffset = new Vector3(0.0f, -0.0075f, 0.0f);
+    private static Vector3 DefaultSnap = 0.01f * Vector3.one;
 
     private Crazyflie Drone { get { return target as Crazyflie; } }
 
@@ -57,7 +58,7 @@ public class CrazyflieEditor : Editor
         if (DronePathMenu.AlwaysOn)
         {
             // DrawDroneBounds(drone, Palette.UltraTranslucent);
-            List<PositionKeyframe> waypoints = drone.PositionKeyframes;
+            List<Waypoint> waypoints = drone.Waypoints;
             CustomHandles.DrawBezierPath(waypoints, Palette.UltraTranslucent, 2.0f);
         }
     }
@@ -67,14 +68,25 @@ public class CrazyflieEditor : Editor
 
     public static void DrawDroneHandles(Crazyflie drone, bool active)
     {
-        if (active)
-            DrawDroneBounds(drone, Color.white);
-
-        List<PositionKeyframe> waypoints = drone.PositionKeyframes;        
-
+        float time = (float)TimelineUtilities.Director.time;
+        List<Waypoint> waypoints = drone.Waypoints;
         CustomHandles.DrawBezierPath(waypoints, Color.white, 2.0f);
         DrawWaypoints(waypoints);
         ColorKeyframeEditor.DrawColorKeyframes(drone, waypoints);
+
+        if (active)
+        {
+            // DrawDroneBounds(drone, Color.white);
+
+            EditorGUI.BeginChangeCheck();
+            Vector3 updatedPosition = CustomHandles.MoveHandle(drone.transform.position, 0.075f, 0.085f);
+            if (EditorGUI.EndChangeCheck())
+            {
+                drone.SetWaypoint(waypoints, updatedPosition, time);
+            }
+        }
+
+        //CustomHandles.DrawTangent(waypoints, 0.25f, time);
     }
 
 
@@ -88,9 +100,9 @@ public class CrazyflieEditor : Editor
         Handles.color = previousColor;
     }
 
-    public static void DrawWaypoints(List<PositionKeyframe> waypoints)
+    public static void DrawWaypoints(List<Waypoint> waypoints)
     {
-        foreach (PositionKeyframe waypoint in waypoints)
+        foreach (Waypoint waypoint in waypoints)
             WaypointEditor.DrawSelector(waypoint);
     }
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   m_Time: 6
   JointType: 0
   Position: {x: -0.027902931, y: 0.42405534, z: 0.80245274}
-  Tangent: {x: 0.25, y: 0, z: 0}
+  Tangent: {x: 0.031743176, y: 0.042393833, z: 0.16275448}
 --- !u!114 &-6699605458785850810
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -355,7 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 4
   JointType: 1
-  Position: {x: 0.12775162, y: 0.34267205, z: 0.5036755}
+  Position: {x: 0.1728744, y: 0.34267205, z: 0.5036755}
   Tangent: {x: -0.008341134, y: 0.034674227, z: 0.16820621}
 --- !u!114 &7255281379517112809
 MonoBehaviour:

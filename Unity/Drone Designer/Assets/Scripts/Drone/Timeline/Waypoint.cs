@@ -15,7 +15,7 @@ public enum JointType
 
 [Serializable]
 [CustomStyle("Waypoint")]
-public class PositionKeyframe : DroneKeyframe
+public class Waypoint : DroneKeyframe
 {
     public JointType JointType = JointType.Linear;
     public Vector3 Position = Vector3.zero;

@@ -14,11 +14,5 @@ public class CrazyflieControlBehaviour : PlayableBehaviour
 
     public override void ProcessFrame(Playable playable, FrameData info, object playerData)
     {
-        Crazyflie drone = playerData as Crazyflie;
-
-        if (drone != null)
-            drone.LightColor = lightColor;
-
-
     }
 }

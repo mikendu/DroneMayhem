@@ -24,6 +24,12 @@ public class Crazyflie : MonoBehaviour
     protected TrackAsset track;
     protected bool needsSelect = false;
 
+    public List<ColorKeyframe> ColorKeyframes { get; private set; } = new List<ColorKeyframe>();
+    public List<Waypoint> Waypoints { get; private set; } = new List<Waypoint>();
+    
+    protected float time;
+    protected Color previousColor;
+
     void Start()
     {
         
@@ -31,7 +37,7 @@ public class Crazyflie : MonoBehaviour
 
 
 
-    void LateUpdate()
+    void Update()
     {
         if (this.needsSelect)
         {
@@ -52,7 +58,27 @@ public class Crazyflie : MonoBehaviour
         properties.SetColor("_EmissionColor", 4 * LightColor);
         m_renderer.SetPropertyBlock(properties);
 
+        UpdateProperties();
         UpdateView();
+    }
+
+    public void UpdateProperties()
+    {
+        this.time = (float)TimelineUtilities.Director.time;
+
+        this.ColorKeyframes = Track.GetMarkers()
+            .Where(item => item is ColorKeyframe)
+            .Select((item, index) =>
+            {
+                ColorKeyframe keyframe = item as ColorKeyframe;
+                keyframe.MarkerIndex = index;
+                return keyframe;
+            }).ToList();
+
+        this.ColorKeyframes.Sort((x, y) => x.time.CompareTo(y.time));
+
+        this.Waypoints = Track.GetMarkers().Where(item => item is Waypoint).Select(item => item as Waypoint).ToList();
+        this.Waypoints.Sort((x, y) => x.time.CompareTo(y.time));
     }
 
 
@@ -63,15 +89,19 @@ public class Crazyflie : MonoBehaviour
 
     public void UpdateView()
     {
-        double currentTime = TimelineUtilities.Director.time;
-        transform.position = KeyframeUtil.GetPosition(PositionKeyframes, currentTime, transform.position);
-        LightColor = KeyframeUtil.GetColor(ColorKeyframes, currentTime, LightColor);
+        previousColor = LightColor;
+        transform.position = KeyframeUtil.GetPosition(Waypoints, time, transform.position);
+        LightColor = KeyframeUtil.GetColor(ColorKeyframes, time, LightColor);
     }
 
 
     private void OnValidate()
     {
-        SetColorKeyframe();
+        if (this.track != null && LightColor != previousColor)
+        {
+            SetColorKeyframe(this.ColorKeyframes, this.time, LightColor);
+        }
+
     }
 
     public TrackAsset Track
@@ -83,101 +113,76 @@ public class Crazyflie : MonoBehaviour
                 var allTracks = TimelineUtilities.Timeline.GetOutputTracks();
                 foreach (TrackAsset track in allTracks)
                 {
-                    var drone = TimelineUtilities.Director.GetGenericBinding(track);
-                    if (drone != null && drone == this)
+                    Crazyflie drone = TimelineUtilities.Director.GetGenericBinding(track) as Crazyflie;
+                    if (drone != null && drone.gameObject == this.gameObject)
                     {
                         this.track = track;
                         break;
                     }
                 }
             }
+
             return track;
         }
     }
 
 
-    public List<PositionKeyframe> PositionKeyframes
+    public DroneKeyframe SetWaypoint(List<Waypoint> waypoints, Vector3 position, float time)
     {
-        get
-        {
-            if (Track == null)
-                return null;
-
-            List<PositionKeyframe> result = Track.GetMarkers().Where(item => item is PositionKeyframe).Select(item => item as PositionKeyframe).ToList();
-            result.Sort((x, y) => x.time.CompareTo(y.time));
-            return result;
-        }
-    }
-
-    public List<ColorKeyframe> ColorKeyframes
-    {
-        get
-        {
-            List<ColorKeyframe> list = UnsortedKeyframes;
-            if (list == null)
-                return null;
-
-            list.Sort((x, y) => x.time.CompareTo(y.time));
-            return list;
-        }
-    }
-
-    public List<ColorKeyframe> UnsortedKeyframes
-    {
-        get
-        {
-            if (Track == null)
-                return null;
-
-            return Track.GetMarkers().Where(item => item is ColorKeyframe).Select(item => item as ColorKeyframe).ToList();
-        }
-    }
-
-
-    public DroneKeyframe SetWaypoint()
-    {
-        float time = (float)TimelineUtilities.Director?.time;
-        List<PositionKeyframe> keyframes = PositionKeyframes;
-        if (keyframes == null)
+        if (waypoints == null)
             return null;
 
-        PositionKeyframe keyframe = GetKeyframe(keyframes, time) as PositionKeyframe;
+        Waypoint keyframe = GetKeyframe(waypoints, time) as Waypoint;
         if (keyframe == null)
         {
-            keyframe = Track.CreateMarker<PositionKeyframe>(time);
+            Vector3 tangent = 0.125f *  KeyframeUtil.GetTangent(waypoints, time, true, true);
+            keyframe = Track.CreateMarker<Waypoint>(time);
+            keyframe.JointType = JointType.Continuous;
+            keyframe.Tangent = tangent;
+
+            TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+            UpdateProperties();
+        }
+
+        bool pastEnd = (time > waypoints[waypoints.Count - 1].time);
+        Undo.RecordObjects(new Object[] { keyframe }, "Change Waypoints");
+        keyframe.Position = position;
+
+        if (pastEnd)
+        {
             keyframe.JointType = JointType.Linear;
         }
 
-        float offset = (time > keyframes[keyframes.Count - 1].time) ? 0.1f : 0.0f;
-        keyframe.Position = transform.position + new Vector3(0, offset, 0);
         UpdateView();
-        EnforceWaypointConstraints();
-        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        //EnforceWaypointConstraints();
+        //TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
         return keyframe;
     }
 
-    public DroneKeyframe SetColorKeyframe()
+    public DroneKeyframe SetColorKeyframe(List<ColorKeyframe> keyframes, float time, Color lightColor)
     {
-        float time = (float)TimelineUtilities.Director?.time;
-        List<ColorKeyframe> keyframes = ColorKeyframes;
-        if (keyframes == null || time == 0.0f)
+        if (keyframes == null)
             return null;
 
         ColorKeyframe keyframe = GetKeyframe(keyframes, time) as ColorKeyframe;
         if (keyframe == null)
+        {
             keyframe = Track.CreateMarker<ColorKeyframe>(time);
+            UpdateProperties();
+        }
 
-        keyframe.LightColor = LightColor;
-        UpdateView();
-        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        keyframe.LightColor = lightColor;
+        //UpdateView();
+        //TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
         return keyframe;
     }
 
-    public void RemoveWaypoint(PositionKeyframe waypoint)
+    public void RemoveWaypoint(Waypoint waypoint)
     {
         Track.DeleteMarker(waypoint);
         UpdateView();
         EnforceWaypointConstraints();
+        UpdateProperties();
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
     }
 
@@ -185,14 +190,15 @@ public class Crazyflie : MonoBehaviour
     {
         Track.DeleteMarker(keyframe);
         UpdateView();
+        UpdateProperties();
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
     }
 
     public void EnforceWaypointConstraints()
     {
-        List<PositionKeyframe> waypoints = this.PositionKeyframes;
-        PositionKeyframe firstWaypoint = waypoints[0];
-        PositionKeyframe lastWaypoint = waypoints[waypoints.Count - 1];
+        List<Waypoint> waypoints = this.Waypoints;
+        Waypoint firstWaypoint = waypoints[0];
+        Waypoint lastWaypoint = waypoints[waypoints.Count - 1];
         Undo.RecordObjects(new Object[] { firstWaypoint, lastWaypoint }, "Change Waypoints");
 
         firstWaypoint.JointType = JointType.Linear;
@@ -204,8 +210,8 @@ public class Crazyflie : MonoBehaviour
         if (typeof(T) == typeof(ColorKeyframe))
             return GetKeyframe(ColorKeyframes, time) as T;
 
-        if (typeof(T) == typeof(PositionKeyframe))
-            return GetKeyframe(PositionKeyframes, time) as T;
+        if (typeof(T) == typeof(Waypoint))
+            return GetKeyframe(Waypoints, time) as T;
 
         return null;
     }

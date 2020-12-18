@@ -35,12 +35,12 @@ public static class KeyframeUtil
         return defaultColor;
     }
 
-    public static Vector3 GetPosition(List<PositionKeyframe> keyframes, double time, Vector3 defaultPosition)
+    public static Vector3 GetPosition(List<Waypoint> keyframes, double time, Vector3 defaultPosition)
     {
         for (int i = 0; i < keyframes.Count - 1; i++)
         {
-            PositionKeyframe keyframe = keyframes[i];
-            PositionKeyframe nextKeyframe = keyframes[i + 1];
+            Waypoint keyframe = keyframes[i];
+            Waypoint nextKeyframe = keyframes[i + 1];
 
             if (time >= keyframe.time && time < nextKeyframe.time)
             {
@@ -61,19 +61,19 @@ public static class KeyframeUtil
         return defaultPosition;
     }
 
-    public static Vector3 GetTangent(List<PositionKeyframe> keyframes, double time, bool handleCriticalPoints = false)
+    public static Vector3 GetTangent(List<Waypoint> keyframes, double time, bool normalize = false, bool handleCriticalPoints = false)
     {
         Vector3 tangent = Vector3.zero;
         for (int i = 0; i < keyframes.Count - 1; i++)
         {
-            PositionKeyframe keyframe = keyframes[i];
-            PositionKeyframe nextKeyframe = keyframes[i + 1];
+            Waypoint keyframe = keyframes[i];
+            Waypoint nextKeyframe = keyframes[i + 1];
 
             if (time >= keyframe.time && time < nextKeyframe.time)
             {
                 double duration = (nextKeyframe.time - keyframe.time);
                 double interpolationValue = (time - keyframe.time) / duration;
-                tangent = CalculateTangent(keyframe, nextKeyframe, Mathf.Clamp01((float)interpolationValue));
+                tangent = CalculateTangent(keyframe, nextKeyframe, Mathf.Clamp01((float)interpolationValue), normalize);
                 break;
             }
         }
@@ -87,14 +87,14 @@ public static class KeyframeUtil
 
             Vector3 startPosition = GetPosition(keyframes, startTime, Vector3.zero);
             Vector3 endPosition = GetPosition(keyframes, endTime, Vector3.zero);
-
-            tangent = (endPosition - startPosition).normalized;
+            Vector3 delta = (endPosition - startPosition);
+            tangent = normalize ? delta.normalized : delta;
         }
 
         return tangent;
     }
 
-    private static Vector3 CalculateTangent(PositionKeyframe currentKeyframe, PositionKeyframe nextKeyframe, float interpolation)
+    private static Vector3 CalculateTangent(Waypoint currentKeyframe, Waypoint nextKeyframe, float interpolation, bool normalize = false)
     {
         bool linearStart = (currentKeyframe.JointType == JointType.Linear);
         bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
@@ -115,11 +115,10 @@ public static class KeyframeUtil
 
 
         Vector3 result = (C0 * startPos) + ((C1 + C2) * startTangent) + ((C3 + C4) * endTangent) + (C5 * endPos);
-        return result.normalized;
-        //return result;
+        return normalize ? result.normalized : result;
     }
 
-    private static Vector3 EvaluateBezier(PositionKeyframe currentKeyframe, PositionKeyframe nextKeyframe, float interpolation)
+    private static Vector3 EvaluateBezier(Waypoint currentKeyframe, Waypoint nextKeyframe, float interpolation)
     {
         bool linearStart = (currentKeyframe.JointType == JointType.Linear);
         bool linearEnd = (nextKeyframe.JointType == JointType.Linear);

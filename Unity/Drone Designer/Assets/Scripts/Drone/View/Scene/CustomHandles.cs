@@ -10,6 +10,9 @@ using UnityEditor;
 
 public class CustomHandles
 {
+    protected static int CID_X = GUIUtility.GetControlID("CustomMoveX".GetHashCode(), FocusType.Passive);
+    protected static int CID_Y = GUIUtility.GetControlID("CustomMoveY".GetHashCode(), FocusType.Passive);
+    protected static int CID_Z = GUIUtility.GetControlID("CustomMoveZ".GetHashCode(), FocusType.Passive);
 
     public static void DiscCap(int controlId, Vector3 position, Quaternion rotation, float size, EventType eventType)
     {
@@ -74,13 +77,13 @@ public class CustomHandles
     }
 
 
-    public static void DrawBezierPath(List<PositionKeyframe> waypoints, Color pathColor, float thiccness = 3.0f)
+    public static void DrawBezierPath(List<Waypoint> waypoints, Color pathColor, float thiccness = 3.0f)
     {
         int numKeyframes = waypoints.Count - 1;
         for (int i = 0; i < numKeyframes; i++)
         {
-            PositionKeyframe currentKeyframe = waypoints[i];
-            PositionKeyframe nextKeyframe = waypoints[i + 1];
+            Waypoint currentKeyframe = waypoints[i];
+            Waypoint nextKeyframe = waypoints[i + 1];
             bool linearStart = (currentKeyframe.JointType == JointType.Linear);
             bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
 
@@ -91,6 +94,21 @@ public class CustomHandles
 
             Handles.DrawBezier(startPos, endPos, startTangent, endTangent, pathColor, null, thiccness);
         }
+    }
+
+    public static void DrawTangent(List<Waypoint> waypoints, float scale = 1.0f, double time = -1.0)
+    {
+        time = (time < 0) ? TimelineUtilities.Director.time : time;
+        Vector3 position = KeyframeUtil.GetPosition(waypoints, time, Vector3.zero);
+        Vector3 tangentVector = KeyframeUtil.GetTangent(waypoints, time, true, true);
+
+        Color previousColor = Handles.color;
+        Handles.color = Color.red;
+
+        float multiplier = (scale / 2.0f);
+        Vector3 halfTangent = multiplier * tangentVector;
+        Handles.DrawLine(position - halfTangent, position + halfTangent);
+        Handles.color = previousColor;
     }
 
 
@@ -127,20 +145,20 @@ public class CustomHandles
     public static Vector3 MoveHandle(Vector3 initialPosition, float offset = 0.05f, float size = 0.05f)
     {
         Vector3 currentPosition = initialPosition;
-        currentPosition = MoveAxis(currentPosition, Vector3.up, Palette.TranslucentGreen, offset, size);
-        currentPosition = MoveAxis(currentPosition, Vector3.right, Palette.TranslucentRed, offset, size);
-        currentPosition = MoveAxis(currentPosition, Vector3.forward, Palette.TranslucentBlue, offset, size);
+        currentPosition = MoveAxis(CID_Y, currentPosition, Vector3.up, Palette.TranslucentGreen, offset, size);
+        currentPosition = MoveAxis(CID_X, currentPosition, Vector3.right, Palette.TranslucentRed, offset, size);
+        currentPosition = MoveAxis(CID_Z, currentPosition, Vector3.forward, Palette.TranslucentBlue, offset, size);
 
         return currentPosition;
     }
 
-    private static Vector3 MoveAxis(Vector3 position, Vector3 direction, Color color, float offset = 0.05f, float size = 0.05f)
+    private static Vector3 MoveAxis(int controlId, Vector3 position, Vector3 direction, Color color, float offset = 0.05f, float size = 0.05f)
     {
         Color previousColor = Handles.color;
         Handles.color = color;
         Vector3 offsetVector = (offset * direction);
         Vector3 offsetPositon = position + offsetVector;
-        Vector3 newPosition = Handles.Slider(offsetPositon, direction, size, Handles.ArrowHandleCap, 0.01f);
+        Vector3 newPosition = Handles.Slider(controlId, offsetPositon, direction, size, Handles.ArrowHandleCap, 0.01f);
         Handles.color = previousColor;
 
         return newPosition - offsetVector;
