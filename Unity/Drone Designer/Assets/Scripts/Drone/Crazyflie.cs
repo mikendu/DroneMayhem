@@ -113,14 +113,26 @@ public class Crazyflie : MonoBehaviour
     {
         get
         {
+            List<ColorKeyframe> list = UnsortedKeyframes;
+            if (list == null)
+                return null;
+
+            list.Sort((x, y) => x.time.CompareTo(y.time));
+            return list;
+        }
+    }
+
+    public List<ColorKeyframe> UnsortedKeyframes
+    {
+        get
+        {
             if (Track == null)
                 return null;
 
-            List<ColorKeyframe> result = Track.GetMarkers().Where(item => item is ColorKeyframe).Select(item => item as ColorKeyframe).ToList();
-            result.Sort((x, y) => x.time.CompareTo(y.time));
-            return result;
+            return Track.GetMarkers().Where(item => item is ColorKeyframe).Select(item => item as ColorKeyframe).ToList();
         }
     }
+
 
     public DroneKeyframe SetWaypoint()
     {
@@ -179,8 +191,12 @@ public class Crazyflie : MonoBehaviour
     public void EnforceWaypointConstraints()
     {
         List<PositionKeyframe> waypoints = this.PositionKeyframes;
-        waypoints[0].JointType = JointType.Linear;
-        waypoints[waypoints.Count - 1].JointType = JointType.Linear;
+        PositionKeyframe firstWaypoint = waypoints[0];
+        PositionKeyframe lastWaypoint = waypoints[waypoints.Count - 1];
+        Undo.RecordObjects(new Object[] { firstWaypoint, lastWaypoint }, "Change Waypoints");
+
+        firstWaypoint.JointType = JointType.Linear;
+        lastWaypoint.JointType = JointType.Linear;
     }
 
     private T GetKeyframe<T>(float time) where T : DroneKeyframe

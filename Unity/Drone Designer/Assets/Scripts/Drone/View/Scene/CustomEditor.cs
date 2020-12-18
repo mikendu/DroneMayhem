@@ -9,6 +9,7 @@ using UnityEngine;
 
 public abstract class CustomEditor <T> : Editor where T : UnityEngine.Object
 {
+    protected static readonly Vector3 DefaultSnap = 0.01f * Vector3.one;
 
     protected T Target { get { return target as T; } }
 

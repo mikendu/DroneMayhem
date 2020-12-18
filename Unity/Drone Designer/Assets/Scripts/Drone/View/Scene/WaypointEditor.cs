@@ -10,7 +10,6 @@ using UnityEngine;
 [CustomEditor(typeof(PositionKeyframe))]
 public class WaypointEditor : CustomEditor<PositionKeyframe>
 {
-    private static readonly Vector3 DefaultSnap = 0.01f * Vector3.one;
     protected static int targetPoint = 0;
 
     protected override void OnEnable()
@@ -40,7 +39,10 @@ public class WaypointEditor : CustomEditor<PositionKeyframe>
         {
             CustomHandles.DrawCircle(keyframe.Position, 0.0375f, Color.white);
         }
-        
+
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete)
+            drone.RemoveWaypoint(Target);
+
     }
 
     protected void DrawTangent(PositionKeyframe keyframe, bool invert)
