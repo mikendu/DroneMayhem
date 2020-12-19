@@ -22,7 +22,6 @@ public class Crazyflie : MonoBehaviour
     protected PlayableDirector director;
     protected TimelineAsset timeline;
     protected TrackAsset track;
-    protected bool needsSelect = false;
 
     public List<ColorKeyframe> ColorKeyframes { get; private set; } = new List<ColorKeyframe>();
     public List<Waypoint> Waypoints { get; private set; } = new List<Waypoint>();
@@ -39,11 +38,7 @@ public class Crazyflie : MonoBehaviour
 
     void Update()
     {
-        if (this.needsSelect)
-        {
-            Selection.activeTransform = this.transform;
-            needsSelect = false;
-        }
+        TimelineUtilities.Initialize();
 
         if (properties == null)
             properties = new MaterialPropertyBlock();
@@ -79,12 +74,6 @@ public class Crazyflie : MonoBehaviour
 
         this.Waypoints = Track.GetMarkers().Where(item => item is Waypoint).Select(item => item as Waypoint).ToList();
         this.Waypoints.Sort((x, y) => x.time.CompareTo(y.time));
-    }
-
-
-    public void Select()
-    {
-        this.needsSelect = true;
     }
 
     public void UpdateView()

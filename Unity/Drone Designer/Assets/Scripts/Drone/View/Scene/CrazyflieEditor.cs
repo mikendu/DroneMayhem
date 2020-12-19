@@ -18,6 +18,7 @@ public class CrazyflieEditor : Editor
     private Crazyflie Drone { get { return target as Crazyflie; } }
 
     private Tool LastTool = Tool.None;
+    private bool showText;
 
 
 
@@ -128,11 +129,6 @@ public class CrazyflieEditor : Editor
     DroneKeyframe selectedKeyframe;
     PointType selectedPointType;
     Tool LastTool = Tool.None;
-    bool showText;
-
-    GUIStyle labelStyle;
-    GUIStyle titleStyle;
-    GUIStyle headerStyle;
 
     public void OnEnable()
     {

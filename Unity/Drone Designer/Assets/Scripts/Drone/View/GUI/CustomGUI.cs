@@ -9,9 +9,28 @@ using UnityEditor.Timeline;
 
 public static class CustomGUI
 {
+    public static GUIStyle LabelStyle;
+    public static GUIStyle TitleStyle;
+    public static GUIStyle HeaderStyle;
+
     static CustomGUI()
     {
-        //TimelineEditor.Refresh(RefreshReason.SceneNeedsUpdate);
+        /*
+        if (labelStyle == null)
+        {
+            labelStyle = new GUIStyle();
+            labelStyle.normal.textColor = Color.white;
+        }
+
+        if (titleStyle == null) titleStyle = new GUIStyle();
+        titleStyle.normal.textColor = Color.white;
+        titleStyle.fontStyle = FontStyle.Normal;
+        titleStyle.fontSize = 15;
+
+        if (headerStyle == null) headerStyle = new GUIStyle();
+        headerStyle.normal.textColor = Color.white;
+        headerStyle.fontStyle = FontStyle.Normal;
+        headerStyle.fontSize = 20;*/
     }
 
 

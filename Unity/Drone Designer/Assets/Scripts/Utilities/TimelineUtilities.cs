@@ -14,11 +14,15 @@ public class TimelineUtilities : MonoBehaviour
 
     private static PlayableDirector director;
     private static TimelineAsset timeline;
+    private static System.Type TimelineWindowType;
+    private static bool initialized = false;
 
     static TimelineUtilities()
     {
         director = FindObjectOfType<PlayableDirector>();
         timeline = director?.playableAsset as TimelineAsset;
+        TimelineWindowType = FindWindowType();
+        initialized = false;
     }
 
     public static PlayableDirector Director
@@ -49,33 +53,21 @@ public class TimelineUtilities : MonoBehaviour
     [MenuItem("Drone Tools/Show Timeline %t", false, 0)]
     static void ShowTimeline()
     {
-        //https://answers.unity.com/questions/1237463/how-do-i-get-a-reference-to-the-default-editor-win.html
-        var allWindowTypes = GetAllEditorWindowTypes();
-        System.Type desiredWindowType = null;
-        foreach (System.Type windowType in allWindowTypes)
+        if (TimelineWindowType == null)
         {
-            if (windowType.FullName.Contains("Timeline"))
-            {
-                desiredWindowType = windowType;
-                break;
-            }
+            return;
         }
 
-        if (desiredWindowType == null)
-            return;
-
-        PlayableDirector director = FindObjectOfType<PlayableDirector>();
-        TimelineAsset timelineAsset = director?.playableAsset as TimelineAsset;
-        if (timelineAsset == null)
+        if (Timeline == null)
         {
             EditorUtility.DisplayDialog("Error", "No timeline found in scene!", "OK");
             return;
         }
 
-        EditorWindow timelineWindow = EditorWindow.GetWindow(desiredWindowType);
-        MethodInfo setTimelineMethod = desiredWindowType.GetMethod("SetCurrentTimeline", new System.Type[] { typeof(PlayableDirector), typeof(TimelineClip) });
-        setTimelineMethod.Invoke(timelineWindow, new object[] { director, null });
-        desiredWindowType.InvokeMember(
+        EditorWindow timelineWindow = EditorWindow.GetWindow(TimelineWindowType);
+        MethodInfo setTimelineMethod = TimelineWindowType.GetMethod("SetCurrentTimeline", new System.Type[] { typeof(PlayableDirector), typeof(TimelineClip) });
+        setTimelineMethod.Invoke(timelineWindow, new object[] { Director, null });
+        TimelineWindowType.InvokeMember(
             "locked", 
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, 
             System.Type.DefaultBinder, 
@@ -136,6 +128,40 @@ public class TimelineUtilities : MonoBehaviour
         //timeline.CreateTrack
     }
 
+    private static System.Type FindWindowType()
+    {
+        //https://answers.unity.com/questions/1237463/how-do-i-get-a-reference-to-the-default-editor-win.html
+        var allWindowTypes = GetAllEditorWindowTypes();
+        System.Type desiredWindowType = null;
+        foreach (System.Type windowType in allWindowTypes)
+        {
+            if (windowType.FullName.Contains("Timeline"))
+            {
+                desiredWindowType = windowType;
+                break;
+            }
+        }
+
+        return desiredWindowType;
+    }
+
+    public static void Initialize()
+    {
+        if (initialized)
+            return;
+
+        PropertyInfo instanceProperty = TimelineWindowType.GetProperty("instance");
+        PropertyInfo stateProperty = TimelineWindowType.GetProperty("state");
+        object windowInstance = instanceProperty.GetValue(null);
+        object windowState = stateProperty.GetValue(windowInstance);
+        object masterSequence = windowState.GetType().GetProperty("masterSequence").GetValue(windowState);
+        double? time = masterSequence.GetType().GetProperty("time").GetValue(masterSequence) as System.Nullable<double>;
+
+        if (Director != null && time != null)
+            Director.time = time.Value;
+
+        initialized = true;
+    }
 
 
     private static System.Type[] GetAllEditorWindowTypes()
