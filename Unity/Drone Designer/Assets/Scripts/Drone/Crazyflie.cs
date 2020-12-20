@@ -25,8 +25,8 @@ public class Crazyflie : MonoBehaviour
 
     public List<ColorKeyframe> ColorKeyframes { get; private set; } = new List<ColorKeyframe>();
     public List<Waypoint> Waypoints { get; private set; } = new List<Waypoint>();
-    
-    protected float time;
+    public float Time { get; private set; } = 0.0f;
+
     protected Color previousColor;
 
     void Start()
@@ -59,7 +59,7 @@ public class Crazyflie : MonoBehaviour
 
     public void UpdateProperties()
     {
-        this.time = (float)TimelineUtilities.Director.time;
+        this.Time = (float)TimelineUtilities.Director.time;
 
         this.ColorKeyframes = Track.GetMarkers()
             .Where(item => item is ColorKeyframe)
@@ -79,8 +79,8 @@ public class Crazyflie : MonoBehaviour
     public void UpdateView()
     {
         previousColor = LightColor;
-        transform.position = KeyframeUtil.GetPosition(Waypoints, time, transform.position);
-        LightColor = KeyframeUtil.GetColor(ColorKeyframes, time, LightColor);
+        transform.position = KeyframeUtil.GetPosition(Waypoints, Time, transform.position);
+        LightColor = KeyframeUtil.GetColor(ColorKeyframes, Time, LightColor);
     }
 
 
@@ -88,10 +88,11 @@ public class Crazyflie : MonoBehaviour
     {
         if (this.track != null && LightColor != previousColor)
         {
-            SetColorKeyframe(this.ColorKeyframes, this.time, LightColor);
+            SetColorKeyframe(LightColor, this.Time);
         }
 
     }
+
 
     public TrackAsset Track
     {
@@ -116,10 +117,11 @@ public class Crazyflie : MonoBehaviour
     }
 
 
-    public DroneKeyframe SetWaypoint(List<Waypoint> waypoints, Vector3 position, float time)
+    public void SetWaypoint(Vector3 position, float time)
     {
+        List<Waypoint> waypoints = this.Waypoints;
         if (waypoints == null)
-            return null;
+            return;
 
         Waypoint keyframe = GetKeyframe(waypoints, time) as Waypoint;
         if (keyframe == null)
@@ -131,6 +133,7 @@ public class Crazyflie : MonoBehaviour
 
             TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
             UpdateProperties();
+            EnforceWaypointConstraints();
         }
 
         bool pastEnd = (time > waypoints[waypoints.Count - 1].time);
@@ -145,34 +148,34 @@ public class Crazyflie : MonoBehaviour
         UpdateView();
         //EnforceWaypointConstraints();
         //TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
-        return keyframe;
     }
 
-    public DroneKeyframe SetColorKeyframe(List<ColorKeyframe> keyframes, float time, Color lightColor)
+    public void SetColorKeyframe(Color lightColor, float time)
     {
+        List<ColorKeyframe> keyframes = this.ColorKeyframes;
         if (keyframes == null)
-            return null;
+            return;
 
         ColorKeyframe keyframe = GetKeyframe(keyframes, time) as ColorKeyframe;
         if (keyframe == null)
         {
             keyframe = Track.CreateMarker<ColorKeyframe>(time);
+            TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
             UpdateProperties();
         }
 
         keyframe.LightColor = lightColor;
         //UpdateView();
         //TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
-        return keyframe;
     }
 
     public void RemoveWaypoint(Waypoint waypoint)
     {
         Track.DeleteMarker(waypoint);
         UpdateView();
-        EnforceWaypointConstraints();
         UpdateProperties();
         TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        EnforceWaypointConstraints();
     }
 
     public void RemoveColorKeyframe(ColorKeyframe keyframe)
@@ -214,5 +217,13 @@ public class Crazyflie : MonoBehaviour
                 return keyframe;
         }
         return null;
+    }
+
+    public bool IsEndpoint(Waypoint waypoint)
+    {
+        List<Waypoint> waypoints = this.Waypoints;
+        Waypoint firstWaypoint = waypoints[0];
+        Waypoint lastWaypoint = waypoints[waypoints.Count - 1];
+        return (waypoint == firstWaypoint || waypoint == lastWaypoint);
     }
 }

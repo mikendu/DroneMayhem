@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.Timeline;
 
+[InitializeOnLoad]
 public static class CustomGUI
 {
     public static GUIStyle LabelStyle;
@@ -15,22 +16,18 @@ public static class CustomGUI
 
     static CustomGUI()
     {
-        /*
-        if (labelStyle == null)
-        {
-            labelStyle = new GUIStyle();
-            labelStyle.normal.textColor = Color.white;
-        }
+        LabelStyle = new GUIStyle();
+        LabelStyle.normal.textColor = Color.white;
 
-        if (titleStyle == null) titleStyle = new GUIStyle();
-        titleStyle.normal.textColor = Color.white;
-        titleStyle.fontStyle = FontStyle.Normal;
-        titleStyle.fontSize = 15;
+        TitleStyle = new GUIStyle();
+        TitleStyle.normal.textColor = Color.white;
+        TitleStyle.fontStyle = FontStyle.Normal;
+        TitleStyle.fontSize = 15;
 
-        if (headerStyle == null) headerStyle = new GUIStyle();
-        headerStyle.normal.textColor = Color.white;
-        headerStyle.fontStyle = FontStyle.Normal;
-        headerStyle.fontSize = 20;*/
+        HeaderStyle = new GUIStyle();
+        HeaderStyle.normal.textColor = Color.white;
+        HeaderStyle.fontStyle = FontStyle.Normal;
+        HeaderStyle.fontSize = 20;
     }
 
 
@@ -60,7 +57,6 @@ public static class CustomGUI
 
     public static void SetLabelColors()
     {
-
         EditorStyles.label.active.textColor = Color.white;
         EditorStyles.label.focused.textColor = Color.white;
         EditorStyles.label.hover.textColor = Color.white;
@@ -72,5 +68,37 @@ public static class CustomGUI
         EditorStyles.label.focused.textColor = Color.blue;
         EditorStyles.label.hover.textColor = Color.blue;
         EditorStyles.label.normal.textColor = Color.black;
+    }
+
+    public static void Window<T>(Rect windowRect, string title, Action<T> contentFunction, T argument)
+    {
+        int controlId = GUIUtility.GetControlID(FocusType.Passive);
+        Event currentEvent = Event.current;
+
+        if (currentEvent.type == EventType.MouseDown && windowRect.Contains(currentEvent.mousePosition))
+            GUIUtility.hotControl = controlId;
+
+        Color guiColor = GUI.color;
+
+        Handles.BeginGUI();
+        GUILayout.BeginArea(windowRect);
+        GUI.backgroundColor = Palette.GuiBackground;
+        EditorGUILayout.BeginVertical("Window");
+        CustomGUI.SetLabelColors();
+
+        EditorGUILayout.BeginVertical(EditorStyles.inspectorFullWidthMargins);
+
+        CustomGUI.DrawTitle(title, CustomGUI.HeaderStyle);
+        CustomGUI.DrawSplitter(15, 15, 1.0f);
+        contentFunction(argument);
+
+        EditorGUILayout.EndVertical();
+
+        CustomGUI.UnsetLabelColors();
+        EditorGUILayout.EndVertical();
+        GUILayout.EndArea();
+        Handles.EndGUI();
+
+        GUI.color = guiColor;
     }
 }

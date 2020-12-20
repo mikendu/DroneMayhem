@@ -12,7 +12,7 @@ public class TrackEditor : CustomEditor<CrazyflieTrack>
     protected override void OnDrawScene(SceneView scene)
     {
         Crazyflie drone = Target.Drone;
-        CrazyflieEditor.Draw(drone);
+        CrazyflieEditor.Draw(drone, true);
 
     }
 }

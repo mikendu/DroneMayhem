@@ -19,7 +19,10 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
         CrazyflieEditor.Draw(drone);
 
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete)
-            drone.RemoveColorKeyframe(Target);
+            drone.RemoveColorKeyframe(keyframe);
+
+        // -- GUI -- //
+        DrawGUI(keyframe);
     }
 
 
@@ -38,7 +41,6 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
             DrawSelector(keyframe);
         }
         
-        //foreach(ColorKeyframe keyframe in colorKeyframes)
             
     }
 
@@ -107,5 +109,36 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
         }
 
         return offsetCounter * 0.075f;
+    }
+
+
+    public static void DrawGUI(ColorKeyframe keyframe)
+    {
+        Rect toolsRect = new Rect(20, 240, 300, 200);
+        CustomGUI.Window(toolsRect, "Color Keyframe", DrawColorKeyframeTools, keyframe);
+    }
+
+    private static void DrawColorKeyframeTools(ColorKeyframe keyframe)
+    {
+        Crazyflie drone = keyframe.Drone;
+
+        EditorGUI.BeginChangeCheck();
+        float updatedTime = EditorGUILayout.FloatField("Time (seconds)", (float)keyframe.time);
+        Color updatedColor = EditorGUILayout.ColorField(new GUIContent("Light Color"), keyframe.LightColor, false, false, false);
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(keyframe, "Change Color Keyframe");
+            keyframe.time = Mathf.Max(0, updatedTime);
+            keyframe.LightColor = updatedColor;
+            drone.UpdateView();
+            TimelineEditor.Refresh(RefreshReason.ContentsModified);
+        }
+
+        EditorGUILayout.Space(30.0f);
+        if (GUILayout.Button("Delete"))
+            drone.RemoveColorKeyframe(keyframe);
+
+
     }
 }

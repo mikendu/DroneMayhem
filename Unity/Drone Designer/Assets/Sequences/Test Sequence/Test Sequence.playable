@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 6
   JointType: 0
-  Position: {x: -0.027902931, y: 0.42405534, z: 0.80245274}
+  Position: {x: 0, y: 0.5, z: 1}
   Tangent: {x: 0.031743176, y: 0.042393833, z: 0.16275448}
 --- !u!114 &-6699605458785850810
 MonoBehaviour:
@@ -159,8 +159,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 2
   JointType: 1
-  Position: {x: -0.1381731, y: 0.2678488, z: 0.043884918}
-  Tangent: {x: 0.00009545684, y: 0.02625823, z: 0.19852221}
+  Position: {x: -0.25, y: 0.3, z: 0.25}
+  Tangent: {x: 0, y: 0.05, z: 0.15}
 --- !u!114 &-2467046083106994769
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -203,7 +203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 0
   JointType: 0
-  Position: {x: 0.024797678, y: 0.20008421, z: -0.34304482}
+  Position: {x: 0, y: 0.2, z: 0}
   Tangent: {x: 0.25, y: 0, z: 0}
 --- !u!114 &-939552349328334209
 MonoBehaviour:
@@ -355,8 +355,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 4
   JointType: 1
-  Position: {x: 0.1728744, y: 0.34267205, z: 0.5036755}
-  Tangent: {x: -0.008341134, y: 0.034674227, z: 0.16820621}
+  Position: {x: 0.25, y: 0.4, z: 0.75}
+  Tangent: {x: 0, y: 0.05, z: 0.15}
 --- !u!114 &7255281379517112809
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Timeline;
 using UnityEngine;
 
 
@@ -11,6 +12,7 @@ using UnityEngine;
 public class WaypointEditor : CustomEditor<Waypoint>
 {
     protected static int targetPoint = 0;
+    protected static Vector3 LabelOffset = new Vector3(0.0f, -0.015f, 0.0f);
 
     protected override void OnEnable()
     {
@@ -43,6 +45,9 @@ public class WaypointEditor : CustomEditor<Waypoint>
         if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete)
             drone.RemoveWaypoint(Target);
 
+
+        // -- GUI -- //
+        DrawGUI(keyframe);
     }
 
     protected void DrawTangent(Waypoint keyframe, bool invert)
@@ -72,7 +77,7 @@ public class WaypointEditor : CustomEditor<Waypoint>
     }
 
 
-    public static void DrawSelector(Waypoint keyframe)
+    public static void DrawSelector(Waypoint keyframe, bool showTime = false)
     {
         Vector3 position = keyframe.Position;
         float size = 0.025f;
@@ -91,6 +96,13 @@ public class WaypointEditor : CustomEditor<Waypoint>
 
         // -- MOVEMENT -- // 
         FreeMove(keyframe, position, hitboxSize, CustomHandles.NullCap, keyframe.SetPosition);
+
+        // -- LABEL -- //
+        if (showTime)
+        {
+            string timestamp = $"{keyframe.time.ToString("0.0")} s";
+            Handles.Label(position + LabelOffset, timestamp, CustomGUI.LabelStyle);
+        }
     }
 
     private static void FreeMove(Waypoint keyframe, Vector3 position, float size, Handles.CapFunction capFunction, Action<Vector3> applyFunction)
@@ -117,5 +129,44 @@ public class WaypointEditor : CustomEditor<Waypoint>
             keyframe.Drone.UpdateView();
         }
 
+    }
+
+    public static void DrawGUI(Waypoint waypoint)
+    {
+        Rect toolsRect = new Rect(20, 240, 300, 300);
+        CustomGUI.Window(toolsRect, "Waypoint", DrawWaypointTools, waypoint);
+    }
+
+    private static void DrawWaypointTools(Waypoint waypoint)
+    {
+        Crazyflie drone = waypoint.Drone;
+
+        EditorGUI.BeginChangeCheck();
+        float updatedTime = EditorGUILayout.FloatField("Time (seconds)", (float)waypoint.time);
+
+        JointType updatedJointType = (JointType)EditorGUILayout.EnumPopup("Joint Type", waypoint.JointType);
+        EditorGUILayout.Space(10);
+
+        Vector3 updatedPosition = EditorGUILayout.Vector3Field(new GUIContent("Position"), waypoint.Position);
+        EditorGUILayout.Space(10);
+
+        GUI.enabled = (updatedJointType == JointType.Continuous);
+        Vector3 updatedTangent = EditorGUILayout.Vector3Field(new GUIContent("Tangent"), waypoint.Tangent);
+        EditorGUILayout.Space(30);
+        GUI.enabled = true;
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(waypoint, "Change Waypoint");
+            waypoint.time = Mathf.Max(0, updatedTime);
+            waypoint.Position = updatedPosition;
+            waypoint.Tangent = updatedTangent;
+            waypoint.JointType = updatedJointType;
+            drone.UpdateView();
+            TimelineEditor.Refresh(RefreshReason.ContentsModified);
+        }
+
+        if (GUILayout.Button("Delete"))
+            drone.RemoveWaypoint(waypoint);
     }
 }

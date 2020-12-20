@@ -17,4 +17,5 @@ public static class Palette
     public static readonly Color TranslucentBlue = new Color(0.325f, 0.65f, 1.0f, HandleAlpha);
 
     public static readonly Color Lightener = new Color(0.25f, 0.25f, 0.25f);
+    public static readonly Color GuiBackground = new Color(0, 0, 0, 0.475f);
 }
