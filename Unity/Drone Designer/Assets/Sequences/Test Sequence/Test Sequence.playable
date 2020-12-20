@@ -30,7 +30,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 0
   JointType: 0
-  Position: {x: 0, y: 0.5, z: 0}
+  Position: {x: 0.002073884, y: 0.504624, z: 0.001994431}
   Tangent: {x: 0.03125, y: 0, z: 0}
 --- !u!114 &-7446442181895093353
 MonoBehaviour:
@@ -138,6 +138,7 @@ MonoBehaviour:
     - {fileID: 4874108927693213887}
     - {fileID: -7294595203145946541}
     - {fileID: -1499038572157003524}
+    - {fileID: 465053496743145852}
 --- !u!114 &-5126763738898285453
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -471,6 +472,20 @@ MonoBehaviour:
     m_Framerate: 60
   m_DurationMode: 0
   m_MarkerTrack: {fileID: 3221207204025127374}
+--- !u!114 &465053496743145852
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 6
+  LightColor: {r: 0, g: 1, b: 0.3552556, a: 1}
 --- !u!114 &520049010676804874
 MonoBehaviour:
   m_ObjectHideFlags: 1

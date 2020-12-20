@@ -116,7 +116,11 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
 
     public static void DrawGUI(ColorKeyframe keyframe)
     {
-        Rect toolsRect = new Rect(20, 290, 300, 200);
+        //Rect toolsRect = new Rect(20, 290, 300, 200);
+
+        float ratio = 100.0f / Screen.dpi;
+        float sceneHeight = SceneView.currentDrawingSceneView.camera.pixelHeight * ratio;
+        Rect toolsRect = new Rect(20, sceneHeight - 300, 300, 200);
         CustomGUI.Window(toolsRect, "Color Keyframe", DrawColorKeyframeTools, keyframe);
     }
 
