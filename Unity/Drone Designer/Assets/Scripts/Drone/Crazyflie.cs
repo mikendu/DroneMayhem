@@ -57,6 +57,12 @@ public class Crazyflie : MonoBehaviour
         UpdateView();
     }
 
+    private void OnDestroy()
+    {
+        if (Track != null)
+            GameObject.DestroyImmediate(Track, true);
+    }
+
     public void UpdateProperties()
     {
         this.Time = (float)TimelineUtilities.Director.time;

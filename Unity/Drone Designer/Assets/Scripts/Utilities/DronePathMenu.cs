@@ -25,13 +25,13 @@ public static class DronePathMenu
     }
 
 
-    [MenuItem(ALWAYS_ITEM, false, 30)]
+    [MenuItem(ALWAYS_ITEM, false, 25)]
     private static void SetAlways()
     {
         SetOption(true);
     }
 
-    [MenuItem(ON_SELECT_ITEM, false, 31)]
+    [MenuItem(ON_SELECT_ITEM, false, 26)]
     private static void SetOnSelected()
     {
         SetOption(false);
