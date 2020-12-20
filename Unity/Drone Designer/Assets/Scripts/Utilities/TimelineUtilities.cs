@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
-using UnityEditor.Timeline;
 using System.IO;
 using System.Reflection;
 
@@ -16,6 +15,7 @@ public class TimelineUtilities : MonoBehaviour
     private static TimelineAsset timeline;
     private static System.Type TimelineWindowType;
     private static bool initialized = false;
+    private static GameObject DroneTemplate;
 
     static TimelineUtilities()
     {
@@ -23,6 +23,8 @@ public class TimelineUtilities : MonoBehaviour
         timeline = director?.playableAsset as TimelineAsset;
         TimelineWindowType = FindWindowType();
         initialized = false;
+
+        DroneTemplate = Resources.Load<GameObject>("Prefabs/crazyflie");
     }
 
     public static PlayableDirector Director
@@ -57,6 +59,7 @@ public class TimelineUtilities : MonoBehaviour
     [MenuItem("Drone Tools/New Sequence", false, 0)]
     static void CreateSequence()
     {
+        
     }
 
 
@@ -88,6 +91,28 @@ public class TimelineUtilities : MonoBehaviour
     [MenuItem("Drone Tools/Insert Drone %#d", false, 14)]
     static void CreateDrone()
     {
+        if (DroneTemplate == null)
+            DroneTemplate = Resources.Load<GameObject>("Prefabs/crazyflie");
+
+        int droneCount = FindObjectsOfType<Crazyflie>().Length;
+        GameObject drone = (GameObject)PrefabUtility.InstantiatePrefab(DroneTemplate);
+        drone.name = $"Drone {droneCount}";
+        drone.transform.position = new Vector3(0, 0.5f, 0);
+        drone.transform.SetAsLastSibling();
+
+        CrazyflieTrack track = Timeline.CreateTrack<CrazyflieTrack>();
+        Crazyflie crazyflie = drone.GetComponent<Crazyflie>();
+        crazyflie?.Initialize(track);
+        crazyflie?.SetColorKeyframe(Color.black, 0.0f);
+        crazyflie?.SetWaypoint(drone.transform.position, 0.0f);
+        Director.SetGenericBinding(track, crazyflie);
+
+        AssetDatabase.Refresh();
+        UnityEditor.Timeline.TimelineEditor.Refresh(UnityEditor.Timeline.RefreshReason.ContentsAddedOrRemoved);
+
+        Undo.RegisterCreatedObjectUndo(drone, "Create Drone");
+        Undo.RegisterCreatedObjectUndo(track, "Create Drone");
+        Selection.activeObject = drone;
     }
 
 

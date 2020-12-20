@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7154642143732759065
+--- !u!114 &-8153806058860162155
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,13 +10,82 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: Position Keyframe
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 4
+  JointType: 1
+  Position: {x: 0.3, y: 0.5, z: 0}
+  Tangent: {x: 0.1, y: 0, z: -0.1}
+--- !u!114 &-7785538619356164546
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &-7446442181895093353
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track (1)
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-7342935905534775630
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 4
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &-7294595203145946541
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
   m_EditorClassIdentifier: 
   m_Time: 6
   JointType: 0
-  Position: {x: 0, y: 0.5, z: 1}
-  Tangent: {x: 0.031743176, y: 0.042393833, z: 0.16275448}
---- !u!114 &-6699605458785850810
+  Position: {x: 0.5, y: 0.5, z: 0}
+  Tangent: {x: 0.009669193, y: 0, z: -0.12462547}
+--- !u!114 &-6674863618315637734
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -25,26 +94,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track (1)
   m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &-6006560946178660565
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!114 &-5326146300499088704
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-5727012618965219868
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,15 +131,14 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects:
-    - {fileID: -989487789281904854}
-    - {fileID: -3229855137182886468}
-    - {fileID: -7154642143732759065}
-    - {fileID: 3923247455504915657}
-    - {fileID: 8574530548098283913}
-    - {fileID: -939552349328334209}
-    - {fileID: -4332693402872548181}
-    - {fileID: 6892563550071957937}
---- !u!114 &-5115973909133857008
+    - {fileID: 6076087594352881116}
+    - {fileID: -7785538619356164546}
+    - {fileID: -8153806058860162155}
+    - {fileID: -171301761630593485}
+    - {fileID: 4874108927693213887}
+    - {fileID: -7294595203145946541}
+    - {fileID: -1499038572157003524}
+--- !u!114 &-5126763738898285453
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,68 +147,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
   m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!114 &-4332693402872548181
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 6
-  LightColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!114 &-4136664627072955552
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &-4087511913172303530
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &-3571278890433217717
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.007014636, g: 0.38606307, b: 0.44718307, a: 1}
---- !u!114 &-3229855137182886468
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-5056606703874284721
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -155,57 +171,195 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: Position Keyframe
-  m_EditorClassIdentifier: 
-  m_Time: 2
-  JointType: 1
-  Position: {x: -0.25, y: 0.3, z: 0.25}
-  Tangent: {x: 0, y: 0.05, z: 0.15}
---- !u!114 &-2467046083106994769
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.007014636, g: 0.38606307, b: 0.44718307, a: 1}
---- !u!114 &-1696068195339990626
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &-989487789281904854
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: Position Keyframe
   m_EditorClassIdentifier: 
   m_Time: 0
   JointType: 0
-  Position: {x: 0, y: 0.2, z: 0}
-  Tangent: {x: 0.25, y: 0, z: 0}
---- !u!114 &-939552349328334209
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &-4256720053702207047
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-3912605711179549653
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &-3457183867598501641
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &-3105504749096826699
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &-3093954396901862632
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-2851824774156191002
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-2741337400366831437
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track (1)
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-2231738727065424549
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-1966189826413648089
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-1499038572157003524
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -218,8 +372,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Time: 4
-  LightColor: {r: 1, g: 0.11337265, b: 0, a: 1}
---- !u!114 &-449733013552933555
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &-1486319331654085333
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -228,11 +382,75 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: Color Keyframe
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track (1)
   m_EditorClassIdentifier: 
-  m_Time: 5
-  LightColor: {r: 0, g: 0, b: 0, a: 1}
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-807216181034536772
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &-317089111412256581
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track (1)
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &-171301761630593485
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2
+  JointType: 1
+  Position: {x: 0.15, y: 0.5, z: 0.35}
+  Tangent: {x: 0.125, y: 0, z: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,13 +465,73 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Version: 0
   m_Tracks:
-  - {fileID: -5326146300499088704}
-  m_FixedDuration: 1.999999999999
+  - {fileID: -5727012618965219868}
+  m_FixedDuration: 0
   m_EditorSettings:
     m_Framerate: 60
   m_DurationMode: 0
-  m_MarkerTrack: {fileID: 1194555854066018153}
---- !u!114 &1194555854066018153
+  m_MarkerTrack: {fileID: 3221207204025127374}
+--- !u!114 &520049010676804874
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track (1)
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &947101565610153627
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &1991643162638885442
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2
+  LightColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &3221207204025127374
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -276,7 +554,7 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects: []
---- !u!114 &3044613860839842593
+--- !u!114 &3412497212882678319
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -285,36 +563,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &3923247455504915657
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: Color Keyframe
-  m_EditorClassIdentifier: 
-  m_Time: 0
-  LightColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!114 &4285468700507274217
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e0374501f39d54eb30235764636e0e, type: 3}
-  m_Name: Control Track
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
   m_EditorClassIdentifier: 
   m_Version: 3
   m_AnimClip: {fileID: 0}
@@ -327,7 +577,76 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects: []
---- !u!114 &4624122891070580555
+--- !u!114 &3417343834057746619
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &3426936672555955098
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &3718514301880383629
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &3892839078060517218
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -339,9 +658,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
+  m_Time: 0
   LightColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!114 &6892563550071957937
+--- !u!114 &3985926391281687489
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &4649722244581377525
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -354,52 +696,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Time: 4
-  JointType: 1
-  Position: {x: 0.25, y: 0.4, z: 0.75}
-  Tangent: {x: 0, y: 0.05, z: 0.15}
---- !u!114 &7255281379517112809
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.007014636, g: 0.38606307, b: 0.44718307, a: 1}
---- !u!114 &7509489432291271801
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &8245785747970052466
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4.616666793823242
-  LightColor: {r: 0.61650485, g: 0.06989479, b: 0, a: 1}
---- !u!114 &8574530548098283913
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 1}
+  Tangent: {x: 0, y: 0, z: 0}
+--- !u!114 &4874108927693213887
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -412,4 +712,154 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Time: 2
-  LightColor: {r: 0.015686274, g: 0.8633222, b: 1, a: 1}
+  LightColor: {r: 0, g: 0.8295524, b: 1, a: 1}
+--- !u!114 &4984813569635140425
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &5101569329782564545
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &5388455347528442640
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &6076087594352881116
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &7217542871161848412
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &7602909707319806930
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Crazyflie Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects: []
+--- !u!114 &8413601478009701994
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &8480825977111287269
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &9108111031605345993
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.03125, y: 0, z: 0}

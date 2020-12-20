@@ -50,7 +50,7 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
         int controlId = GUIUtility.GetControlID(hint, FocusType.Passive);
         Vector3 offsetPosition = keyframe.Position + new Vector3(0, keyframe.Offset, 0);
 
-        float size = 0.02f;
+        float size = 0.0175f;
         float hitboxSize = 1.5f * size;
 
         // -- DOT & LINE -- // 
@@ -93,8 +93,10 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
 
     private static float GetOffset(int index, List<ColorKeyframe> sortedKeyframes)
     {
+        float baseOffset = 0.075f;
+        float offsetScaling = 0.075f;
         if (index == 0)
-            return 0.075f;
+            return baseOffset + offsetScaling;
 
         int offsetCounter = 1;
         Vector3 position = sortedKeyframes[index].Position;
@@ -108,13 +110,13 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
                 break;
         }
 
-        return offsetCounter * 0.075f;
+        return (offsetCounter * offsetScaling) + baseOffset;
     }
 
 
     public static void DrawGUI(ColorKeyframe keyframe)
     {
-        Rect toolsRect = new Rect(20, 240, 300, 200);
+        Rect toolsRect = new Rect(20, 290, 300, 200);
         CustomGUI.Window(toolsRect, "Color Keyframe", DrawColorKeyframeTools, keyframe);
     }
 

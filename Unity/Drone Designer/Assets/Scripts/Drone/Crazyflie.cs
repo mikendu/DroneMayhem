@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
-using UnityEditor.Timeline;
 using UnityEngine.Timeline;
 using UnityEngine.Playables;
+using UnityEditor;
+using UnityEditor.Timeline;
 using System.Linq;
 
 [SelectionBase]
@@ -18,9 +18,6 @@ public class Crazyflie : MonoBehaviour
     protected Light m_light;
     protected MeshRenderer m_renderer;
     protected MaterialPropertyBlock properties;
-
-    protected PlayableDirector director;
-    protected TimelineAsset timeline;
     protected TrackAsset track;
 
     public List<ColorKeyframe> ColorKeyframes { get; private set; } = new List<ColorKeyframe>();
@@ -59,8 +56,23 @@ public class Crazyflie : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Track != null)
-            GameObject.DestroyImmediate(Track, true);
+        CrazyflieTrack crazyflieTrack = this.track as CrazyflieTrack;
+        if (crazyflieTrack != null)
+        {
+            crazyflieTrack.ResetReferences();
+            TimelineUtilities.Timeline.DeleteTrack(crazyflieTrack);
+            TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        }
+    }
+
+    public void ResetReferences()
+    {
+        this.track = null;
+    }
+
+    public void Initialize(CrazyflieTrack track)
+    {
+        this.track = track;
     }
 
     public void UpdateProperties()
@@ -142,18 +154,16 @@ public class Crazyflie : MonoBehaviour
             EnforceWaypointConstraints();
         }
 
-        bool pastEnd = (time > waypoints[waypoints.Count - 1].time);
+        bool endpoint = (waypoints.Count == 0) || (time > waypoints[waypoints.Count - 1].time);
         Undo.RecordObjects(new Object[] { keyframe }, "Change Waypoints");
         keyframe.Position = position;
 
-        if (pastEnd)
+        if (endpoint)
         {
             keyframe.JointType = JointType.Linear;
         }
 
         UpdateView();
-        //EnforceWaypointConstraints();
-        //TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
     }
 
     public void SetColorKeyframe(Color lightColor, float time)
@@ -171,8 +181,7 @@ public class Crazyflie : MonoBehaviour
         }
 
         keyframe.LightColor = lightColor;
-        //UpdateView();
-        //TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        UpdateView();
     }
 
     public void RemoveWaypoint(Waypoint waypoint)
@@ -195,6 +204,9 @@ public class Crazyflie : MonoBehaviour
     public void EnforceWaypointConstraints()
     {
         List<Waypoint> waypoints = this.Waypoints;
+        if (waypoints.Count == 0)
+            return;
+
         Waypoint firstWaypoint = waypoints[0];
         Waypoint lastWaypoint = waypoints[waypoints.Count - 1];
         Undo.RecordObjects(new Object[] { firstWaypoint, lastWaypoint }, "Change Waypoints");

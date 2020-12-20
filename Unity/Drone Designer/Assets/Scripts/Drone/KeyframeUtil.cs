@@ -63,6 +63,9 @@ public static class KeyframeUtil
 
     public static Vector3 GetTangent(List<Waypoint> keyframes, double time, bool normalize = false, bool handleCriticalPoints = false)
     {
+        if (keyframes.Count == 0)
+            return new Vector3(0.25f, 0, 0);
+
         Vector3 tangent = Vector3.zero;
         for (int i = 0; i < keyframes.Count - 1; i++)
         {

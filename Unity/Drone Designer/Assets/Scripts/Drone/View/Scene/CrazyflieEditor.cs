@@ -85,6 +85,7 @@ public class CrazyflieEditor : Editor
 
         if (active)
         {
+            DrawDroneBounds(drone, Palette.UltraTranslucent);
             // DrawDroneBounds(drone, Color.white);
 
             EditorGUI.BeginChangeCheck();
@@ -134,7 +135,7 @@ public class CrazyflieEditor : Editor
         showTimestamps = EditorPrefs.GetBool(TIMESTAMPS_PREF_KEY, false);
         showEndpoints = EditorPrefs.GetBool(ENDPOINTS_PREF_KEY, false);
 
-        Rect toolsRect = new Rect(20, 20, 300, 200);
+        Rect toolsRect = new Rect(20, 20, 300, 250);
         CustomGUI.Window(toolsRect, "Drone Tools", DrawDroneTools, drone);
     }
 
@@ -152,15 +153,24 @@ public class CrazyflieEditor : Editor
         }
         
         EditorGUILayout.Space(30.0f);
-        EditorGUILayout.BeginHorizontal();
-        float buttonWidth = 140.0f;
 
-        if (GUILayout.Button("Add Color Keyframe", GUILayout.Width(buttonWidth)))
-            drone.SetColorKeyframe(drone.LightColor, drone.Time);
 
-        if (GUILayout.Button("Add Waypoint", GUILayout.Width(buttonWidth)))
-            drone.SetWaypoint(drone.transform.position, drone.Time);
+        EditorGUI.BeginChangeCheck();
+        Color updatedColor = EditorGUILayout.ColorField(new GUIContent("Current Color"), drone.LightColor, false, false, false);
+        if (EditorGUI.EndChangeCheck())
+        {
+            drone.SetColorKeyframe(updatedColor, drone.Time);
+            EditorApplication.QueuePlayerLoopUpdate();
+        }
 
-        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(10);
+        EditorGUI.BeginChangeCheck();
+        Vector3 updatedPosition = EditorGUILayout.Vector3Field(new GUIContent("Current Position"), drone.transform.position);
+        if (EditorGUI.EndChangeCheck())
+            drone.SetWaypoint(updatedPosition, drone.Time);
+
+        EditorGUILayout.Space(10);
+
+        
     }
 }
