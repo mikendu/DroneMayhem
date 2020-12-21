@@ -1,13 +1,15 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 using UnityEditor.SceneManagement;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 
 [InitializeOnLoad]
 public class TimelineUtilities : MonoBehaviour
@@ -17,19 +19,34 @@ public class TimelineUtilities : MonoBehaviour
     private static TimelineAsset timeline;
     private static System.Type TimelineWindowType;
     private static bool initialized = false;
+
     private static GameObject DroneTemplate;
+    private static GameObject CameraTemplate;
+    private static GameObject EnvironmentTemplate;
+    private static GameObject TimelineTemplate;
 
     static TimelineUtilities()
     {
-        director = FindObjectOfType<PlayableDirector>();
-        timeline = director?.playableAsset as TimelineAsset;
+        RefreshReferences();
         TimelineWindowType = FindWindowType();
         initialized = false;
 
         DroneTemplate = Resources.Load<GameObject>("Prefabs/crazyflie");
+        CameraTemplate = Resources.Load<GameObject>("Prefabs/Camera");
+        EnvironmentTemplate = Resources.Load<GameObject>("Prefabs/Environment");
+        TimelineTemplate = Resources.Load<GameObject>("Prefabs/Timeline");
 
         EditorSceneManager.sceneClosing -= OnPreClose;
         EditorSceneManager.sceneClosing += OnPreClose;
+
+        EditorSceneManager.sceneOpened -= OnSceneOpened;
+        EditorSceneManager.sceneOpened += OnSceneOpened;
+    }
+
+    private static void RefreshReferences()
+    {
+        director = FindObjectOfType<PlayableDirector>();
+        timeline = director?.playableAsset as TimelineAsset;
     }
 
     public static PlayableDirector Director
@@ -56,10 +73,20 @@ public class TimelineUtilities : MonoBehaviour
 
     private static void OnPreClose(Scene scene, bool removing)
     {
+        UnlockTimeline();
         Crazyflie[] allDrones = FindObjectsOfType<Crazyflie>();
         foreach (Crazyflie drone in allDrones)
             drone.TrackLocked = true;
 
+    }
+
+    private static void OnSceneOpened(Scene scene, OpenSceneMode mode)
+    {
+        RefreshReferences();
+        if (mode == OpenSceneMode.Single)
+        {
+            ShowTimeline();
+        }
     }
 
 
@@ -71,18 +98,61 @@ public class TimelineUtilities : MonoBehaviour
     [MenuItem("Drone Tools/New Sequence", false, 0)]
     static void CreateSequence()
     {
-        // Choose name/folder
-        // Create Scene
-        // Create Timeline playable next to scene
-        // Delete everything from scene
+        // Choose folder for new sequence
+        string path = EditorUtility.SaveFilePanel("Create New Sequence", Application.dataPath + "/Sequences", "New Sequence", "unity");
+        if (string.IsNullOrEmpty(path))
+            return;
 
-        // Open Scene??
-        // Import System, Environment
-        // Set Director timeline asset to newlycreated timeline
-        // Show Timeline
-        // Create Drone
+        string sequenceName = Path.GetFileNameWithoutExtension(path);
+        string parentFolder = Path.GetDirectoryName(path);
+        string folder = Path.Combine(parentFolder, sequenceName);
 
-        string path = EditorUtility.SaveFolderPanel("Create New Sequence", Application.dataPath + "/Sequences", "New Sequence");
+        if (Directory.Exists(path))
+        {
+            bool nonEmpty = Directory.EnumerateFileSystemEntries(path).Any();
+            if (nonEmpty)
+            {
+                string message = $"Directory {folder} exists is non-empty!";
+                EditorUtility.DisplayDialog("Error", message, "OK");
+                return;
+            }
+        }
+        else
+        {
+            Directory.CreateDirectory(folder);
+        }
+
+        // Create & open a new scene
+        Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        // Populate scene
+        GameObject environmentPrefab = (GameObject)PrefabUtility.InstantiatePrefab(EnvironmentTemplate);
+        GameObject cameraPrefab = (GameObject)PrefabUtility.InstantiatePrefab(CameraTemplate);
+        GameObject timelinePrefab = (GameObject)PrefabUtility.InstantiatePrefab(TimelineTemplate);
+        PlayableDirector director = timelinePrefab.GetComponent<PlayableDirector>();
+
+        // Create timeline playable next to scene
+        Uri timelineFullPath = new Uri(Path.Combine(folder, $"{sequenceName}.playable"));
+        Uri assetPathRoot = new Uri(Application.dataPath);
+        string timelineAssetPath = UnityWebRequest.UnEscapeURL(assetPathRoot.MakeRelativeUri(timelineFullPath).ToString());
+
+        TimelineAsset timeline = TimelineAsset.CreateInstance<TimelineAsset>();
+        AssetDatabase.CreateAsset(timeline, timelineAssetPath);
+        director.playableAsset = timeline;
+
+        // Lighting Settings
+        RenderSettings.skybox = null;
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+        RenderSettings.ambientLight = Color.HSVToRGB(0, 0, 0.35f);
+
+        RefreshReferences();
+        ShowTimeline();
+        CreateDrone();
+
+        // Save scene asset
+        string scenePath = Path.Combine(folder, $"{sequenceName}.unity");
+        EditorSceneManager.SaveScene(scene, scenePath);
+        AssetDatabase.Refresh();
 
     }
 
@@ -172,6 +242,26 @@ public class TimelineUtilities : MonoBehaviour
             new object[] { true }
         );
     }
+
+    static void UnlockTimeline()
+    {
+        if (TimelineWindowType == null)
+        {
+            return;
+        }
+
+        PropertyInfo instanceProperty = TimelineWindowType.GetProperty("instance");
+        object windowInstance = instanceProperty.GetValue(null);
+        TimelineWindowType.InvokeMember(
+            "locked",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
+            System.Type.DefaultBinder,
+            windowInstance,
+            new object[] { false }
+        );
+    }
+
+
 
 
 
