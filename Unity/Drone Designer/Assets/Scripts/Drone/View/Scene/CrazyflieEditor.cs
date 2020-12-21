@@ -66,7 +66,7 @@ public class CrazyflieEditor : Editor
     {
         if (DronePathMenu.AlwaysOn)
         {
-            // DrawDroneBounds(drone, Palette.UltraTranslucent);
+            //DrawDroneBounds(drone, Palette.UltraTranslucent);
             List<Waypoint> waypoints = drone.Waypoints;
             CustomHandles.DrawBezierPath(waypoints, Palette.UltraTranslucent, 2.0f);
         }
@@ -82,14 +82,13 @@ public class CrazyflieEditor : Editor
         CustomHandles.DrawBezierPath(waypoints, Color.white, 2.0f);
         DrawWaypoints(waypoints);
         ColorKeyframeEditor.DrawColorKeyframes(drone, waypoints);
-
         if (active)
         {
-            DrawDroneBounds(drone, Palette.UltraTranslucent);
+            DrawDroneBounds(drone, Palette.Translucent);
             // DrawDroneBounds(drone, Color.white);
 
             EditorGUI.BeginChangeCheck();
-            Vector3 updatedPosition = CustomHandles.MoveHandle(drone.transform.position, 0.075f, 0.085f);
+            Vector3 updatedPosition = CustomHandles.MoveHandle(drone.transform.position, 0.025f, 0.085f);
             if (EditorGUI.EndChangeCheck())
                 drone.SetWaypoint(updatedPosition, time);
         }

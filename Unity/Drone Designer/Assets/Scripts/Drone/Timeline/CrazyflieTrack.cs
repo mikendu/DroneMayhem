@@ -25,6 +25,9 @@ public class CrazyflieTrack : TrackAsset
 
     private void OnDestroy()
     {
+        foreach (IMarker marker in this.GetMarkers())
+            this.DeleteMarker(marker);
+
         if (drone?.gameObject != null)
         {
             drone.ResetReferences();

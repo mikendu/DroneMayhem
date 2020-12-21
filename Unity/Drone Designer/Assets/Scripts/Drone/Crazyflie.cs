@@ -24,6 +24,8 @@ public class Crazyflie : MonoBehaviour
     public List<Waypoint> Waypoints { get; private set; } = new List<Waypoint>();
     public float Time { get; private set; } = 0.0f;
 
+    public bool TrackLocked { get; set; } = false;
+
     protected Color previousColor;
 
     void Start()
@@ -57,7 +59,7 @@ public class Crazyflie : MonoBehaviour
     private void OnDestroy()
     {
         CrazyflieTrack crazyflieTrack = this.track as CrazyflieTrack;
-        if (crazyflieTrack != null)
+        if (crazyflieTrack != null && !TrackLocked)
         {
             crazyflieTrack.ResetReferences();
             TimelineUtilities.Timeline.DeleteTrack(crazyflieTrack);

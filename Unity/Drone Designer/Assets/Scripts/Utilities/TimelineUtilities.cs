@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
+using UnityEngine.SceneManagement;
+using UnityEditor.SceneManagement;
 using System.IO;
 using System.Reflection;
 
@@ -25,6 +27,9 @@ public class TimelineUtilities : MonoBehaviour
         initialized = false;
 
         DroneTemplate = Resources.Load<GameObject>("Prefabs/crazyflie");
+
+        EditorSceneManager.sceneClosing -= OnPreClose;
+        EditorSceneManager.sceneClosing += OnPreClose;
     }
 
     public static PlayableDirector Director
@@ -49,6 +54,13 @@ public class TimelineUtilities : MonoBehaviour
         }
     }
 
+    private static void OnPreClose(Scene scene, bool removing)
+    {
+        Crazyflie[] allDrones = FindObjectsOfType<Crazyflie>();
+        foreach (Crazyflie drone in allDrones)
+            drone.TrackLocked = true;
+
+    }
 
 
 
@@ -59,7 +71,19 @@ public class TimelineUtilities : MonoBehaviour
     [MenuItem("Drone Tools/New Sequence", false, 0)]
     static void CreateSequence()
     {
-        
+        // Choose name/folder
+        // Create Scene
+        // Create Timeline playable next to scene
+        // Delete everything from scene
+
+        // Open Scene??
+        // Import System, Environment
+        // Set Director timeline asset to newlycreated timeline
+        // Show Timeline
+        // Create Drone
+
+        string path = EditorUtility.SaveFolderPanel("Create New Sequence", Application.dataPath + "/Sequences", "New Sequence");
+
     }
 
 
@@ -94,13 +118,17 @@ public class TimelineUtilities : MonoBehaviour
         if (DroneTemplate == null)
             DroneTemplate = Resources.Load<GameObject>("Prefabs/crazyflie");
 
+        string operationName = "Create Drone";
+        Undo.RecordObject(Director, operationName);
+        Undo.RecordObject(Timeline, operationName);
+
         int droneCount = FindObjectsOfType<Crazyflie>().Length;
         GameObject drone = (GameObject)PrefabUtility.InstantiatePrefab(DroneTemplate);
         drone.name = $"Drone {droneCount}";
         drone.transform.position = new Vector3(0, 0.5f, 0);
         drone.transform.SetAsLastSibling();
 
-        CrazyflieTrack track = Timeline.CreateTrack<CrazyflieTrack>();
+        CrazyflieTrack track = Timeline.CreateTrack<CrazyflieTrack>(drone.name + " Track");
         Crazyflie crazyflie = drone.GetComponent<Crazyflie>();
         crazyflie?.Initialize(track);
         crazyflie?.SetColorKeyframe(Color.black, 0.0f);
@@ -108,6 +136,9 @@ public class TimelineUtilities : MonoBehaviour
         Director.SetGenericBinding(track, crazyflie);
 
         AssetDatabase.Refresh();
+        EditorUtility.SetDirty(Timeline);
+        EditorUtility.SetDirty(track);
+        EditorUtility.SetDirty(Director);
         UnityEditor.Timeline.TimelineEditor.Refresh(UnityEditor.Timeline.RefreshReason.ContentsAddedOrRemoved);
 
         Undo.RegisterCreatedObjectUndo(drone, "Create Drone");
@@ -145,8 +176,6 @@ public class TimelineUtilities : MonoBehaviour
 
 
 
-
-
     // -- REFLECTION -- //
 
     private static System.Type FindWindowType()
@@ -171,17 +200,25 @@ public class TimelineUtilities : MonoBehaviour
         if (initialized)
             return;
 
-        PropertyInfo instanceProperty = TimelineWindowType.GetProperty("instance");
-        PropertyInfo stateProperty = TimelineWindowType.GetProperty("state");
-        object windowInstance = instanceProperty.GetValue(null);
-        object windowState = stateProperty.GetValue(windowInstance);
-        object masterSequence = windowState.GetType().GetProperty("masterSequence").GetValue(windowState);
-        double? time = masterSequence.GetType().GetProperty("time").GetValue(masterSequence) as System.Nullable<double>;
 
-        if (Director != null && time != null)
-            Director.time = time.Value;
+        try
+        {
+            PropertyInfo instanceProperty = TimelineWindowType.GetProperty("instance");
+            PropertyInfo stateProperty = TimelineWindowType.GetProperty("state");
+            object windowInstance = instanceProperty.GetValue(null);
+            object windowState = stateProperty.GetValue(windowInstance);
+            object masterSequence = windowState.GetType().GetProperty("masterSequence").GetValue(windowState);
+            double? time = masterSequence.GetType().GetProperty("time").GetValue(masterSequence) as System.Nullable<double>;
 
-        initialized = true;
+            if (Director != null && time != null)
+                Director.time = time.Value;
+
+            initialized = true;
+        }
+        catch (TargetException)
+        {
+
+        }
     }
 
 
