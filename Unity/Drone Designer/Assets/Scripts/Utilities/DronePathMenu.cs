@@ -9,8 +9,7 @@ using UnityEditor;
 public static class DronePathMenu
 {
     private const string PREF_NAME = "drone_paths_always_on";
-    private const string ALWAYS_ITEM = "Drone Tools/Draw Drone Paths/Always";
-    private const string ON_SELECT_ITEM = "Drone Tools/Draw Drone Paths/When Selected";
+    private const string MENU_ITEM_NAME = "Drone Tools/Show All Paths";
     public static bool AlwaysOn = true;
 
     static DronePathMenu()
@@ -25,23 +24,16 @@ public static class DronePathMenu
     }
 
 
-    [MenuItem(ALWAYS_ITEM, false, 25)]
-    private static void SetAlways()
+    [MenuItem(MENU_ITEM_NAME, false, 45)]
+    private static void Toggle()
     {
-        SetOption(true);
-    }
-
-    [MenuItem(ON_SELECT_ITEM, false, 26)]
-    private static void SetOnSelected()
-    {
-        SetOption(false);
+        SetOption(!AlwaysOn);
     }
 
     public static void SetOption(bool enabled)
     {
         /// Set checkmark on menu item
-        Menu.SetChecked(ALWAYS_ITEM, enabled);
-        Menu.SetChecked(ON_SELECT_ITEM, !enabled);
+        Menu.SetChecked(MENU_ITEM_NAME, enabled);
         
         /// Saving editor state
         EditorPrefs.SetBool(PREF_NAME, enabled);

@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.Playables;
 
-
+[Serializable]
 public abstract class DroneKeyframe : Marker, INotification
 {
     public PropertyName id => new PropertyName();

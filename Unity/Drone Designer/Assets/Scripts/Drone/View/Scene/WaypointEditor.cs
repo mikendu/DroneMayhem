@@ -18,6 +18,8 @@ public class WaypointEditor : CustomEditor<Waypoint>
     {
         base.OnEnable();
         targetPoint = 0;
+        TimelineUtilities.Director.time = Target.time;
+        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
     }
 
     protected override void OnDrawScene(SceneView scene)

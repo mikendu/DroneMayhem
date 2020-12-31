@@ -12,6 +12,13 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
 {
     private static int ControlHint = "ColorHandle".GetHashCode();
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        TimelineUtilities.Director.time = Target.time;
+        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+    }
+
     protected override void OnDrawScene(SceneView scene)
     {
         ColorKeyframe keyframe = Target;

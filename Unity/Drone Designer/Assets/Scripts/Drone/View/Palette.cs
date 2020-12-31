@@ -10,6 +10,7 @@ public static class Palette
     public static readonly Color SemiTranslucent = new Color(1, 1, 1, 0.775f);
     public static readonly Color Translucent = new Color(1, 1, 1, 0.35f);
     public static readonly Color UltraTranslucent = new Color(1, 1, 1, 0.175f);
+    public static readonly Color HyperTranslucent = new Color(1, 1, 1, 0.075f);
 
     private const float HandleAlpha = 0.45f;
     public static readonly Color TranslucentRed = new Color(1.0f, 0.0f, 0.0f, HandleAlpha);

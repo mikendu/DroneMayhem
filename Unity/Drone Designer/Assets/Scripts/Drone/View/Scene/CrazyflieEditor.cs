@@ -97,7 +97,7 @@ public class CrazyflieEditor : Editor
     }
 
 
-    private static void DrawDroneBounds(Crazyflie drone, Color wireColor)
+    public static void DrawDroneBounds(Crazyflie drone, Color wireColor)
     {
         Vector3 offsetPosition = drone.transform.position + DroneOffset;
         Color previousColor = Handles.color;

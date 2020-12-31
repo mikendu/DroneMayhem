@@ -90,10 +90,10 @@ public class Crazyflie : MonoBehaviour
                 return keyframe;
             }).ToList();
 
-        this.ColorKeyframes.Sort((x, y) => x.time.CompareTo(y.time));
+        this.ColorKeyframes.Sort(KeyframeUtil.KeyframeComparator);
 
         this.Waypoints = Track.GetMarkers().Where(item => item is Waypoint).Select(item => item as Waypoint).ToList();
-        this.Waypoints.Sort((x, y) => x.time.CompareTo(y.time));
+        this.Waypoints.Sort(KeyframeUtil.KeyframeComparator);
     }
 
     public void UpdateView()

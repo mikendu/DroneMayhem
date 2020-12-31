@@ -9,6 +9,11 @@ using UnityEngine.Timeline;
 public static class KeyframeUtil
 {
 
+    public static int KeyframeComparator(IMarker markerOne, IMarker markerTwo)
+    {
+        return markerOne.time.CompareTo(markerTwo.time);
+    }
+
     public static Color GetColor(List<ColorKeyframe> keyframes, double time, Color defaultColor)
     {
         for (int i = 0; i < keyframes.Count - 1; i++)
@@ -141,5 +146,7 @@ public static class KeyframeUtil
         Vector3 result = (C0 * startPos) + (C1 * startTangent) + (C2 * endTangent) + (C3 * endPos);
         return result;
     }
+
+
 
 }

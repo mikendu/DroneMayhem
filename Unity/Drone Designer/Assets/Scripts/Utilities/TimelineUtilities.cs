@@ -21,6 +21,7 @@ public class TimelineUtilities : MonoBehaviour
     private static bool initialized = false;
 
     private static GameObject DroneTemplate;
+    private static GameObject VolumeTemplate;
     private static GameObject CameraTemplate;
     private static GameObject EnvironmentTemplate;
     private static GameObject TimelineTemplate;
@@ -32,6 +33,7 @@ public class TimelineUtilities : MonoBehaviour
         initialized = false;
 
         DroneTemplate = Resources.Load<GameObject>("Prefabs/crazyflie");
+        VolumeTemplate = Resources.Load<GameObject>("Prefabs/Color Volume");
         CameraTemplate = Resources.Load<GameObject>("Prefabs/Camera");
         EnvironmentTemplate = Resources.Load<GameObject>("Prefabs/Environment");
         TimelineTemplate = Resources.Load<GameObject>("Prefabs/Timeline");
@@ -95,7 +97,37 @@ public class TimelineUtilities : MonoBehaviour
 
 
 
-    [MenuItem("Drone Tools/New Sequence", false, 0)]
+
+
+    [MenuItem("Drone Tools/Show Timeline %t", false, 0)]
+    static void ShowTimeline()
+    {
+        if (TimelineWindowType == null)
+        {
+            return;
+        }
+
+        if (Timeline == null)
+        {
+            EditorUtility.DisplayDialog("Error", "No timeline found in scene!", "OK");
+            return;
+        }
+
+        EditorWindow timelineWindow = EditorWindow.GetWindow(TimelineWindowType);
+        MethodInfo setTimelineMethod = TimelineWindowType.GetMethod("SetCurrentTimeline", new System.Type[] { typeof(PlayableDirector), typeof(TimelineClip) });
+        setTimelineMethod.Invoke(timelineWindow, new object[] { Director, null });
+        TimelineWindowType.InvokeMember(
+            "locked",
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty,
+            System.Type.DefaultBinder,
+            timelineWindow,
+            new object[] { true }
+        );
+    }
+
+
+
+    [MenuItem("Drone Tools/New Sequence", false, 1)]
     static void CreateSequence()
     {
         // Choose folder for new sequence
@@ -157,7 +189,7 @@ public class TimelineUtilities : MonoBehaviour
     }
 
 
-    [MenuItem("Drone Tools/Export Sequence %&s", false, 1)]
+    [MenuItem("Drone Tools/Export Sequence %&s", false, 2)]
     public static void SaveSequence()
     {
         PlayableDirector director = FindObjectOfType<PlayableDirector>();
@@ -168,8 +200,9 @@ public class TimelineUtilities : MonoBehaviour
             return;
         }
 
+        string sceneName = EditorSceneManager.GetActiveScene().name;
         string data = TimelineExporter.ExportTimeline(timeline);
-        string path = EditorUtility.SaveFilePanel("Save Sequence", "", "New Sequence.json", "json");
+        string path = EditorUtility.SaveFilePanel("Save Sequence", "", $"{sceneName}.json", "json");
         if (!string.IsNullOrEmpty(path))
             File.WriteAllText(path, data);
     }
@@ -183,6 +216,7 @@ public class TimelineUtilities : MonoBehaviour
 
 
     [MenuItem("Drone Tools/Insert Drone %#d", false, 14)]
+    [MenuItem("GameObject/Create Other/Drone")]
     static void CreateDrone()
     {
         if (DroneTemplate == null)
@@ -216,32 +250,27 @@ public class TimelineUtilities : MonoBehaviour
         Selection.activeObject = drone;
     }
 
-
-    [MenuItem("Drone Tools/Show Timeline %t", false, 15)]
-    static void ShowTimeline()
+    [MenuItem("Drone Tools/Insert Color Volume &#c", false, 15)]
+    [MenuItem("GameObject/Create Other/Color Volume")]
+    static void CreateVolume()
     {
-        if (TimelineWindowType == null)
-        {
-            return;
-        }
+        if (VolumeTemplate == null)
+            VolumeTemplate = Resources.Load<GameObject>("Prefabs/Color Volume");
 
-        if (Timeline == null)
-        {
-            EditorUtility.DisplayDialog("Error", "No timeline found in scene!", "OK");
-            return;
-        }
-
-        EditorWindow timelineWindow = EditorWindow.GetWindow(TimelineWindowType);
-        MethodInfo setTimelineMethod = TimelineWindowType.GetMethod("SetCurrentTimeline", new System.Type[] { typeof(PlayableDirector), typeof(TimelineClip) });
-        setTimelineMethod.Invoke(timelineWindow, new object[] { Director, null });
-        TimelineWindowType.InvokeMember(
-            "locked", 
-            BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, 
-            System.Type.DefaultBinder, 
-            timelineWindow, 
-            new object[] { true }
-        );
+        GameObject volume = (GameObject)PrefabUtility.InstantiatePrefab(VolumeTemplate);
+        volume.name = "Color Volume";
+        volume.transform.position = new Vector3(0, 0.5f, 0);
+        volume.transform.SetAsLastSibling();
+        Undo.RegisterCreatedObjectUndo(volume, "Create Color Volume");
+        Selection.activeObject = volume;
     }
+
+
+
+
+
+
+
 
     static void UnlockTimeline()
     {
