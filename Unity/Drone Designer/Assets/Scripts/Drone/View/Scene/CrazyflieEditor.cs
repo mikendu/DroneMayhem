@@ -97,13 +97,23 @@ public class CrazyflieEditor : Editor
     }
 
 
-    public static void DrawDroneBounds(Crazyflie drone, Color wireColor)
+    public static void DrawDroneBounds(Crazyflie drone, Color wireColor, bool solid = false)
     {
         Vector3 offsetPosition = drone.transform.position + DroneOffset;
         Color previousColor = Handles.color;
 
         Handles.color = wireColor;
-        Handles.DrawWireCube(offsetPosition, DroneSize);
+        if (solid)
+        {
+            Matrix4x4 matrix = Handles.matrix;
+            Handles.matrix = Matrix4x4.TRS(offsetPosition, Quaternion.identity, DroneSize);
+            Handles.CubeHandleCap(0, Vector3.zero, Quaternion.identity, 1.0f, EventType.Repaint);
+            Handles.matrix = matrix;
+        }
+        else
+        {
+            Handles.DrawWireCube(offsetPosition, DroneSize);
+        }
         Handles.color = previousColor;
     }
 

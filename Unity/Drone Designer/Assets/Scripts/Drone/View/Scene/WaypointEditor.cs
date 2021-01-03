@@ -135,9 +135,7 @@ public class WaypointEditor : CustomEditor<Waypoint>
 
     public static void DrawGUI(Waypoint waypoint)
     {
-        float ratio = 100.0f / Screen.dpi;
-        float sceneHeight = SceneView.currentDrawingSceneView.camera.pixelHeight * ratio;
-        Rect toolsRect = new Rect(20, sceneHeight - 400, 300, 300);
+        Rect toolsRect = new Rect(20, 290, 300, 300);
         CustomGUI.Window(toolsRect, "Waypoint", DrawWaypointTools, waypoint);
     }
 

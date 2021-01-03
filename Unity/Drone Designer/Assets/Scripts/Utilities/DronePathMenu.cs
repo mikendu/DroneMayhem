@@ -14,7 +14,7 @@ public static class DronePathMenu
 
     static DronePathMenu()
     {
-        AlwaysOn = EditorPrefs.GetBool(PREF_NAME, true);
+        AlwaysOn = EditorPrefs.GetBool(PREF_NAME, false);
         /// Delaying until first editor tick so that the menu
         /// will be populated before setting check state, and
         /// re-apply correct action

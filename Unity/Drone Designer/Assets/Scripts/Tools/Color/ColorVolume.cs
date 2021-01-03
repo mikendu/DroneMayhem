@@ -176,7 +176,11 @@ public class ColorVolume : MonoBehaviour
         for (int i = 0; i < containedDroneCount; i++)
         {
             Crazyflie drone = this.hitDrones[i];
-            CrazyflieEditor.DrawDroneBounds(drone, Evaluate(drone.transform.position));
+            Color color = Evaluate(drone.transform.position);
+            CrazyflieEditor.DrawDroneBounds(drone, color * 1.5f, false);
+
+            color.a = 0.5f;
+            CrazyflieEditor.DrawDroneBounds(drone, color, true);
         }
     }
 

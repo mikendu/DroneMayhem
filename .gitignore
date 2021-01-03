@@ -89,3 +89,6 @@ __pycache__/
 **/resource_bundle.py
 **/venv/
 **/.idea
+
+# Random stuff
+/Videos/
