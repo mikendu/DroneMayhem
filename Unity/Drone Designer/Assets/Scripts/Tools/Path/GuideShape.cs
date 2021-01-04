@@ -8,10 +8,15 @@ using UnityEngine;
 
 public enum ShapeType
 {
+    Triangle,
     Rectangle,
+    Circle,
+    TrianglePyramid,
+    SquarePyramid,
     Cube,
+    Cylinder,
+    Sphere
 }
-
 
 public abstract class GuideShape : MonoBehaviour
 {
@@ -36,32 +41,33 @@ public abstract class GuideShape : MonoBehaviour
         Reset();
     }
 
-    public static Tuple<float, float> CalculateDivisionInfo(int rows, float paddingMultiplier)
-    {
-        float division = 1.0f / (rows + 1);
-        float padding = (division * paddingMultiplier);
-
-        float remainder = 2.0f * ((paddingMultiplier - 1.0f) * division) / (rows - 1);
-        float interval = division - remainder;
-        return new Tuple<float, float>(padding, interval);
-    }
-
-    public static float GetPosition(Tuple<float, float> divisonData, int row)
-    {
-        float padding = divisonData.Item1;
-        float interval = divisonData.Item2;
-        return (padding) + (row * interval);
-    }
-
     public static Type GetType(ShapeType shape)
     {
         switch (shape)
         {
+            case ShapeType.Triangle:
+                return typeof(TriangleGuide);
+
             case ShapeType.Rectangle:
                 return typeof(RectangleGuide);
 
+            case ShapeType.Circle:
+                return typeof(CircleGuide);
+
+            case ShapeType.TrianglePyramid:
+                return typeof(TrianglePyramidGuide);
+
+            case ShapeType.SquarePyramid:
+                return typeof(SquarePyramidGuide);
+
             case ShapeType.Cube:
                 return typeof(CubeGuide);
+
+            case ShapeType.Cylinder:
+                return typeof(CylinderGuide);
+
+            case ShapeType.Sphere:
+                return typeof(SphereGuide);
         }
 
         return null;

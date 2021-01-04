@@ -9,25 +9,24 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class RectangleGuide : GuideShape
 {
-    [Range(0.0f, 2.0f)] public float Padding = 0.0f;
-    [Range(1, 10)] public int RowsX = 2;
-    [Range(1, 10)] public int RowsZ = 2;
+    [Range(2, 10)] public int GridSizeX = 2;
+    [Range(2, 10)] public int GridSizeZ = 2;
 
 
     protected override List<AttachmentPoint> CreateGuidePoints()
     {
         List<AttachmentPoint> points = new List<AttachmentPoint>();
 
-        Tuple<float, float> rowInfo = CalculateDivisionInfo(RowsX, Padding);
-        Tuple<float, float> columnInfo = CalculateDivisionInfo(RowsZ, Padding);
+        float xInterval = 1.0f / (GridSizeX - 1);
+        float zInterval = 1.0f / (GridSizeZ - 1);
 
-        for(int i = 0; i < RowsX; i++)
+        for(int i = 0; i < GridSizeX; i++)
         {
-            float x = GetPosition(rowInfo, i);
+            float x = xInterval * i;
 
-            for(int j = 0; j < RowsZ; j++)
+            for (int j = 0; j < GridSizeZ; j++)
             {
-                float z = GetPosition(columnInfo, j);
+                float z = zInterval * j;
                 Vector3 position = new Vector3(x - 0.5f, 0, z - 0.5f);
                 points.Add(new AttachmentPoint(transform, position));
             }
@@ -44,26 +43,46 @@ public class RectangleGuideEditor : GuideEditor<RectangleGuide>
 {
     private void OnSceneGUI()
     {
-        DrawSquare(Target.transform, Color.white);
+        DrawSquare(Target, Color.white);
         DrawPointHandles(Target.AttachmentPoints);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]
     private static void DrawGizmo(RectangleGuide shape, GizmoType gizmo)
     {
-        DrawSquare(shape.transform, Palette.Translucent);
+        DrawSquare(shape, Palette.Translucent);
     }
 
-    private static void DrawSquare(Transform transform, Color color)
+    private static void DrawSquare(RectangleGuide shape, Color color)
     {
         Matrix4x4 matrix = Handles.matrix;
         Color previousColor = Handles.color;
 
         Handles.color = color;
-        Handles.matrix = transform.localToWorldMatrix * Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
+        Handles.matrix = shape.transform.localToWorldMatrix * Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
         Handles.RectangleHandleCap(0, Vector3.zero, Quaternion.identity, 0.5f, EventType.Repaint);
+        DrawSubGuides(shape, 0.5f * color);
 
         Handles.matrix = matrix;
         Handles.color = previousColor;
+    }
+
+    private static void DrawSubGuides(RectangleGuide shape, Color color)
+    {
+        Handles.color = color;
+        float xInterval = 1.0f / (shape.GridSizeX - 1);
+        float zInterval = 1.0f / (shape.GridSizeZ - 1);
+
+        for (int i = 0; i < (shape.GridSizeX - 2); i++)
+        {
+            float x = xInterval * (i + 1);
+            Handles.DrawLine(new Vector3(x - 0.5f, -0.5f, 0), new Vector3(x - 0.5f, 0.5f, 0));
+        }
+
+        for (int i = 0; i < (shape.GridSizeZ - 2); i++)
+        {
+            float z = zInterval * (i + 1);
+            Handles.DrawLine(new Vector3(-0.5f, z - 0.5f, 0), new Vector3(0.5f, z - 0.5f, 0));
+        }
     }
 }

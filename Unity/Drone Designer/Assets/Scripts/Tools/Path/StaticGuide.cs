@@ -58,8 +58,8 @@ public class StaticGuideEditor: Editor
 
         SerializedProperty shape = serializedObject.FindProperty("ShapeType");
         int currentSelection = shape.enumValueIndex;
-        int newSelection = GUILayout.Toolbar(shape.enumValueIndex, options);
-        //GUILayout.SelectionGrid(currentSelection, options, 5);
+        // int newSelection = GUILayout.Toolbar(shape.enumValueIndex, options);
+        int newSelection = GUILayout.SelectionGrid(currentSelection, options, 4);
 
         if (newSelection != currentSelection)
         {
