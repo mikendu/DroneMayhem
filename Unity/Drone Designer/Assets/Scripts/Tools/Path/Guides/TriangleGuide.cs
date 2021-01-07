@@ -18,7 +18,7 @@ public class TriangleGuide : GuideShape
         List<AttachmentPoint> points = new List<AttachmentPoint>();
         float smallRadius = ShapeUtils.UnitTriangleSmallRadius;
 
-        //points.Add(new AttachmentPoint(transform, Vector3.zero));
+        points.Add(new AttachmentPoint(transform, Vector3.zero));
         Vector3 leftCorner = new Vector3(-0.5f, 0, -smallRadius);
         Vector3 rightCorner = new Vector3(0.5f, 0, -smallRadius);
 

@@ -48,7 +48,7 @@ public class StaticGuide : MonoBehaviour
 [CustomEditor(typeof(StaticGuide))]
 public class StaticGuideEditor: Editor
 {
-    private static readonly string[] options = Enum.GetNames(typeof(ShapeType));
+    private static readonly string[] options = ((ShapeType[])Enum.GetValues(typeof(ShapeType))).Select(shape => shape.Format()).ToArray();
 
     public override void OnInspectorGUI()
     {
@@ -59,7 +59,7 @@ public class StaticGuideEditor: Editor
         SerializedProperty shape = serializedObject.FindProperty("ShapeType");
         int currentSelection = shape.enumValueIndex;
         // int newSelection = GUILayout.Toolbar(shape.enumValueIndex, options);
-        int newSelection = GUILayout.SelectionGrid(currentSelection, options, 4);
+        int newSelection = GUILayout.SelectionGrid(currentSelection, options, 3);
 
         if (newSelection != currentSelection)
         {

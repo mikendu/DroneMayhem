@@ -59,8 +59,8 @@ public class RectangleGuideEditor : GuideEditor<RectangleGuide>
         Color previousColor = Handles.color;
 
         Handles.color = color;
-        Handles.matrix = shape.transform.localToWorldMatrix * Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
-        Handles.RectangleHandleCap(0, Vector3.zero, Quaternion.identity, 0.5f, EventType.Repaint);
+        Handles.matrix = shape.transform.localToWorldMatrix;
+        Handles.RectangleHandleCap(0, Vector3.zero, Quaternion.Euler(90, 0, 0), 0.5f, EventType.Repaint);
         DrawSubGuides(shape, 0.5f * color);
 
         Handles.matrix = matrix;
@@ -76,13 +76,13 @@ public class RectangleGuideEditor : GuideEditor<RectangleGuide>
         for (int i = 0; i < (shape.GridSizeX - 2); i++)
         {
             float x = xInterval * (i + 1);
-            Handles.DrawLine(new Vector3(x - 0.5f, -0.5f, 0), new Vector3(x - 0.5f, 0.5f, 0));
+            Handles.DrawLine(new Vector3(x - 0.5f, 0, -0.5f), new Vector3(x - 0.5f, 0, 0.5f));
         }
 
         for (int i = 0; i < (shape.GridSizeZ - 2); i++)
         {
             float z = zInterval * (i + 1);
-            Handles.DrawLine(new Vector3(-0.5f, z - 0.5f, 0), new Vector3(0.5f, z - 0.5f, 0));
+            Handles.DrawLine(new Vector3(-0.5f, 0, z - 0.5f), new Vector3(0.5f, 0, z - 0.5f));
         }
     }
 }

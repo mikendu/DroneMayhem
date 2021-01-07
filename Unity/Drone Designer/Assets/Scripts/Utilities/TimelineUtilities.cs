@@ -25,6 +25,7 @@ public class TimelineUtilities : MonoBehaviour
     private static GameObject CameraTemplate;
     private static GameObject EnvironmentTemplate;
     private static GameObject TimelineTemplate;
+    private static GameObject StaticGuideTemplate;
 
     static TimelineUtilities()
     {
@@ -37,6 +38,7 @@ public class TimelineUtilities : MonoBehaviour
         CameraTemplate = Resources.Load<GameObject>("Prefabs/Camera");
         EnvironmentTemplate = Resources.Load<GameObject>("Prefabs/Environment");
         TimelineTemplate = Resources.Load<GameObject>("Prefabs/Timeline");
+        StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Shape Guide (Static)");
 
         EditorSceneManager.sceneClosing -= OnPreClose;
         EditorSceneManager.sceneClosing += OnPreClose;
@@ -250,7 +252,7 @@ public class TimelineUtilities : MonoBehaviour
         Selection.activeObject = drone;
     }
 
-    [MenuItem("Drone Tools/Insert Color Volume &#c", false, 15)]
+    [MenuItem("Drone Tools/Insert Color Volume", false, 15)]
     [MenuItem("GameObject/Create Other/Color Volume")]
     static void CreateVolume()
     {
@@ -265,7 +267,22 @@ public class TimelineUtilities : MonoBehaviour
         Selection.activeObject = volume;
     }
 
+   
 
+    [MenuItem("Drone Tools/Insert Static Shape Guide", false, 15)]
+    [MenuItem("GameObject/Create Other/Static Shape Guide")]
+    static void CreateStaticGuide()
+    {
+        if (StaticGuideTemplate == null)
+            StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Static Shape Guide");
+
+        GameObject guide = (GameObject)PrefabUtility.InstantiatePrefab(StaticGuideTemplate);
+        guide.name = "Shape Guide (Static)";
+        guide.transform.position = new Vector3(0, 0.5f, 0);
+        guide.transform.SetAsLastSibling();
+        Undo.RegisterCreatedObjectUndo(guide, "Create Static Shape Guide");
+        Selection.activeObject = guide;
+    }
 
 
 

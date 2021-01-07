@@ -8,6 +8,7 @@ using UnityEngine;
 
 public enum ShapeType
 {
+    Line,
     Triangle,
     Rectangle,
     Circle,
@@ -45,6 +46,9 @@ public abstract class GuideShape : MonoBehaviour
     {
         switch (shape)
         {
+            case ShapeType.Line:
+                return typeof(LineGuide);
+
             case ShapeType.Triangle:
                 return typeof(TriangleGuide);
 

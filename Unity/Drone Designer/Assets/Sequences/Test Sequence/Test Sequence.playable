@@ -112,6 +112,20 @@ MonoBehaviour:
   m_Clips: []
   m_Markers:
     m_Objects: []
+--- !u!114 &2520409439867486396
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: Color Keyframe
+  m_EditorClassIdentifier: 
+  m_Time: 4.85
+  LightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &6558424845236260739
 MonoBehaviour:
   m_ObjectHideFlags: 1
