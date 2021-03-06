@@ -8,26 +8,55 @@ using UnityEngine.Timeline;
 
 public static class KeyframeUtil
 {
+    public class InterpolationSet<T>
+    {
+        public T first;
+        public T second;
+        public float value;
+
+        public InterpolationSet(T first, T second, float value)
+        {
+            this.first = first;
+            this.second = second;
+            this.value = value;
+        }
+    }
 
     public static int KeyframeComparator(IMarker markerOne, IMarker markerTwo)
     {
         return markerOne.time.CompareTo(markerTwo.time);
     }
 
-    public static Color GetColor(List<ColorKeyframe> keyframes, double time, Color defaultColor)
+    public static InterpolationSet<T> Interpolate<T>(List<T> keyframes, double time, bool clamp = false) where T : Marker
     {
         for (int i = 0; i < keyframes.Count - 1; i++)
         {
-            ColorKeyframe keyframe = keyframes[i];
-            ColorKeyframe nextKeyframe = keyframes[i + 1];
+            T keyframe = keyframes[i];
+            T nextKeyframe = keyframes[i + 1];
 
             if (time >= keyframe.time && time < nextKeyframe.time)
             {
                 double duration = (nextKeyframe.time - keyframe.time);
                 double interpolationValue = (time - keyframe.time) / duration;
-                return Color.Lerp(keyframe.LightColor, nextKeyframe.LightColor, Mathf.Clamp01((float)interpolationValue));
+                return new InterpolationSet<T>(keyframe, nextKeyframe, Mathf.Clamp01((float)interpolationValue));
             }
         }
+
+        if (clamp)
+        {
+            T result = (time < keyframes[0].time) ? keyframes[0] : keyframes[keyframes.Count - 1];
+            return new InterpolationSet<T>(result, result, 0);
+        }
+
+        return null;
+    }
+
+
+    public static Color GetColor(List<ColorKeyframe> keyframes, double time, Color defaultColor)
+    {
+        InterpolationSet<ColorKeyframe> interpolationData = Interpolate(keyframes, time);
+        if (interpolationData != null)
+            return Color.Lerp(interpolationData.first.LightColor, interpolationData.second.LightColor, interpolationData.value);
 
         if (keyframes.Count > 0)
         {
@@ -42,18 +71,9 @@ public static class KeyframeUtil
 
     public static Vector3 GetPosition(List<Waypoint> keyframes, double time, Vector3 defaultPosition)
     {
-        for (int i = 0; i < keyframes.Count - 1; i++)
-        {
-            Waypoint keyframe = keyframes[i];
-            Waypoint nextKeyframe = keyframes[i + 1];
-
-            if (time >= keyframe.time && time < nextKeyframe.time)
-            {
-                double duration = (nextKeyframe.time - keyframe.time);
-                double interpolationValue = (time - keyframe.time) / duration;
-                return EvaluateBezier(keyframe, nextKeyframe, Mathf.Clamp01((float)interpolationValue));
-            }
-        }
+        InterpolationSet<Waypoint> interpolationData = Interpolate(keyframes, time);
+        if (interpolationData != null)
+            return EvaluateBezier(interpolationData.first, interpolationData.second, interpolationData.value);
 
         if (keyframes.Count > 0)
         {
@@ -72,19 +92,9 @@ public static class KeyframeUtil
             return new Vector3(0.25f, 0, 0);
 
         Vector3 tangent = Vector3.zero;
-        for (int i = 0; i < keyframes.Count - 1; i++)
-        {
-            Waypoint keyframe = keyframes[i];
-            Waypoint nextKeyframe = keyframes[i + 1];
-
-            if (time >= keyframe.time && time < nextKeyframe.time)
-            {
-                double duration = (nextKeyframe.time - keyframe.time);
-                double interpolationValue = (time - keyframe.time) / duration;
-                tangent = CalculateTangent(keyframe, nextKeyframe, Mathf.Clamp01((float)interpolationValue), normalize);
-                break;
-            }
-        }
+        InterpolationSet<Waypoint> interpolationData = Interpolate(keyframes, time);
+        if (interpolationData != null)
+            return CalculateTangent(interpolationData.first, interpolationData.second, interpolationData.value, normalize);
 
         if (handleCriticalPoints && Mathf.Approximately(tangent.magnitude, 0.0f))
         {
@@ -146,7 +156,4 @@ public static class KeyframeUtil
         Vector3 result = (C0 * startPos) + (C1 * startTangent) + (C2 * endTangent) + (C3 * endPos);
         return result;
     }
-
-
-
 }

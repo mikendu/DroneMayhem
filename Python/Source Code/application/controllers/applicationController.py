@@ -112,9 +112,8 @@ class ApplicationController(QObject):
 
     def startSequence(self):
         if not self.droneRequirementMet:
-            message = "Sequence requires " + str(self.requiredDrones) + " drone(s).\n" + str(self.availableDrones) + " drone(s) available."
-            dialogUtil.modalDialog("Cannot start sequence", message)
-            return
+            message = "Sequence is designed " + str(self.requiredDrones) + " drone(s)\n but only " + str(self.availableDrones) + " drone(s) are available."
+            dialogUtil.modalDialog("Warning", message)
 
         exceptionUtil.setInterrupt(False)
         self.sequencePlaying = True

@@ -36,6 +36,14 @@ public class Waypoint : DroneKeyframe
         this.Tangent = (Position - tangent);
     }
 
-    public Vector3 WorldTangent { get { return Position + Tangent; } }
-    public Vector3 InverseWorldTangent { get { return Position - Tangent; } }
+    public Vector3 WorldTangent { get { return TangentVector(Position + Tangent); } }
+    public Vector3 InverseWorldTangent { get { return TangentVector(Position - Tangent); } }
+
+    private Vector3 TangentVector(Vector3 tangentVector)
+    {
+        if (this.JointType == JointType.Linear)
+            return Position;
+
+        return tangentVector;
+    }
 }

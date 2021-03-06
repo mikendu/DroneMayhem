@@ -203,7 +203,7 @@ public class TimelineUtilities : MonoBehaviour
         }
 
         string sceneName = EditorSceneManager.GetActiveScene().name;
-        string data = TimelineExporter.ExportTimeline(timeline);
+        string data = TimelineExporter.ExportTimeline(timeline, PreferencesMenu.PrettyEnabled);
         string path = EditorUtility.SaveFilePanel("Save Sequence", "", $"{sceneName}.json", "json");
         if (!string.IsNullOrEmpty(path))
             File.WriteAllText(path, data);
@@ -276,7 +276,7 @@ public class TimelineUtilities : MonoBehaviour
         if (StaticGuideTemplate == null)
             StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Static Shape Guide");
 
-        GameObject guide = (GameObject)PrefabUtility.InstantiatePrefab(StaticGuideTemplate);
+        GameObject guide = GameObject.Instantiate(StaticGuideTemplate);
         guide.name = "Shape Guide (Static)";
         guide.transform.position = new Vector3(0, 0.5f, 0);
         guide.transform.SetAsLastSibling();

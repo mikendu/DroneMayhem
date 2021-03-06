@@ -64,7 +64,7 @@ public class CrazyflieEditor : Editor
     [DrawGizmo(GizmoType.NonSelected | GizmoType.NotInSelectionHierarchy)]
     private static void DrawNonSelected(Crazyflie drone, GizmoType gizmo)
     {
-        if (DronePathMenu.AlwaysOn)
+        if (PreferencesMenu.PathEnabled)
         {
             //DrawDroneBounds(drone, Palette.UltraTranslucent);
             List<Waypoint> waypoints = drone.Waypoints;
