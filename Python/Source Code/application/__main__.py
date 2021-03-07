@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         if not settings.getValue("windowGeometry") == None:
             self.restoreGeometry(settings.getValue("windowGeometry"))
         else:
-            self.resize(1920, 1080)
+            self.resize(1600, 900)
 
     def closeEvent(self, event):
         event.ignore()
@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
 
 
 
-if (__name__ == "__main__"):
+def main():
     app = QApplication(sys.argv)
     styleSheet = QFile(":/stylesheets/main.css")
     styleSheet.open(QFile.ReadOnly | QFile.Text)

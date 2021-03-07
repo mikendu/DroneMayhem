@@ -31,6 +31,9 @@ public class ColorVolume : MonoBehaviour
     public Gradient Gradient = new Gradient();
     public bool InvertGradient = false;
 
+    [Range(0.0f, 1.0f)]
+    public float GradientOffset = 0.0f;
+
     private MaterialPropertyBlock properties;
     private Collider[] contained = new Collider[64];
     private Crazyflie[] hitDrones = new Crazyflie[64];
@@ -78,7 +81,7 @@ public class ColorVolume : MonoBehaviour
         }
         else
         {
-            GradientTexture.UpdateTexture(Gradient, ref gradientTexture, SampleCount, InvertGradient);
+            GradientTexture.UpdateTexture(Gradient, ref gradientTexture, SampleCount, GradientOffset, InvertGradient);
             properties.SetTexture("_gradient", gradientTexture);
             properties.SetInt("_gradientMode", (int)GradientType);
         }
@@ -168,6 +171,8 @@ public class ColorVolume : MonoBehaviour
                 break;
         }
         float index = InvertGradient ? (1.0f - sampleIndex) : sampleIndex;
+        index = (GradientOffset > 0.0f && GradientOffset < 1.0f) ? Mathf.Repeat(index + GradientOffset, 1.0f) : index;
+
         return Gradient.Evaluate(index);
     }
 

@@ -27,7 +27,7 @@ class SequenceController:
 
     def findExisting(self, desiredMatch):
         for index, sequence in enumerate(self.sequences):
-            if sequence.fullPath == desiredMatch.fullPath:
+            if sequence.fullPath == desiredMatch.fullPath or sequence.name == desiredMatch.name:
                 return index
         
         return None
@@ -41,7 +41,7 @@ class SequenceController:
             try:
                 sequence = Sequence(name, location, sequenceData)
                 existingIndex = self.findExisting(sequence)
-                if not existingIndex:
+                if existingIndex is None:
                     self.sequences.insert(0, sequence)
                 else:
                     self.sequences.insert(0, self.sequences.pop(existingIndex))
@@ -183,6 +183,9 @@ def runSequenceSteps(syncCrazyflie, drone, appController):
     sequence = SequenceController.CURRENT
     track = sequence.getTrack(drone.swarmIndex)
 
+    fullDuration = float(track['Length'])
+    elapsedTime = 0.0
+
     # Start the automated trajectory
     drone.startTrajectory()
 
@@ -196,7 +199,12 @@ def runSequenceSteps(syncCrazyflie, drone, appController):
         r, g, b = [int(lightColor[key]) for key in ('r', 'g', 'b')]
         setLED(appController, drone.swarmIndex, crazyflie, r, g, b, duration)
         threadUtil.interruptibleSleep(duration)
-            
+        elapsedTime += duration
+
+    # Make sure we wait for the trajectory to complete, if our color keyframes are shorter (or don't exist)
+    remainingDuration = max(fullDuration - elapsedTime, 0)
+    threadUtil.interruptibleSleep(remainingDuration)
+
     exceptionUtil.checkInterrupt()
 
 
@@ -217,7 +225,7 @@ def landDrone(syncCrazyflie, drone, appController):
         commander.land(0.05, 2.5)
         time.sleep(2.5)
 
-    commander.stop()
+    crazyflie.high_level_commander.stop()
     drone.state = DroneState.IDLE
 
 

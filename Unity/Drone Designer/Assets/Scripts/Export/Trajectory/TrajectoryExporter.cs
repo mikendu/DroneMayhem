@@ -43,12 +43,9 @@ public static class TrajectoryExporter
         /* Dimensions are swapped to account for difference between
          * Unity and crazyflie coordinate systems
          */
-        //BezierDegree xDegree = GetDegree(first, second, AxisType.Z);
-        //BezierDegree yDegree = GetDegree(first, second, AxisType.X);
-        //BezierDegree zDegree = GetDegree(first, second, AxisType.Y);
-        BezierDegree xDegree = BezierDegree.Cubic;
-        BezierDegree yDegree = BezierDegree.Cubic;
-        BezierDegree zDegree = BezierDegree.Cubic;
+        BezierDegree xDegree = GetDegree(first, second, AxisType.Z);
+        BezierDegree yDegree = GetDegree(first, second, AxisType.X);
+        BezierDegree zDegree = GetDegree(first, second, AxisType.Y);
         BezierDegree yawDegree = BezierDegree.Constant;
 
         byte curveFormat = ByteUtils.Coalesce(yawDegree.Value(), zDegree.Value(), yDegree.Value(), xDegree.Value());
@@ -56,7 +53,7 @@ public static class TrajectoryExporter
 
         short duration = GetDuration(first, second);
         ByteUtils.Pack(results, duration, true);
-        // Debug.Log("Processing segment with duration: " + duration + ", x deg: " + xDegree + ", y deg: " + yDegree + ", z deg: " + zDegree);
+        Debug.Log(yDegree.ToString() + " | " + zDegree + " | " + xDegree);
 
 
         // -- Body -- //
@@ -98,17 +95,17 @@ public static class TrajectoryExporter
         float firstPos = first.Position.Get(axis);
         float secondPos = second.Position.Get(axis);
 
-        if (Mathf.Approximately(firstPos, secondPos))
-            return BezierDegree.Constant;
-
         Vector3 startTangent = first.Tangent;
         Vector3 endTangent = -second.Tangent;
 
         float startTangentValue = (first.JointType == JointType.Linear) ? 0.0f : startTangent.Get(axis);
         float endTangentValue = (second.JointType == JointType.Linear) ? 0.0f : endTangent.Get(axis);
 
-        if (Mathf.Approximately(startTangentValue, 0) && Mathf.Approximately(endTangentValue, 0))
-            return BezierDegree.Linear;
+        bool linearStart = Mathf.Approximately(startTangentValue, 0.0f);
+        bool linearEnd = Mathf.Approximately(endTangentValue, 0.0f);
+
+        if (linearStart && linearEnd)
+            return Mathf.Approximately(firstPos, secondPos) ? BezierDegree.Constant : BezierDegree.Linear;
 
         return BezierDegree.Cubic;
     }

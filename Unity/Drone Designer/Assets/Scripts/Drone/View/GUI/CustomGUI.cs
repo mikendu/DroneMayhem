@@ -22,12 +22,12 @@ public static class CustomGUI
         TitleStyle = new GUIStyle();
         TitleStyle.normal.textColor = Color.white;
         TitleStyle.fontStyle = FontStyle.Normal;
-        TitleStyle.fontSize = 15;
+        TitleStyle.fontSize = 12;
 
         HeaderStyle = new GUIStyle();
         HeaderStyle.normal.textColor = Color.white;
-        HeaderStyle.fontStyle = FontStyle.Normal;
-        HeaderStyle.fontSize = 20;
+        HeaderStyle.fontStyle = FontStyle.Bold;
+        HeaderStyle.fontSize = 15;
     }
 
 
@@ -89,7 +89,7 @@ public static class CustomGUI
         EditorGUILayout.BeginVertical(EditorStyles.inspectorFullWidthMargins);
 
         CustomGUI.DrawTitle(title, CustomGUI.HeaderStyle);
-        CustomGUI.DrawSplitter(15, 15, 1.0f);
+        CustomGUI.DrawSplitter(10, 15, 1.0f);
         contentFunction(argument);
 
         EditorGUILayout.EndVertical();

@@ -18,6 +18,7 @@ public class ColorVolumeInspector : Editor
         SerializedProperty gradientTypeProperty = serializedObject.FindProperty("GradientType");
         SerializedProperty colorProperty = serializedObject.FindProperty("Color");
         SerializedProperty gradientProperty = serializedObject.FindProperty("Gradient");
+        SerializedProperty offsetProperty = serializedObject.FindProperty("GradientOffset");
         SerializedProperty invertProperty = serializedObject.FindProperty("InvertGradient");
 
 
@@ -47,6 +48,7 @@ public class ColorVolumeInspector : Editor
         {
             InspectorUtilities.EnumToolbar<GradientType>(gradientTypeProperty, "Gradient Type");
             EditorGUILayout.PropertyField(gradientProperty, true);
+            EditorGUILayout.PropertyField(offsetProperty, true);
             EditorGUILayout.PropertyField(invertProperty, true);
         }
 

@@ -135,7 +135,7 @@ public class WaypointEditor : CustomEditor<Waypoint>
 
     public static void DrawGUI(Waypoint waypoint)
     {
-        Rect toolsRect = new Rect(20, 290, 300, 300);
+        Rect toolsRect = new Rect(340, 20, 300, 280);
         CustomGUI.Window(toolsRect, "Waypoint", DrawWaypointTools, waypoint);
     }
 

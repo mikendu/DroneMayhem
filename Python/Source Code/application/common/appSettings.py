@@ -12,11 +12,13 @@ class AppSettings():
     def loadSequences(self):
         self.sequences = self.settings.value('recentSequences', [], str)
         self.sequences = list(filter(lambda file: path.exists(file), self.sequences))
+        self.sequences = list(dict.fromkeys(self.sequences))
         del self.sequences[10:] 
         self.settings.setValue('recentSequences', self.sequences)
 
     def updateSequences(self, sequenceList):
-        self.sequences = sequenceList        
+        self.sequences = sequenceList
+        self.sequences = list(dict.fromkeys(self.sequences))
         self.settings.setValue('recentSequences', self.sequences)
 
     def getValue(self, key, default = None, valueType = None):

@@ -7,14 +7,14 @@ using UnityEngine;
 
 public static class GradientTexture
 {
-    public static Texture2D Generate(Gradient gradient, int sampleCount = 16, bool invert = false)
+    public static Texture2D Generate(Gradient gradient, int sampleCount = 16, float offset = 0.0f, bool invert = false)
     {
         Texture2D texture = new Texture2D(sampleCount, 1, TextureFormat.ARGB32, false);
-        UpdateTexture(gradient, ref texture, sampleCount, invert);
+        UpdateTexture(gradient, ref texture, sampleCount, offset, invert);
         return texture;
     }
 
-    public static void UpdateTexture(Gradient gradient, ref Texture2D texture, int sampleCount = 16, bool invert = false)
+    public static void UpdateTexture(Gradient gradient, ref Texture2D texture, int sampleCount = 16, float offset = 0.0f, bool invert = false)
     {
         if (texture == null || texture.width != sampleCount)
             texture = new Texture2D(sampleCount, 1, TextureFormat.ARGB32, false);
@@ -27,6 +27,8 @@ public static class GradientTexture
         for (int i = 0; i < sampleCount; i++)
         {
             float index = invert ? (1.0f - (i * interval)) : (i * interval);
+            index = (offset > 0.0f && offset < 1.0f) ? Mathf.Repeat(index + offset, 1.0f) : index;
+
             Color color = gradient.Evaluate(index);
             texture.SetPixel(i, 0, color);
         }

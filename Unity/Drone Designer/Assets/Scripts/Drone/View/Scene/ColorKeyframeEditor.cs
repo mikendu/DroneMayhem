@@ -123,7 +123,7 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
 
     public static void DrawGUI(ColorKeyframe keyframe)
     {
-        Rect toolsRect = new Rect(20, 290, 300, 185);
+        Rect toolsRect = new Rect(340, 20, 300, 185);
         CustomGUI.Window(toolsRect, "Color Keyframe", DrawColorKeyframeTools, keyframe);
     }
 

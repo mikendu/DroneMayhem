@@ -1,52 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5753977032885484645
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 8
-  JointType: 0
-  Position: {x: 0, y: 0.5, z: -0.5}
-  Tangent: {x: 0, y: 0, z: -0.125}
---- !u!114 &-4670886845887338024
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 8
-  LightColor: {r: 1, g: 0.62674534, b: 0, a: 1}
---- !u!114 &-3696540238667400106
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 2
-  JointType: 1
-  Position: {x: 0, y: 0.5, z: 0}
-  Tangent: {x: 0.5, y: 0, z: 0}
---- !u!114 &-3009801309032525550
+--- !u!114 &-6932100397954463209
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -60,8 +14,66 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 4
   JointType: 1
-  Position: {x: 0, y: 0.5, z: -0.5}
-  Tangent: {x: -0.1, y: 0, z: -0.1}
+  Position: {x: 0, y: 0.49999997, z: -0.5}
+  Tangent: {x: -0.3, y: 0, z: -0.3}
+--- !u!114 &-6303187114554029644
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2
+  LightColor: {r: 0.5, g: 0.31009704, b: 0.5, a: 1}
+--- !u!114 &-3895969322646041235
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 7
+  LightColor: {r: 0.9616375, g: 0.08444116, b: 0.038362473, a: 1}
+--- !u!114 &-2215191786325676805
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 9.583333333333334
+  JointType: 0
+  Position: {x: -0.3596739, y: 0.16637394, z: -0.038362503}
+  Tangent: {x: -0.047260262, y: -0.00016365395, z: 0.11572139}
+--- !u!114 &-247101666173288622
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 1
+  LightColor: {r: 0.07421768, g: 0.5182263, b: 0.9257823, a: 1}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,7 +94,39 @@ MonoBehaviour:
     m_Framerate: 60
   m_DurationMode: 0
   m_MarkerTrack: {fileID: 0}
---- !u!114 &3708030601806228240
+--- !u!114 &390404541415473996
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 5
+  JointType: 1
+  Position: {x: -0.0034821033, y: 0.500005, z: -0.99896467}
+  Tangent: {x: 0.3, y: 0, z: 0}
+--- !u!114 &866833987911694952
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 7
+  JointType: 0
+  Position: {x: -0.3596739, y: 0.49975586, z: -0.038362503}
+  Tangent: {x: -0.08686417, y: 0, z: 0.08988667}
+--- !u!114 &1923932945917967462
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,9 +140,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 6
   JointType: 1
-  Position: {x: 0, y: 0.5, z: -1}
-  Tangent: {x: 0.5, y: 0, z: 0}
---- !u!114 &3744621988018172714
+  Position: {x: 0, y: 0.5, z: -0.5}
+  Tangent: {x: -0.3, y: 0, z: 0.3}
+--- !u!114 &2770007271740302161
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,12 +151,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 6
-  LightColor: {r: 0, g: 0.61476326, b: 1, a: 1}
---- !u!114 &3877698432383226427
+  m_Time: 1
+  JointType: 0
+  Position: {x: 0.35967395, y: 0.49975586, z: -0.92578226}
+  Tangent: {x: 0, y: 0, z: 0}
+--- !u!114 &2926371065078595551
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,8 +171,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Time: 4
-  LightColor: {r: 0, g: 1, b: 0.33996248, a: 1}
---- !u!114 &4760842520756382647
+  LightColor: {r: 0.5, g: 0.31009704, b: 0.5, a: 1}
+--- !u!114 &2977745632316162098
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,8 +184,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 0
+  m_Time: 9.583333333333334
   LightColor: {r: 0, g: 0, b: 0, a: 1}
+--- !u!114 &3011290208659052826
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 6
+  LightColor: {r: 0.5, g: 0.31009704, b: 0.5, a: 1}
+--- !u!114 &3351897808460264318
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 3
+  LightColor: {r: 1, g: 0.06568897, b: 0, a: 1}
+--- !u!114 &4108253510036950870
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 3
+  JointType: 1
+  Position: {x: 0, y: 0.49999997, z: 0}
+  Tangent: {x: 0.3, y: 0, z: 0}
 --- !u!114 &6076550640103851774
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -152,24 +242,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 0
-  JointType: 0
-  Position: {x: 0, y: 0.5, z: -0.5}
-  Tangent: {x: 0, y: 0, z: 0.1}
---- !u!114 &7701504997250609248
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   m_Time: 2
-  LightColor: {r: 1, g: 0, b: 0, a: 1}
+  JointType: 1
+  Position: {x: 0, y: 0.5, z: -0.5}
+  Tangent: {x: -0.3, y: 0, z: 0.3}
 --- !u!114 &7827556805158776685
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -194,12 +270,32 @@ MonoBehaviour:
   m_Markers:
     m_Objects:
     - {fileID: 6076550640103851774}
-    - {fileID: -3696540238667400106}
-    - {fileID: -3009801309032525550}
-    - {fileID: 3708030601806228240}
-    - {fileID: -5753977032885484645}
-    - {fileID: 4760842520756382647}
-    - {fileID: 7701504997250609248}
-    - {fileID: 3877698432383226427}
-    - {fileID: 3744621988018172714}
-    - {fileID: -4670886845887338024}
+    - {fileID: 4108253510036950870}
+    - {fileID: -6932100397954463209}
+    - {fileID: 390404541415473996}
+    - {fileID: 1923932945917967462}
+    - {fileID: 866833987911694952}
+    - {fileID: 2770007271740302161}
+    - {fileID: -247101666173288622}
+    - {fileID: -6303187114554029644}
+    - {fileID: 3351897808460264318}
+    - {fileID: 2926371065078595551}
+    - {fileID: 8945177344685016326}
+    - {fileID: 3011290208659052826}
+    - {fileID: -3895969322646041235}
+    - {fileID: -2215191786325676805}
+    - {fileID: 2977745632316162098}
+--- !u!114 &8945177344685016326
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 5
+  LightColor: {r: 0.0010352731, g: 0.55399907, b: 0.9989647, a: 1}
