@@ -57,7 +57,8 @@ class RecentPanel(QFrame):
 class SequenceCard(QFrame):
     """ For displaying a recent sequence in the sidebar. Used only in this file"""
 
-    ICON = None
+    SELECT_ICON = None
+    CLOSE_ICON = None
 
     def __init__(self, sequence, index, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,6 +68,8 @@ class SequenceCard(QFrame):
         self.setProperty("class", "sequenceCard")
         outerLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
         innerLayout = layoutUtil.createLayout(LayoutType.VERTICAL)
+        self.createCloseButton(sequence, outerLayout)
+
         outerLayout.addLayout(innerLayout)
         innerLayout.setContentsMargins(25, 12, 25, 12)
 
@@ -85,19 +88,42 @@ class SequenceCard(QFrame):
         innerLayout.addWidget(locationLabel)
         innerLayout.addStretch(1)
 
-        if not SequenceCard.ICON:
-            SequenceCard.ICON = QIcon(":/images/right_button.png")
+        self.createSelectButton(sequence, outerLayout)
+
+    def createCloseButton(self, sequence, layout):
+        if not SequenceCard.CLOSE_ICON:
+            SequenceCard.CLOSE_ICON = QIcon(":/images/close.png")
+
+        button = QPushButton()
+        button.setProperty("class", "sequenceRemoveButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        button.setIcon(SequenceCard.CLOSE_ICON)
+        button.setStatusTip("Remove \"" + sequence.name + "\"")
+        button.clicked.connect(self.remove)
+
+        layout.addStretch(1)
+        layout.addWidget(button)
+
+
+    def createSelectButton(self, sequence, layout):
+        if not SequenceCard.SELECT_ICON:
+            SequenceCard.SELECT_ICON = QIcon(":/images/right_button.png")
 
         button = QPushButton()
         button.setProperty("class", "sequenceButton")
         button.setCursor(Qt.PointingHandCursor)
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        button.setIcon(SequenceCard.ICON)
+        button.setIcon(SequenceCard.SELECT_ICON)
         button.setStatusTip("Select \"" + sequence.name + "\"")
-        button.clicked.connect(self.onClick)
+        button.clicked.connect(self.select)
 
-        outerLayout.addStretch(1)
-        outerLayout.addWidget(button)
+        layout.addStretch(1)
+        layout.addWidget(button)
 
-    def onClick(self):
+
+    def select(self):
         self.appController.selectSequence(self.index)
+
+    def remove(self):
+        self.appController.removeSequence(self.index)

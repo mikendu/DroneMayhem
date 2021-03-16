@@ -52,7 +52,12 @@ class SequenceController:
                 return False
         return False
 
-    
+    def removeSequence(self, index):
+        if (index >= 0 and index < len(self.sequences)):
+            self.sequences.pop(index)
+            return True
+        return False
+
     def selectSequence(self, index):
         if (index >= 0 and index < len(self.sequences)):
             SequenceController.CURRENT = self.sequences[index]

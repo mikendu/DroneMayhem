@@ -104,6 +104,11 @@ class ApplicationController(QObject):
         if self.sequenceController.selectSequence(index):
             self.sequenceSelected.emit()
 
+    def removeSequence(self, index):
+        if (self.sequenceController.removeSequence(index)):
+            self.saveSequenceSettings()
+            self.sequenceLoaded.emit()
+
     def onSequenceClick(self):
         if not self.sequencePlaying:
             self.startSequence()

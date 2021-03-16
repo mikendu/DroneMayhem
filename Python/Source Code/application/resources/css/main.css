@@ -134,6 +134,14 @@ QFrame.sequenceCard QLabel.locationLabel {
 .sequenceButton:hover { background: #5a5a5a; }
 .sequenceButton:pressed { background: #3a3a3a; }
 
+.sequenceRemoveButton {
+    width: 50px;
+    background: #292929;
+    color: white;
+    border: none;
+}
+.sequenceRemoveButton:hover { background: #3a3a3a; }
+.sequenceRemoveButton:pressed { background: #171717; }
 
 /* ---------- MAIN PAGE: BASE STATIONS ---------- */
 BaseStationPanel { 

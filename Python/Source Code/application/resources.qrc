@@ -7,6 +7,7 @@
         <file alias="right_button.png">./resources/images/right.png</file>
         <file alias="spinner.png">./resources/images/spinner.png</file>
         <file alias="spinner_two.png">./resources/images/spinner_2.png</file>
+        <file alias="close.png">./resources/images/close.png</file>
     </qresource>
     <qresource prefix="/stylesheets">
         <file alias="main.css">./resources/css/main.css</file>
