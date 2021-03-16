@@ -136,6 +136,21 @@ public class Crazyflie : MonoBehaviour
         }
     }
 
+    public void ApplyGlobalTransform()
+    {
+        List<Waypoint> waypoints = this.Waypoints;
+        if (waypoints == null)
+            return;
+
+        Undo.RecordObjects(waypoints.ToArray(), "Apply Global Transform");
+        foreach (Waypoint waypoint in waypoints)
+        {
+            Vector3 newPosition = GlobalTransform.Transfomed(waypoint.Position);
+            Vector3 newTangent = GlobalTransform.Transfomed(waypoint.WorldTangent);
+            waypoint.SetPosition(newPosition);
+            waypoint.SetTangent(newTangent);
+        }
+    }
 
     public void SetWaypoint(Vector3 position, float time)
     {

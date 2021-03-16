@@ -26,6 +26,7 @@ public class TimelineUtilities : MonoBehaviour
     private static GameObject EnvironmentTemplate;
     private static GameObject TimelineTemplate;
     private static GameObject StaticGuideTemplate;
+    private static GameObject GlobalTransformTemplate;
 
     static TimelineUtilities()
     {
@@ -39,6 +40,7 @@ public class TimelineUtilities : MonoBehaviour
         EnvironmentTemplate = Resources.Load<GameObject>("Prefabs/Environment");
         TimelineTemplate = Resources.Load<GameObject>("Prefabs/Timeline");
         StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Shape Guide (Static)");
+        GlobalTransformTemplate = Resources.Load<GameObject>("Prefabs/Global Transform");
 
         EditorSceneManager.sceneClosing -= OnPreClose;
         EditorSceneManager.sceneClosing += OnPreClose;
@@ -72,6 +74,18 @@ public class TimelineUtilities : MonoBehaviour
                 timeline = Director?.playableAsset as TimelineAsset;
 
             return timeline;
+        }
+    }
+
+    public static float CurrentTime
+    {
+        get
+        {
+            return (float)Director.time;
+        }
+        set
+        {
+            Director.time = value;
         }
     }
 
@@ -274,13 +288,28 @@ public class TimelineUtilities : MonoBehaviour
     static void CreateStaticGuide()
     {
         if (StaticGuideTemplate == null)
-            StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Static Shape Guide");
+            StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Shape Guide (Static)");
 
         GameObject guide = GameObject.Instantiate(StaticGuideTemplate);
         guide.name = "Shape Guide (Static)";
         guide.transform.position = new Vector3(0, 0.5f, 0);
         guide.transform.SetAsLastSibling();
         Undo.RegisterCreatedObjectUndo(guide, "Create Static Shape Guide");
+        Selection.activeObject = guide;
+    }
+
+    [MenuItem("Drone Tools/Insert Global Transform", false, 16)]
+    [MenuItem("GameObject/Create Other/Global Transform")]
+    static void CreateGlobalTransform()
+    {
+        if (GlobalTransformTemplate == null)
+            GlobalTransformTemplate = Resources.Load<GameObject>("Prefabs/Global Transform");
+
+        GameObject guide = GameObject.Instantiate(GlobalTransformTemplate);
+        guide.name = "Global Transform";
+        guide.transform.position = new Vector3(0, 0.0f, 0);
+        guide.transform.SetAsLastSibling();
+        Undo.RegisterCreatedObjectUndo(guide, "Create Global Transform");
         Selection.activeObject = guide;
     }
 

@@ -25,6 +25,6 @@ public class AttachmentPoint
     public void Apply()
     {
         if (Drone != null)
-            Drone.SetWaypoint(Position, Drone.Time);
+            Drone.SetWaypoint(Position, TimelineUtilities.CurrentTime);
     }
 }

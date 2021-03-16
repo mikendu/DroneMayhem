@@ -129,8 +129,8 @@ public class CrazyflieEditor : Editor
             Waypoint lastWaypoint = waypoints[waypoints.Count - 1];
             Vector3 endOffset = (waypoints.Count < 2) ? AlternateLabelOffset : LabelOffset;
 
-            Handles.Label(firstWaypoint.Position + LabelOffset, "START", CustomGUI.TitleStyle);
-            Handles.Label(lastWaypoint.Position + endOffset, "END", CustomGUI.TitleStyle);
+            Handles.Label(GlobalTransform.Transfomed(firstWaypoint.Position) + LabelOffset, "START", CustomGUI.TitleStyle);
+            Handles.Label(GlobalTransform.Transfomed(lastWaypoint.Position) + endOffset, "END", CustomGUI.TitleStyle);
         }
     }
 

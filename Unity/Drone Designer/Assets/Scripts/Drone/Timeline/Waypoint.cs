@@ -26,14 +26,14 @@ public class Waypoint : DroneKeyframe
         this.Position = position;
     }
 
-    public void SetTangent(Vector3 tangent)
+    public void SetTangent(Vector3 tangentWorldPos)
     {
-        this.Tangent = (tangent - Position);
+        this.Tangent = (tangentWorldPos - Position);
     }
 
-    public void SetInverseTangent(Vector3 tangent)
+    public void SetInverseTangent(Vector3 tangentWorldPos)
     {
-        this.Tangent = (Position - tangent);
+        this.Tangent = (Position - tangentWorldPos);
     }
 
     public Vector3 WorldTangent { get { return TangentVector(Position + Tangent); } }

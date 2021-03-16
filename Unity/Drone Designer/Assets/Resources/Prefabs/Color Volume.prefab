@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4871124699042854014}
   - component: {fileID: 4871124699042854009}
+  - component: {fileID: 8268636130911594610}
   m_Layer: 0
   m_Name: Color Volume
   m_TagString: Untagged
@@ -76,3 +77,21 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   InvertGradient: 0
+  GradientOffset: 0
+--- !u!114 &8268636130911594610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4871124699042854008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e67700289531ab498379e23483c3a2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Mode: 0
+  Colors: []
+  Cycles: 1
+  OffsetIncrements: 5
+  TotalDuration: 1

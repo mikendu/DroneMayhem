@@ -2,12 +2,11 @@
 
 
 pyinstaller \
-    --log-level=DEBUG \
     --name "Swarm Controller" \
     --icon ./application/resources/images/icon_black.ico \
-    --paths "C:\Users\Michael\AppData\Local\Programs\Python\Python39\Lib\site-packages" \
-    --hiddenimport=openvr \
-    cli.py | tee build.txt
+    --window \
+    --noconfirm \
+    cli.py
 
 
 

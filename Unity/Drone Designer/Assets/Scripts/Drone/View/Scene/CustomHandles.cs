@@ -87,10 +87,10 @@ public class CustomHandles
             bool linearStart = (currentKeyframe.JointType == JointType.Linear);
             bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
 
-            Vector3 startPos = currentKeyframe.Position;
-            Vector3 endPos = nextKeyframe.Position;
-            Vector3 startTangent = linearStart ? startPos : startPos + currentKeyframe.Tangent;
-            Vector3 endTangent = linearEnd ? endPos : endPos - nextKeyframe.Tangent;
+            Vector3 startPos = GlobalTransform.Transfomed(currentKeyframe.Position);
+            Vector3 endPos = GlobalTransform.Transfomed(nextKeyframe.Position);
+            Vector3 startTangent = linearStart ? startPos : GlobalTransform.Transfomed(currentKeyframe.WorldTangent);
+            Vector3 endTangent = linearEnd ? endPos : GlobalTransform.Transfomed(nextKeyframe.InverseWorldTangent);
 
             Handles.DrawBezier(startPos, endPos, startTangent, endTangent, pathColor, null, thiccness);
         }

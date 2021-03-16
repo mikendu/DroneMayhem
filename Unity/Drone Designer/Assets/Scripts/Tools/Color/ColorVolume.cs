@@ -94,7 +94,7 @@ public class ColorVolume : MonoBehaviour
         for (int i = 0; i < containedDroneCount; i++)
         {
             Crazyflie drone = this.hitDrones[i];
-            drone.SetColorKeyframe(Evaluate(drone.transform.position), drone.Time);
+            drone.SetColorKeyframe(Evaluate(drone.transform.position), TimelineUtilities.CurrentTime);
         }
         EditorApplication.QueuePlayerLoopUpdate();
     }

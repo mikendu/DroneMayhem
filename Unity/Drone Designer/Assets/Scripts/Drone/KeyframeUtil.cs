@@ -71,6 +71,12 @@ public static class KeyframeUtil
 
     public static Vector3 GetPosition(List<Waypoint> keyframes, double time, Vector3 defaultPosition)
     {
+        Vector3 position = FindPosition(keyframes, time, defaultPosition);
+        return GlobalTransform.Transfomed(position);
+    }
+
+    private static Vector3 FindPosition(List<Waypoint> keyframes, double time, Vector3 defaultPosition)
+    {
         InterpolationSet<Waypoint> interpolationData = Interpolate(keyframes, time);
         if (interpolationData != null)
             return EvaluateBezier(interpolationData.first, interpolationData.second, interpolationData.value);
@@ -117,10 +123,10 @@ public static class KeyframeUtil
         bool linearStart = (currentKeyframe.JointType == JointType.Linear);
         bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
 
-        Vector3 startPos = currentKeyframe.Position;
-        Vector3 endPos = nextKeyframe.Position;
-        Vector3 startTangent = linearStart ? startPos : startPos + currentKeyframe.Tangent;
-        Vector3 endTangent = linearEnd ? endPos : endPos - nextKeyframe.Tangent;
+        Vector3 startPos = GlobalTransform.Transfomed(currentKeyframe.Position);
+        Vector3 endPos = GlobalTransform.Transfomed(nextKeyframe.Position);
+        Vector3 startTangent = linearStart ? startPos : GlobalTransform.Transfomed(currentKeyframe.WorldTangent);
+        Vector3 endTangent = linearEnd ? endPos : GlobalTransform.Transfomed(nextKeyframe.InverseWorldTangent);
 
         // dP(t) / dt =  (-3(1-t)^2 * P0) + (3(1-t)^2 * P1) + (-6t(1-t) * P1) + (-3t^2 * P2) + (6t(1-t) * P2) + (3t^2 * P3) 
         float inverse = 1.0f - interpolation;

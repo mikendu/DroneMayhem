@@ -107,11 +107,12 @@ public class ColorKeyframeEditor : CustomEditor<ColorKeyframe>
 
         int offsetCounter = 1;
         Vector3 position = sortedKeyframes[index].Position;
+        int maxOffset = 3;
 
         for(int i = index - 1; i >= 0; i -= 1)
         {
             float distance = Vector3.Distance(position, sortedKeyframes[i].Position);
-            if (distance < 0.035f)
+            if (distance < 0.035f && offsetCounter <= maxOffset)
                 offsetCounter += 1;
             else
                 break;
