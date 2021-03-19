@@ -43,9 +43,12 @@ class SwarmController():
 
     def connectSwarm(self, numDrones = None):
         uris = self.uris
+        print("Connecting swarm: ", numDrones)
         if numDrones and (isinstance(numDrones, int) or numDrones.is_integer()):
-            listLength = len(self.uris)
-            end = max(0, min(numDrones, listLength))
+            totalCount = len(self.uris)
+            desiredCount = totalCount if numDrones < 0 else numDrones
+            end = max(0, min(desiredCount, totalCount))
+            print("End: ", end)
             uris = uris[:end]
 
         self.swarm = Swarm(uris, factory=SwarmController.FACTORY)
@@ -118,12 +121,12 @@ def initializePositioning(syncCrazyflie, drone, appController):
     exceptionUtil.checkInterrupt()
 
     appController.baseStationController.writeBaseStationData(crazyflie, drone)
-    resetEstimator(syncCrazyflie)
+    resetEstimator(drone, syncCrazyflie)
     drone.state = DroneState.IDLE
     exceptionUtil.checkInterrupt()
     
 
-def resetEstimator(syncCrazyflie):
+def resetEstimator(drone, syncCrazyflie):
     
     crazyflie = syncCrazyflie.cf
     crazyflie.param.set_value('kalman.resetEstimation', '1')
@@ -131,13 +134,18 @@ def resetEstimator(syncCrazyflie):
     
     exceptionUtil.checkInterrupt()
     crazyflie.param.set_value('kalman.resetEstimation', '0')
-    waitForEstimator(crazyflie)
+    drone.startHeight = 0.0
+    waitForEstimator(drone, crazyflie)
 
-def waitForEstimator(syncCrazyflie):
+def waitForEstimator(drone, syncCrazyflie):
     log_config = LogConfig(name='Kalman Variance', period_in_ms=500)
     log_config.add_variable('kalman.varPX', 'float')
     log_config.add_variable('kalman.varPY', 'float')
     log_config.add_variable('kalman.varPZ', 'float')
+
+    log_config.add_variable('kalman.stateX', 'float')
+    log_config.add_variable('kalman.stateY', 'float')
+    log_config.add_variable('kalman.stateZ', 'float')
 
     var_y_history = [1000] * 10
     var_x_history = [1000] * 10
@@ -165,6 +173,12 @@ def waitForEstimator(syncCrazyflie):
             min_z = min(var_z_history)
             max_z = max(var_z_history)
 
+
+            x = data['kalman.stateX']
+            y = data['kalman.stateY']
+            z = data['kalman.stateZ']
+
             
             if (max_x - min_x) < threshold and (max_y - min_y) < threshold and (max_z - min_z) < threshold:
+                drone.startHeight = z
                 break

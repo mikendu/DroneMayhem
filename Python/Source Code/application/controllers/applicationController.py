@@ -3,6 +3,7 @@ import openvr
 import cflib.crtp
 from PyQt5.QtCore import QObject, QTimer, QThreadPool, pyqtSignal
 
+from application.model import SequenceTestMode, Sequence
 from application.util import dialogUtil, threadUtil, exceptionUtil
 from .sequenceController import SequenceController
 from .baseStationController import BaseStationController
@@ -23,13 +24,15 @@ class ApplicationController(QObject):
     sequenceUpdated = pyqtSignal()
     addLogEntry = pyqtSignal(tuple)
     sequenceFinished = pyqtSignal()
+    resetTestMode = pyqtSignal()
 
     droneDisconnected = pyqtSignal(str)
     connectionFailed = pyqtSignal()
 
     def __init__(self, mainWindow, appSettings):
         super().__init__()
-        
+
+        self.clearSequence = False
         self.sequencePlaying = False
         self.appSettings = appSettings
         self.mainWindow = mainWindow
@@ -103,6 +106,7 @@ class ApplicationController(QObject):
 
         if self.sequenceController.selectSequence(index):
             self.sequenceSelected.emit()
+            self.resetTestMode.emit()
 
     def removeSequence(self, index):
         if (self.sequenceController.removeSequence(index)):
@@ -111,13 +115,15 @@ class ApplicationController(QObject):
 
     def onSequenceClick(self):
         if not self.sequencePlaying:
+            self.clearSequence = False
             self.startSequence()
         else:
             self.abortSequence()
 
     def startSequence(self):
         if not self.droneRequirementMet:
-            message = "Sequence is designed " + str(self.requiredDrones) + " drone(s)\n but only " + str(self.availableDrones) + " drone(s) are available."
+            message = "Sequence is designed " + str(SequenceController.CURRENT.displayedDroneCount) \
+                      + " drone(s)\n but only " + str(self.availableDrones) + " drone(s) are available."
             dialogUtil.modalDialog("Warning", message)
 
         exceptionUtil.setInterrupt(False)
@@ -142,11 +148,14 @@ class ApplicationController(QObject):
     def stopSequenceTimer(self):
         self.sequenceTimer.stop()
 
-    def abortSequence(self): 
+    def abortSequence(self):
         if self.sequencePlaying:
             exceptionUtil.setInterrupt(True)
             self.stopSequenceTimer()
             self.killTimer.start(5000)
+            
+            if self.clearSequence:
+                self.clearSequenceSelection()
 
     def hardKill(self):
         if (self.sequencePlaying):    
@@ -155,17 +164,23 @@ class ApplicationController(QObject):
             self.sequencePlaying = False
             self.sequenceUpdated.emit()
 
+            if self.clearSequence:
+                self.clearSequenceSelection()
+
     def onSequenceCompleted(self):
         self.sequenceFinished.emit()
         self.sequencePlaying = False
+        if self.clearSequence:
+            self.clearSequenceSelection()
+
         # self.elapsedTime = 0
         # self.sequenceProgress = 0
         # self.startTimestamp = None
         # self.sequenceUpdated.emit()
 
     def updateSequence(self):
-        if self.startTimestamp:
-            sequenceDuration = SequenceController.CURRENT.duration
+        sequenceDuration = SequenceController.CURRENT.duration if SequenceController.CURRENT is not None else 0
+        if self.startTimestamp and sequenceDuration > 0:
             self.elapsedTime = min(time.time() - self.startTimestamp, sequenceDuration)
             self.sequenceProgress = self.elapsedTime / sequenceDuration
         else:
@@ -175,18 +190,21 @@ class ApplicationController(QObject):
         self.sequenceUpdated.emit()
 
     def onConnectionFailed(self):
+        """
         self.hardKill()
         self.scanForDrones(True)
         dialogUtil.nonModalDialog(
             "Drone Connection Error",
             "Connection attempt failed,\ncancelling sequence.",
             self.mainWindow
-        )
+        )"""
+        pass
 
 
     def onDroneDisconnected(self, uri):
         print("-- Drone Disconnected: " + uri + " --")
         if self.swarm and uri in self.swarm._cfs:
+            """
             dialogUtil.nonModalDialog(
                 "Drone Connection Error",
                 "Lost connection to a drone!\nAborting sequence.",
@@ -195,6 +213,8 @@ class ApplicationController(QObject):
             self.abortSequence()
             QThreadPool.globalInstance().waitForDone()
             self.scanForDrones(True)
+            """
+            pass
 
     def cleanup(self):
         self.swarmController.disconnectSwarm()
@@ -220,6 +240,35 @@ class ApplicationController(QObject):
         return self.checkDroneRequirement()
 
     def checkDroneRequirement(self):
+        if SequenceController.CURRENT is None:
+            return False
+
         available = len(self.swarmController.drones)
-        required = SequenceController.CURRENT.drones if SequenceController.CURRENT else 0
-        return  (available > 0 and required > 0 and available >= required)
+        required = SequenceController.CURRENT.displayedDroneCount
+        return available >= required
+
+
+    def setTestMode(self, index):
+        mode = SequenceTestMode(index)
+        print("----- MODE", str(mode), "-----")
+
+    def emergencyKill(self):
+        # Show status message
+        print("--- KILL ALL ---")
+
+    def takeoffTest(self):
+        self.clearSequence = True
+        if self.sequencePlaying:
+            self.mainWindow.showStatusMessage("Cannot run takeoff & land test while a sequence is running.")
+            return
+
+        self.sequenceController.setTestSequence()
+        self.sequenceSelected.emit()
+        self.resetTestMode.emit()
+        self.startSequence()
+
+    def clearSequenceSelection(self):
+        SequenceController.CURRENT = None
+        self.sequenceSelected.emit()
+        self.resetTestMode.emit()
+        self.clearSequence = False

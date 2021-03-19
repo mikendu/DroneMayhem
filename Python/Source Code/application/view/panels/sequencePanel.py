@@ -2,9 +2,10 @@ from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea,
 from PyQt5.QtCore import Qt
 import time
 
+from application.model import SequenceTestMode
 from application.util import layoutUtil
 from application.view import LayoutType
-
+from application.view.widgets import ButtonBar
 
 class SequencePanel(QFrame):
     
@@ -17,11 +18,18 @@ class SequencePanel(QFrame):
         self.appController.sequenceFinished.connect(self.onSequenceFinished)
         self.appController.scanFinished.connect(self.updateButtonStatus)
         self.appController.droneDisconnected.connect(self.onButtonClick)
+        self.appController.resetTestMode.connect(self.onTestModeReset)
 
         self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
+        self.createButtonBar()
         self.createDataPanel()
         self.createSequenceLog()
+
+    def createButtonBar(self):
+        items = list(map(lambda x: str(x).upper(), SequenceTestMode))
+        self.buttonBar = ButtonBar("TESTING MODE", items, self.appController.setTestMode)
+        self.layout.addWidget(self.buttonBar)
 
     def createTitle(self):
         titleLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL)
@@ -45,6 +53,9 @@ class SequencePanel(QFrame):
     def createDataPanel(self):
         self.dataPanel = SequenceData(self.appController)
         self.layout.addWidget(self.dataPanel, 25)
+
+    def onTestModeReset(self):
+        self.buttonBar.setSelected(int(SequenceTestMode.NONE))
 
     def onButtonClick(self):
         self.startButton.setEnabled(False)
@@ -119,11 +130,16 @@ class SequenceData(QFrame):
 
     def onSequenceSelected(self):
         sequence = self.appController.sequenceController.CURRENT
-        if (sequence):
+        if sequence:
             self.durationString = time.strftime('%M:%S', time.gmtime(sequence.duration))
             self.sequenceTitle.setText(sequence.name)
-            self.droneText.setText(str(sequence.drones) + " Drone Sequence")
+            self.droneText.setText(str(sequence.displayedDroneCount) + " Drone Sequence")
             self.progressText.setText("00:00 / " + self.durationString)
+            self.progressBar.setValue(0)
+        else:
+            self.sequenceTitle.setText("--")
+            self.droneText.setText("--")
+            self.progressText.setText("00:00 / 00:00")
             self.progressBar.setValue(0)
 
     def updateProgress(self):

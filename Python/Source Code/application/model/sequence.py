@@ -1,9 +1,8 @@
 import os
-from .droneActionType import DroneActionType
-
 
 
 class Sequence():
+    EMPTY = None
 
     def __init__(self, name, location, data):
         self.name = name
@@ -16,6 +15,10 @@ class Sequence():
     @property
     def drones(self):
         return self.sequenceData["DroneCount"]
+
+    @property
+    def displayedDroneCount(self):
+        return max(self.sequenceData["DroneCount"], 0)
 
     @property
     def duration(self):
@@ -31,10 +34,13 @@ class Sequence():
         if swarmIndex >= 0 and swarmIndex < trackCount:
             return allTracks[swarmIndex]
 
-        raise Exception("Swarm index " + str(swarmIndex) + " is out of range! Found " + str(trackCount) + " tracks in the sequence.")
+        return None
 
     def getStartingColor(self, swarmIndex):
         track = self.getTrack(swarmIndex)
+        if track is None:
+            return None
+
         keyframes = track['ColorKeyframes']
         if (len(keyframes) > 0):
             color = keyframes[0]['LightColor']
@@ -45,6 +51,13 @@ class Sequence():
 
     def getStartingPosition(self, swarmIndex):
         track = self.getTrack(swarmIndex)
+        if track is None:
+            return None
+
         startPosition = track['StartPosition']
         x, y, z = [startPosition[key] for key in ('x', 'y', 'z')]
         return float(x), float(y), float(z)
+
+
+# -- Special Static Instance -- #
+Sequence.EMPTY = Sequence("Takeoff & Landing Test", "", {"DroneCount" : -1, "Length" : 0, "Tracks": []})

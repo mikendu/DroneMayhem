@@ -168,6 +168,38 @@ BaseStationDisplay > QLabel {
 }
 
 
+/* ---------- WIDGETS: BUTTON BAR ---------- */
+ButtonBar {
+    background: #343434;
+    padding: 0px 0px;
+    border-bottom: 1px solid #4B4A4A;
+}
+
+ButtonBar .buttonBarTitle {
+    font-size: 15px;
+    color: white;
+    margin: 10px 30px;
+}
+
+.buttonBarButton {
+    /* border: 1px solid #272727; */
+    border: none;
+    background: #4A4A4A;
+    font-weight: bold;
+    font-size: 15px;
+    color: white;
+}
+
+.buttonBarButton.enabled {
+    /* border: 1px solid #a4a4a4; */
+    background: #727272;
+}
+.buttonBarButton.enabled.special {
+    background: #b07687;
+}
+.buttonBarButton:hover { background: #9B9B9B; }
+.buttonBarButton:pressed { background: #A7A7A7; }
+
 /* ---------- MAIN PAGE: SEQUENCE RUNNER ---------- */
 
 
@@ -299,18 +331,24 @@ QLabel.droneName {
 .droneStatusIndicator.in_flight { background: #16a81b; }
 .droneStatusIndicator.landing { background: #cf8e2d; }
 
-.refreshButton {
-    max-width: 65px;
+.swarmButton {
+    max-width: 90px;
     max-height: 65px;
     color: white;
     background: black;
-    border: 1px solid #4B4A4A; 
+    border: 1px solid #4B4A4A;
     border-top: none;
-    border-left: none;    
+    border-right: none;
 }
 
 .refreshButton:hover { background: #303030; }
 .refreshButton:pressed { background: #1f1f1f; }
+
+.swarmTestButton:hover { background: #2a5cad; }
+.swarmTestButton:pressed { background: #8cb8ff; }
+
+.killButton:hover { background: #d13328; }
+.killButton:pressed { background: #f75940; }
 
 
 

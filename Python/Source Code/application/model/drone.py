@@ -17,6 +17,7 @@ class Drone():
         self.state = DroneState.DISCONNECTED
         self.dataWritten = False
         self.trajectoryUploaded = False
+        self.startPos = 0.0
 
     def writeTrajectory(self, data):
         self.trajectoryUploaded = False
