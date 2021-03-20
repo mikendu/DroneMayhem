@@ -29,6 +29,10 @@ class ApplicationController(QObject):
     droneDisconnected = pyqtSignal(str)
     connectionFailed = pyqtSignal()
 
+    POSITION_DRONE = True
+    RUN_COLORS = True
+    RUN_SEQUENCE = True
+
     def __init__(self, mainWindow, appSettings):
         super().__init__()
 
@@ -153,7 +157,7 @@ class ApplicationController(QObject):
             exceptionUtil.setInterrupt(True)
             self.stopSequenceTimer()
             self.killTimer.start(5000)
-            
+
             if self.clearSequence:
                 self.clearSequenceSelection()
 
@@ -253,13 +257,31 @@ class ApplicationController(QObject):
         print("----- MODE", str(mode), "-----")
 
     def emergencyKill(self):
-        # Show status message
-        print("--- KILL ALL ---")
+        if not dialogUtil.confirmModal("Emergency Shut-Down", "Stop all drones immediately?"):
+            return
+
+        self.mainWindow.showStatusMessage("Stopping all drones", 0)
+        print("Stopping all drones")
+
+        self.hardKill()
+        self.swarmController.scan()                     # Scan for any rogue drones that lost connection
+        self.swarmController.connectSwarm(-1)           # Connect to all drones found
+        self.swarmController.disconnectSwarm()          # Stop flight & disconnect from any found
+
+        self.mainWindow.showStatusMessage("Done", 500)
+        print("Emergency Shutdown Complete")
 
     def takeoffTest(self):
         self.clearSequence = True
         if self.sequencePlaying:
             self.mainWindow.showStatusMessage("Cannot run takeoff & land test while a sequence is running.")
+            return
+
+        if not dialogUtil.confirmModal("Takeoff & Land Test", "Run take off & landing test?"):
+            return
+
+        if self.availableDrones == 0:
+            self.mainWindow.showStatusMessage("No drones found!")
             return
 
         self.sequenceController.setTestSequence()

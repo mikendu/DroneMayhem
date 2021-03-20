@@ -43,12 +43,10 @@ class SwarmController():
 
     def connectSwarm(self, numDrones = None):
         uris = self.uris
-        print("Connecting swarm: ", numDrones)
         if numDrones and (isinstance(numDrones, int) or numDrones.is_integer()):
             totalCount = len(self.uris)
             desiredCount = totalCount if numDrones < 0 else numDrones
             end = max(0, min(desiredCount, totalCount))
-            print("End: ", end)
             uris = uris[:end]
 
         self.swarm = Swarm(uris, factory=SwarmController.FACTORY)
@@ -76,15 +74,16 @@ class SwarmController():
     def initializeSensors(self):
         self.swarm.parallel(initializePositioning, self.swarmArguments)
 
-    def disconnectSwarm(self): 
-        if (self.swarm):             
+    def disconnectSwarm(self):
+        if (self.swarm):
             for uri in self.swarm._cfs:
                 if not uri in self.droneMapping:
                     continue
 
                 drone = self.droneMapping[uri]
+                drone.crazyflie.cf.high_level_commander.stop()
                 drone.state = DroneState.DISCONNECTED
-                  
+
             self.swarm.close_links()
             self.swarm = None
 

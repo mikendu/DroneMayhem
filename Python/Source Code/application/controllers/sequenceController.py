@@ -125,16 +125,23 @@ class SequenceController:
         self.completeSequence()
     
     def takeoffDrones(self):
-        print("\n-- Getting Drones into Position --")          
+        if self.appController.swarm is None:
+            return
+        print("\n-- Getting Drones into Position --")
         self.appController.swarm.parallel(applyInitialState, self.appController.swarmArguments)
         threadUtil.interruptibleSleep(1.0)
 
     def runSequence(self):
+        if self.appController.swarm is None:
+            return
         print("\n-- Running Sequence --")
         self.appController.startTimer.emit()
         self.appController.swarm.parallel(runSequenceSteps, self.appController.swarmArguments)
 
     def landDrones(self):
+        if self.appController.swarm is None:
+            return
+
         print("\n-- Landing Drones --")      
         self.appController.swarm.parallel(landDrone, self.appController.swarmArguments)
 

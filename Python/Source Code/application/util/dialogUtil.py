@@ -20,4 +20,13 @@ def nonModalDialog(title, message, parentWidget, showButton=True):
     dialog.setWindowModality(Qt.NonModal)
     dialog.show()
     return dialog
-    
+
+
+def confirmModal(title, message,):
+    dialog = QMessageBox(QMessageBox.NoIcon, title, message)
+    dialog.setWindowIcon(QIcon(':/images/window_icon.png'))
+    dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+    dialog.setEscapeButton(QMessageBox.Cancel)
+    dialog.setDefaultButton(QMessageBox.Ok)
+    pressedButton = dialog.exec()
+    return pressedButton == QMessageBox.Ok

@@ -73,6 +73,8 @@ Spinner {
 
 QMessageBox {
     background: #4B4A4A;
+    min-width: 300px;
+    height: 150px;
 }
 QMessageBox QLabel {
     color: #ffffffff;
@@ -170,9 +172,10 @@ BaseStationDisplay > QLabel {
 
 /* ---------- WIDGETS: BUTTON BAR ---------- */
 ButtonBar {
-    background: #343434;
+    background: #121212;
     padding: 0px 0px;
     border-bottom: 1px solid #4B4A4A;
+    border-right: 1px solid #4B4A4A;
 }
 
 ButtonBar .buttonBarTitle {
@@ -182,9 +185,9 @@ ButtonBar .buttonBarTitle {
 }
 
 .buttonBarButton {
-    /* border: 1px solid #272727; */
     border: none;
-    background: #4A4A4A;
+    border-left: 1px solid #515151;
+    background: #171717;
     font-weight: bold;
     font-size: 15px;
     color: white;
@@ -192,13 +195,13 @@ ButtonBar .buttonBarTitle {
 
 .buttonBarButton.enabled {
     /* border: 1px solid #a4a4a4; */
-    background: #727272;
+    background: #414141;
 }
 .buttonBarButton.enabled.special {
-    background: #b07687;
+    background: #474747;
 }
-.buttonBarButton:hover { background: #9B9B9B; }
-.buttonBarButton:pressed { background: #A7A7A7; }
+.buttonBarButton:hover { background: #4d4d4d; }
+.buttonBarButton:pressed { background: #4f4f4f; }
 
 /* ---------- MAIN PAGE: SEQUENCE RUNNER ---------- */
 
