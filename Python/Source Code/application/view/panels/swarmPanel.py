@@ -1,10 +1,10 @@
 import math
-from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy
+from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy, QLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QSize
 
 from application.util import layoutUtil
-from application.model import DroneState
+from application.model import DroneState, Drone
 from application.view import LayoutType
 from application.view.widgets import Spinner, ElidedLabel
 
@@ -81,18 +81,25 @@ class SwarmPanel(QFrame):
     
     def clearList(self):
         layoutUtil.clearLayout(self.listLayout)
-        self.listLayout.addWidget(Spinner(), 0, 0)
-        self.listLayout.setRowStretch(0, 1)    
-        self.listLayout.setRowStretch(1, 0)   
+
+        self.listLayout.addWidget(EmptyCard(0), 0, 0)
+        self.listLayout.addWidget(Spinner(), 1, 0)
+        self.listLayout.addWidget(EmptyCard(0), 2, 0)
+
+        self.listLayout.setRowStretch(0, 20)
+        self.listLayout.setRowStretch(1, 0)
+        self.listLayout.setRowStretch(2, 20)
 
     def updateList(self):
         layoutUtil.clearLayout(self.listLayout)   
         numColumns = round(self.width() / 300.0)
         droneList = self.appController.swarmController.drones
+
         for i, drone in enumerate(droneList):
             row = math.floor(i / numColumns)
             col = i % numColumns
-            self.listLayout.addWidget(DroneCard(drone), row, col)
+            card = DroneCard(drone)
+            self.listLayout.addWidget(card, row, col)
             self.listLayout.setRowStretch(i, 1) 
 
         # Add "empty" cards if there's only 1 drone
@@ -101,7 +108,10 @@ class SwarmPanel(QFrame):
                 row = math.floor(i / numColumns)
                 col = i % numColumns
                 self.listLayout.addWidget(EmptyCard(i), row, col)
-                self.listLayout.setRowStretch(i, 1) 
+                self.listLayout.setRowStretch(i, 1)
+
+        self.cardList.setMaximumWidth(self.width())
+
 
 
     def repositionCards(self):
@@ -114,7 +124,7 @@ class SwarmPanel(QFrame):
             index = card.index
             row = math.floor(index / numColumns)
             col = index % numColumns
-            
+
             self.listLayout.removeWidget(card)
             self.listLayout.addWidget(card, row, col)
 
@@ -122,6 +132,7 @@ class SwarmPanel(QFrame):
     def resizeEvent(self, event):
         self.repositionCards()
         super().resizeEvent(event)
+        self.cardList.setMaximumWidth(self.width())
 
 
     def updateDroneState(self):
@@ -163,9 +174,10 @@ class DroneCard(QFrame):
         nameLabel = ElidedLabel("Drone " + str(drone.swarmIndex))
         nameLabel.setProperty("class", ["droneName"])
 
+        self.addressLabel = ElidedLabel("URI (Address):  " + drone.address)
         innerLayout.addStretch(1)
         innerLayout.addWidget(nameLabel)
-        innerLayout.addWidget(ElidedLabel("URI (Address):  " + drone.address))
+        innerLayout.addWidget(self.addressLabel)
         innerLayout.addWidget(self.createStatusLabel())
         innerLayout.addStretch(1)
 

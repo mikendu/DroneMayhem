@@ -1,5 +1,5 @@
 import time
-from cflib.crtp.radiodriver import RadioDriver
+from cflib.crtp.cflinkcppdriver import CfLinkCppDriver
 from cflib.crazyflie.swarm import CachedCfFactory
 from cflib.crazyflie.swarm import Swarm
 from cflib.crazyflie.log import LogConfig
@@ -16,7 +16,7 @@ class SwarmController():
     
     def __init__(self, appController):
         self.appController = appController
-        self.radioDriver = RadioDriver()
+        self.radioDriver = CfLinkCppDriver()
         self.drones = []
         self.droneMapping = {}
         self.swarmArguments = {}
@@ -40,6 +40,7 @@ class SwarmController():
             self.swarmArguments[droneAddress] = [drone, self.appController]
 
         self.uris = [drone.address for drone in self.drones]
+        time.sleep(1.0)
 
     def connectSwarm(self, numDrones = None):
         uris = self.uris
@@ -50,11 +51,8 @@ class SwarmController():
             uris = uris[:end]
 
         self.swarm = Swarm(uris, factory=SwarmController.FACTORY)
-        try:
-            self.swarm.parallel_safe(connectToDrone, self.swarmArguments)
-            #self.swarm.open_links()
-        except Exception:
-            raise ConnectionAbortedError()
+        self.swarm.parallel_safe(connectToDrone, self.swarmArguments)
+        #self.swarm.open_links()
 
         for uri in self.swarm._cfs.keys():
             drone = self.droneMapping[uri]

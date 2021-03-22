@@ -1,4 +1,6 @@
 import sys
+import traceback
+
 from PyQt5.QtWidgets import QMainWindow, QStatusBar, QApplication
 from PyQt5.QtCore import Qt, QFile, QTextStream, QTimer, QThreadPool
 from PyQt5.QtGui import QIcon
@@ -72,9 +74,13 @@ class MainWindow(QMainWindow):
         sys.exit(0)
 
 
-
+def errorHandler(exceptionType, exceptionValue, exceptionTraceback):
+    stackTrace = "".join(traceback.format_exception(exceptionType, exceptionValue, exceptionTraceback))
+    print("\n\n---- TOP LEVEL UNHANDLED ERROR ----\n\n", stackTrace)
+    QApplication.quit()
 
 def main():
+    sys.excepthook = errorHandler
     app = QApplication(sys.argv)
     styleSheet = QFile(":/stylesheets/main.css")
     styleSheet.open(QFile.ReadOnly | QFile.Text)
@@ -85,4 +91,5 @@ def main():
 
     window = MainWindow()
     window.show()
-    app.exec_()
+    result = app.exec_()
+    sys.exit(result)

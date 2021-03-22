@@ -1,9 +1,10 @@
+import os
 import time
 import openvr
 import cflib.crtp
-from PyQt5.QtCore import QObject, QTimer, QThreadPool, pyqtSignal
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 
-from application.model import SequenceTestMode, Sequence
+from application.model import SequenceTestMode
 from application.util import dialogUtil, threadUtil, exceptionUtil
 from .sequenceController import SequenceController
 from .baseStationController import BaseStationController
@@ -29,7 +30,7 @@ class ApplicationController(QObject):
     droneDisconnected = pyqtSignal(str)
     connectionFailed = pyqtSignal()
 
-    POSITION_DRONE = True
+    POSITION_DRONES = True
     RUN_COLORS = True
     RUN_SEQUENCE = True
 
@@ -69,6 +70,7 @@ class ApplicationController(QObject):
         self.baseStationController = BaseStationController(self)
 
     def initializeSwarm(self):
+        os.environ["USE_CFLINK"] = "cpp"
         cflib.crtp.init_drivers()
         self.swarmController = SwarmController(self)
 
@@ -110,7 +112,7 @@ class ApplicationController(QObject):
 
         if self.sequenceController.selectSequence(index):
             self.sequenceSelected.emit()
-            self.resetTestMode.emit()
+            # self.resetTestMode.emit()
 
     def removeSequence(self, index):
         if (self.sequenceController.removeSequence(index)):
@@ -183,10 +185,9 @@ class ApplicationController(QObject):
         # self.sequenceUpdated.emit()
 
     def updateSequence(self):
-        sequenceDuration = SequenceController.CURRENT.duration if SequenceController.CURRENT is not None else 0
-        if self.startTimestamp and sequenceDuration > 0:
-            self.elapsedTime = min(time.time() - self.startTimestamp, sequenceDuration)
-            self.sequenceProgress = self.elapsedTime / sequenceDuration
+        if self.startTimestamp and self.sequenceDuration > 0 and (self.trajectoryEnabled or self.colorSequenceEnabled):
+            self.elapsedTime = self.sequenceClock
+            self.sequenceProgress = self.elapsedTime / self.sequenceDuration
         else:
             self.elapsedTime = 0
             self.sequenceProgress = 0
@@ -194,14 +195,13 @@ class ApplicationController(QObject):
         self.sequenceUpdated.emit()
 
     def onConnectionFailed(self):
-        """
         self.hardKill()
         self.scanForDrones(True)
         dialogUtil.nonModalDialog(
             "Drone Connection Error",
             "Connection attempt failed,\ncancelling sequence.",
             self.mainWindow
-        )"""
+        )
         pass
 
 
@@ -222,6 +222,16 @@ class ApplicationController(QObject):
 
     def cleanup(self):
         self.swarmController.disconnectSwarm()
+
+    @property
+    def sequenceDuration(self):
+        return SequenceController.CURRENT.duration if SequenceController.CURRENT is not None else 0
+
+    @property
+    def sequenceClock(self):
+        if self.startTimestamp is not None:
+            return min(time.time() - self.startTimestamp, self.sequenceDuration)
+        return 0
     
     @property
     def swarm(self):
@@ -254,7 +264,20 @@ class ApplicationController(QObject):
 
     def setTestMode(self, index):
         mode = SequenceTestMode(index)
-        print("----- MODE", str(mode), "-----")
+        if mode == SequenceTestMode.NONE:
+            ApplicationController.POSITION_DRONES = True
+            ApplicationController.RUN_COLORS = True
+            ApplicationController.RUN_SEQUENCE = True
+
+        elif mode == SequenceTestMode.COLORS:
+            ApplicationController.POSITION_DRONES = False
+            ApplicationController.RUN_COLORS = True
+            ApplicationController.RUN_SEQUENCE = False
+
+        elif mode == SequenceTestMode.FIRST_WAYPOINT:
+            ApplicationController.POSITION_DRONES = True
+            ApplicationController.RUN_COLORS = False
+            ApplicationController.RUN_SEQUENCE = False
 
     def emergencyKill(self):
         if not dialogUtil.confirmModal("Emergency Shut-Down", "Stop all drones immediately?"):
@@ -286,7 +309,7 @@ class ApplicationController(QObject):
 
         self.sequenceController.setTestSequence()
         self.sequenceSelected.emit()
-        self.resetTestMode.emit()
+        self.resetTestMode.emit()       # set back to test mode == NONE
         self.startSequence()
 
     def clearSequenceSelection(self):
@@ -294,3 +317,15 @@ class ApplicationController(QObject):
         self.sequenceSelected.emit()
         self.resetTestMode.emit()
         self.clearSequence = False
+
+    @property
+    def positioningEnabled(self):
+        return ApplicationController.POSITION_DRONES
+
+    @property
+    def colorSequenceEnabled(self):
+        return ApplicationController.RUN_COLORS
+
+    @property
+    def trajectoryEnabled(self):
+        return ApplicationController.RUN_SEQUENCE

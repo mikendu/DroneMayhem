@@ -128,16 +128,7 @@
             ],
             "ColorKeyframes": [
                 {
-                    "Duration": 0.0,
-                    "LightColor": {
-                        "r": 0.0,
-                        "g": 0.0,
-                        "b": 0.0,
-                        "a": 0.0
-                    }
-                },
-                {
-                    "Duration": 1.0,
+                    "Timestamp": 0.0,
                     "LightColor": {
                         "r": 19.0,
                         "g": 132.0,
@@ -146,7 +137,16 @@
                     }
                 },
                 {
-                    "Duration": 1.0,
+                    "Timestamp": 1.0,
+                    "LightColor": {
+                        "r": 19.0,
+                        "g": 132.0,
+                        "b": 236.0,
+                        "a": 0.0
+                    }
+                },
+                {
+                    "Timestamp": 2.0,
                     "LightColor": {
                         "r": 128.0,
                         "g": 79.0,
@@ -155,7 +155,7 @@
                     }
                 },
                 {
-                    "Duration": 1.0,
+                    "Timestamp": 3.0,
                     "LightColor": {
                         "r": 255.0,
                         "g": 17.0,
@@ -164,7 +164,7 @@
                     }
                 },
                 {
-                    "Duration": 1.0,
+                    "Timestamp": 4.0,
                     "LightColor": {
                         "r": 128.0,
                         "g": 79.0,
@@ -173,7 +173,7 @@
                     }
                 },
                 {
-                    "Duration": 1.0,
+                    "Timestamp": 5.0,
                     "LightColor": {
                         "r": 0.0,
                         "g": 141.0,
@@ -182,7 +182,7 @@
                     }
                 },
                 {
-                    "Duration": 1.0,
+                    "Timestamp": 6.0,
                     "LightColor": {
                         "r": 128.0,
                         "g": 79.0,
@@ -191,7 +191,7 @@
                     }
                 },
                 {
-                    "Duration": 1.0,
+                    "Timestamp": 7.0,
                     "LightColor": {
                         "r": 245.0,
                         "g": 22.0,
@@ -200,7 +200,7 @@
                     }
                 },
                 {
-                    "Duration": 2.5833330154418947,
+                    "Timestamp": 9.583333015441895,
                     "LightColor": {
                         "r": 0.0,
                         "g": 0.0,

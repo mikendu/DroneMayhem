@@ -30,13 +30,12 @@ public class SequenceCollection
 [Serializable]
 public class SequenceColorKeyframe
 {
-    public float Duration;
+    public float Timestamp;
     public Color LightColor;
 
     public SequenceColorKeyframe(ColorKeyframe keyframe)
     {
-        float keyframeTime = (float)keyframe.time;
-        this.Duration = (keyframeTime - keyframe.PreviousKeyframeTime);
+        this.Timestamp = (float)keyframe.time;
         this.LightColor = keyframe.LightColor.ToCrazyflieColor();
     }
 }
@@ -79,17 +78,15 @@ public class TimelineExporter : MonoBehaviour
     {
         List<ColorKeyframe> colorKeyframes = new List<ColorKeyframe>();
         List<Waypoint> waypoints = new List<Waypoint>();
-        float lastColorKeyframeTime = 0.0f;
 
-        foreach(IMarker marker in markers)
+        List<IMarker> sortedMarkers = new List<IMarker>(markers);
+        sortedMarkers.Sort(KeyframeUtil.KeyframeComparator);
+
+        foreach(IMarker marker in sortedMarkers)
         {
             if (marker is ColorKeyframe)
             {
-                ColorKeyframe colorKeyframe = marker as ColorKeyframe;
-                colorKeyframe.PreviousKeyframeTime = lastColorKeyframeTime;
-                lastColorKeyframeTime = (float)colorKeyframe.time;
-
-                colorKeyframes.Add(colorKeyframe);
+                colorKeyframes.Add(marker as ColorKeyframe);
                 track.Length = Mathf.Max(track.Length, (float)marker.time);
             }
 
@@ -116,8 +113,7 @@ public class TimelineExporter : MonoBehaviour
         if (colorKeyframes.Count > 0 && colorKeyframes[0].time > 0.0f)
         {
             ColorKeyframe fakeKeyframe = new ColorKeyframe();
-            fakeKeyframe.LightColor = Color.black;
-            fakeKeyframe.PreviousKeyframeTime = 0.0f;
+            fakeKeyframe.LightColor = colorKeyframes[0].LightColor;
             fakeKeyframe.time = 0.0;
             colorKeyframes.Insert(0, fakeKeyframe);
         }

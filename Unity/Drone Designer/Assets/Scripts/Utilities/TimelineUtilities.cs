@@ -174,6 +174,7 @@ public class TimelineUtilities : MonoBehaviour
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         // Populate scene
+       
         GameObject environmentPrefab = (GameObject)PrefabUtility.InstantiatePrefab(EnvironmentTemplate);
         GameObject cameraPrefab = (GameObject)PrefabUtility.InstantiatePrefab(CameraTemplate);
         GameObject timelinePrefab = (GameObject)PrefabUtility.InstantiatePrefab(TimelineTemplate);

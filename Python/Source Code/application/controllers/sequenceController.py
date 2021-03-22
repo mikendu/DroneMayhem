@@ -3,7 +3,7 @@ import os
 import time
 import pathlib
 
-from application.model import Sequence, DroneState, DroneActionType
+from application.model import Sequence, DroneState
 from application.common.exceptions import SequenceInterrupt
 from application.util import exceptionUtil, threadUtil
 
@@ -85,11 +85,13 @@ class SequenceController:
             self.appController.sequenceUpdated.emit()
 
             # ensure all drones have updated light house info & know their positions
-            self.appController.swarmController.initializeSensors()
-            self.appController.sequenceUpdated.emit()
+            if self.appController.trajectoryEnabled or self.appController.positioningEnabled:
+                self.appController.swarmController.initializeSensors()
+                self.appController.sequenceUpdated.emit()
 
             # get all drones in position
             self.takeoffDrones()
+            threadUtil.interruptibleSleep(2)
 
             # run sequence for each drone
             self.runSequence()
@@ -163,37 +165,41 @@ def applyInitialState(syncCrazyflie, drone, appController):
     if track is not None:
 
         # Before taking action, make sure trajectory is uploaded
-
-        trajectoryData = bytearray(track['CompressedTrajectory'])
-        drone.writeTrajectory(trajectoryData)
+        if appController.trajectoryEnabled:
+            trajectoryData = bytearray(track['CompressedTrajectory'])
+            drone.writeTrajectory(trajectoryData)
 
         # -- Get drone into position -- #
 
         r, g, b = sequence.getStartingColor(drone.swarmIndex)
         x, y, z = sequence.getStartingPosition(drone.swarmIndex)
 
-        setLED(appController, drone.swarmIndex, crazyflie, r, g, b, 4.0)
+        if appController.trajectoryEnabled or appController.positioningEnabled:
+            setLED(appController, drone.swarmIndex, crazyflie, r, g, b, 0.25, True)
 
-        # Step 1 - Takeoff & move to some height determined by index
-        targetHeight = drone.startHeight + min(0.3 + (drone.swarmIndex * 0.1), 3.0)
-        moveTime = 2.0 + (drone.swarmIndex * 0.3)
-        numDrones = min(appController.availableDrones, appController.requiredDrones)
-        maxMoveTime = 3.0 * (numDrones * 0.3)
+            # Step 1 - Takeoff & move to some height determined by index
+            targetHeight = drone.startHeight + min(0.3 + (drone.swarmIndex * 0.1), 3.0)
+            moveTime = 2.0 + (drone.swarmIndex * 0.3)
+            numDrones = min(appController.availableDrones, appController.requiredDrones)
+            maxMoveTime = 3.0 * (numDrones * 0.3)
 
-        commander.takeoff(targetHeight, moveTime)
-        threadUtil.interruptibleSleep(maxMoveTime)
+            commander.takeoff(targetHeight, moveTime)
+            threadUtil.interruptibleSleep(maxMoveTime)
 
-        # Step 2 - Move to position, maintaining target height
-        moveTo(appController, drone.swarmIndex, crazyflie, x, y, targetHeight, 3.0)
-        threadUtil.interruptibleSleep(3.0)
+            # Step 2 - Move to position, maintaining target height
+            moveTo(appController, drone.swarmIndex, crazyflie, x, y, targetHeight, 3.0)
+            threadUtil.interruptibleSleep(3.0)
 
-        # Step 3 - Move to actual starting position
-        moveTo(appController, drone.swarmIndex, crazyflie, x, y, z, 3.0)
-        threadUtil.interruptibleSleep(3.0)
+            # Step 3 - Move to actual starting position
+            moveTo(appController, drone.swarmIndex, crazyflie, x, y, z, 3.0)
+            threadUtil.interruptibleSleep(3.0)
+        else:
+            setLED(appController, drone.swarmIndex, crazyflie, r, g, b, 0.25, True)
+            threadUtil.interruptibleSleep(2)
 
     else:
+        setLED(appController, drone.swarmIndex, crazyflie, 0, 0, 0, 1.0, True)
         commander.takeoff(drone.startHeight + 0.25, 4.0)
-        setLED(appController, drone.swarmIndex, crazyflie, 0, 0, 0, 1.0)
         threadUtil.interruptibleSleep(4.0)
 
     drone.state = DroneState.READY
@@ -210,28 +216,34 @@ def runSequenceSteps(syncCrazyflie, drone, appController):
     track = sequence.getTrack(drone.swarmIndex)
 
     if track is not None:
-
         fullDuration = float(track['Length'])
-        elapsedTime = 0.0
 
         # Start the automated trajectory
-        drone.startTrajectory()
+        if appController.trajectoryEnabled:
+            drone.startTrajectory()
 
         # Run the color sequence manually
-        colorKeyframes = track['ColorKeyframes'][1:]
-        for keyframe in colorKeyframes:
+        if appController.colorSequenceEnabled:
+            colorKeyframes = track['ColorKeyframes'][1:]
+            for keyframe in colorKeyframes:
 
-            duration = float(keyframe['Duration'])
-            lightColor = keyframe['LightColor']
+                duration = max(float(keyframe['Timestamp']) - appController.sequenceClock, 0)
+                lightColor = keyframe['LightColor']
 
-            r, g, b = [int(lightColor[key]) for key in ('r', 'g', 'b')]
-            setLED(appController, drone.swarmIndex, crazyflie, r, g, b, duration)
-            threadUtil.interruptibleSleep(duration)
-            elapsedTime += duration
+                r, g, b = [int(lightColor[key]) for key in ('r', 'g', 'b')]
+                setLED(appController, drone.swarmIndex, crazyflie, r, g, b, duration)
+                threadUtil.interruptibleSleep(duration)
+
+                # Sometimes need to "solidify" the color we just faded to
+                # Otherwise you get flickering (crazyflies are weird)
+                setLED(appController, drone.swarmIndex, crazyflie, r, g, b, 0.0, True)
+                threadUtil.interruptibleSleep(min(0.1, duration * 0.25))
+
 
         # Make sure we wait for the trajectory to complete, if our color keyframes are shorter (or don't exist)
-        remainingDuration = max(fullDuration - elapsedTime, 0)
-        threadUtil.interruptibleSleep(remainingDuration)
+        if appController.trajectoryEnabled:
+            remainingDuration = max(fullDuration - appController.sequenceClock, 0)
+            threadUtil.interruptibleSleep(remainingDuration)
     else:
         setLED(appController, drone.swarmIndex, crazyflie, 255, 255, 255, 0.5)
         threadUtil.interruptibleSleep(1.0)
@@ -245,7 +257,10 @@ def landDrone(syncCrazyflie, drone, appController):
         return
 
     crazyflie = syncCrazyflie.cf
-    setLED(appController, drone.swarmIndex, crazyflie, 0, 0, 0, 0.5)
+    setLED(appController, drone.swarmIndex, crazyflie, 0, 0, 0, 0.25, True)
+    sequence = SequenceController.CURRENT
+    track = sequence.getTrack(drone.swarmIndex)
+    targetHeight = 0.1 if track is not None else drone.startHeight + 0.025
 
     if (drone.state == DroneState.POSITIONING or drone.state == DroneState.READY or
         drone.state == DroneState.IN_FLIGHT or drone.state == DroneState.LANDING):
@@ -253,17 +268,20 @@ def landDrone(syncCrazyflie, drone, appController):
         drone.state = DroneState.LANDING
         appController.updateSequence()
         commander = crazyflie.high_level_commander
-        commander.land(drone.startHeight + 0.025, 3.5)
-        time.sleep(3.5)
+        if appController.trajectoryEnabled or appController.positioningEnabled:
+            commander.land(targetHeight, 3.5)
+            time.sleep(3.5)
 
     crazyflie.high_level_commander.stop()
     drone.state = DroneState.IDLE
 
 
 
-def setLED(controller, index, crazyflie, r, g, b, time): 
-    print("DRONE " + str(index) + " | Fading LED to (", r, ",", g, ",", b, ") over", time, "seconds")
-    controller.addLogEntry.emit((index, "FADE LIGHT to color ", r, g, b, time))
+def setLED(controller, index, crazyflie, r, g, b, time, silent = False):
+    if not silent:
+        pass
+        print("DRONE " + str(index) + " | Fading LED to (", r, ",", g, ",", b, ") over", time, "seconds")
+        controller.addLogEntry.emit((index, "FADE LIGHT to color ", r, g, b, time))
 
     color = (int(r) << 16) | (int(g) << 8) | int(b)
     crazyflie.param.set_value('ring.fadeTime', str(time))

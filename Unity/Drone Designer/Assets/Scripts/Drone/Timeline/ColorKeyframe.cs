@@ -18,6 +18,4 @@ public class ColorKeyframe : DroneKeyframe
     public Vector3 Tangent { get; set; } = Vector3.zero;
     public float Offset { get; set; } = 0f;
     public int MarkerIndex { get; set; } = 0;
-
-    public float PreviousKeyframeTime { get; set; } = 0;
 }

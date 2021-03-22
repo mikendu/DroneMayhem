@@ -53,7 +53,6 @@ public static class TrajectoryExporter
 
         short duration = GetDuration(first, second);
         ByteUtils.Pack(results, duration, true);
-        Debug.Log(yDegree.ToString() + " | " + zDegree + " | " + xDegree);
 
 
         // -- Body -- //
