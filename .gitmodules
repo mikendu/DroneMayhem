@@ -1,0 +1,18 @@
+[submodule "crazyflie-firmware"]
+	path = crazyflie-firmware
+	url = git@github.com:bitcraze/crazyflie-firmware.git
+[submodule "crazyflie2-nrf-firmware"]
+	path = crazyflie2-nrf-firmware
+	url = git@github.com:bitcraze/crazyflie2-nrf-firmware.git
+[submodule "libusb"]
+	path = libusb
+	url = git@github.com:libusb/libusb.git
+[submodule "Python/crazyradio-firmware"]
+	path = Python/crazyradio-firmware
+	url = git@github.com:bitcraze/crazyradio-firmware.git
+[submodule "Python/crazyflie-link-cpp"]
+	path = Python/crazyflie-link-cpp
+	url = git@github.com:mikendu/crazyflie-link-cpp.git
+[submodule "Python/crazyflie-lib-python"]
+	path = Python/crazyflie-lib-python
+	url = git@github.com:mikendu/crazyflie-lib-python.git

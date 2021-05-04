@@ -1,0 +1,15 @@
+###### Requirements without Version Specifiers ######`
+numpy
+openvr
+docutils 
+pygments
+pypiwin32
+PyQt5
+vispy
+pyinstaller
+cmake
+
+
+###### Local Packages ######`
+# -e ../../crazyflie-lib-python
+# -e ../../crazyflie-link-cpp

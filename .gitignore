@@ -92,3 +92,5 @@ __pycache__/
 
 # Random stuff
 /Videos/
+
+**/cache/
