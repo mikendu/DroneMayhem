@@ -8,8 +8,8 @@ PyQt5
 vispy
 pyinstaller
 cmake
+cflinkcpp
 
 
 ###### Local Packages ######`
-# -e ../../crazyflie-lib-python
-# -e ../../crazyflie-link-cpp
+-e crazyflie-lib-python

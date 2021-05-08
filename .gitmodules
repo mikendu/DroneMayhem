@@ -16,3 +16,9 @@
 [submodule "Python/crazyflie-lib-python"]
 	path = Python/crazyflie-lib-python
 	url = git@github.com:mikendu/crazyflie-lib-python.git
+[submodule "Python/libusb"]
+	path = Python/libusb
+	url = git@github.com:libusb/libusb.git
+[submodule "Python/crazyflie-firmware"]
+	path = Python/crazyflie-firmware
+	url = git@github.com:mikendu/crazyflie-firmware.git
