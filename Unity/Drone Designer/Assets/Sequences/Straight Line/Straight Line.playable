@@ -230,6 +230,20 @@ MonoBehaviour:
   JointType: 1
   Position: {x: 0, y: 0.49999997, z: 0}
   Tangent: {x: 0.3, y: 0, z: 0}
+--- !u!114 &5730304701267047368
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &6076550640103851774
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -285,6 +299,7 @@ MonoBehaviour:
     - {fileID: -3895969322646041235}
     - {fileID: -2215191786325676805}
     - {fileID: 2977745632316162098}
+    - {fileID: 5730304701267047368}
 --- !u!114 &8945177344685016326
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -41,7 +41,6 @@ class BaseStationController():
         self.appController = appController
         self.baseStations = []
         self.connectToBaseStations()
-        self.memoryMapping = {}
 
     def connectToBaseStations(self):
         vrSystem = self.appController.vrSystem
@@ -53,24 +52,11 @@ class BaseStationController():
                     self.baseStations.append(station)
                 except VRException:
                     continue
-                
-    def writeBaseStationData(self, crazyflie, drone):
-        drone.dataWritten = False
-        mems = crazyflie.mem.get_mems(MemoryElement.TYPE_LH)
-        count = len(mems)
-        if count != 1:
-            raise Exception("Could not find lighthouse memory. Make sure the drone has a lighthouse deck installed!")
 
-        mems[0].geometry_data = [self.baseStations[0].positionGeometry, self.baseStations[1].positionGeometry]
-        mems[0].write_data(self.onWriteFinished)
-        self.memoryMapping[mems[0]] = drone
+    @property
+    def geometryOne(self):
+        return self.baseStations[0].positionGeometry
 
-        while not drone.dataWritten:
-            time.sleep(0.01)
-        
-        exceptionUtil.checkInterrupt()
-            
-
-    def onWriteFinished(self, mem, addr):
-        drone = self.memoryMapping[mem]
-        drone.dataWritten = True
+    @property
+    def geometryTwo(self):
+        return self.baseStations[1].positionGeometry

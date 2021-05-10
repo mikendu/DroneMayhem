@@ -1,23 +1,26 @@
 import math
-from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy, QLayout
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy, QLineEdit
+from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import Qt, QSize
 
 from application.util import layoutUtil
 from application.model import DroneState, Drone
 from application.view import LayoutType
 from application.view.widgets import Spinner, ElidedLabel
+from application.common import AppSettings, SettingsKey
 
 
 class SwarmPanel(QFrame):
     
     def __init__(self, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.appController = appController        
+        self.appController = appController
+        self.appSettings = self.appController.appSettings
         
         self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
         self.createDroneList()
+        self.createSettings()
 
         self.appController.scanStarted.connect(self.clearList) 
         self.appController.scanFinished.connect(self.updateList) 
@@ -63,6 +66,125 @@ class SwarmPanel(QFrame):
 
         self.layout.addLayout(titleLayout)
 
+    def createSettings(self):
+        settingsFrame = QFrame()
+        settingsFrame.setProperty("class", "settingsFrame")
+        settingsLayout = layoutUtil.createLayout(LayoutType.VERTICAL, settingsFrame)
+        self.createChannelSetting(settingsLayout)
+        self.createAddressSetting(settingsLayout)
+        self.layout.addWidget(settingsFrame)
+
+    def createChannelSetting(self, settingsLayout):
+        channelFrame = QFrame()
+        channelFrame.setProperty("class", "channelFrame")
+        channelLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, channelFrame)
+
+        channelLabel = QLabel("Channel")
+        channelLabel.setProperty("class", "channelLabel")
+        channelLayout.addWidget(channelLabel)
+
+        channelText = str(self.appSettings.getValue(SettingsKey.RADIO_CHANNEL, AppSettings.DEFAULT_RADIO_CHANNEL))
+        self.channelEdit = QLineEdit()
+        self.channelEdit.setText(channelText)
+        self.channelEdit.setValidator(QIntValidator(0, 127))
+        self.channelEdit.setMaxLength(3)
+        self.channelEdit.setAlignment(Qt.AlignCenter)
+        self.channelEdit.textEdited.connect(self.channelChanged)
+        self.channelEdit.setProperty("class", "channelEdit")
+
+        channelLayout.addWidget(self.channelEdit)
+        settingsLayout.addWidget(channelFrame)
+
+    def createAddressSetting(self, settingsLayout):
+        addressFrame = QFrame()
+        addressFrame.setProperty("class", "addressFrame")
+        addressLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, addressFrame)
+
+        addressLabel = QLabel("Address Range")
+        addressLabel.setProperty("class", "addressLabel")
+        addressLayout.addWidget(addressLabel)
+
+        [min, max] = self.appSettings.getValue(SettingsKey.RADIO_ADDRESSES, AppSettings.DEFAULT_ADDRESS_RANGE)
+        self.addressMin = QLineEdit()
+        self.addressMin.setText(min)
+        self.addressMin.setMaxLength(10)
+        self.addressMin.setAlignment(Qt.AlignCenter)
+        self.addressMin.textEdited.connect(self.addressChanged)
+        self.addressMin.setProperty("class", "addressMin")
+        addressLayout.addWidget(self.addressMin)
+
+        toLabel = QLabel("to")
+        toLabel.setProperty("class", "toLabel")
+        addressLayout.addWidget(toLabel)
+
+        self.addressMax = QLineEdit()
+        self.addressMax.setText(max)
+        self.addressMax.setMaxLength(10)
+        self.addressMax.setAlignment(Qt.AlignCenter)
+        self.addressMax.textEdited.connect(self.addressChanged)
+        self.addressMax.setProperty("class", "addressMax")
+        addressLayout.addWidget(self.addressMax)
+
+        settingsLayout.addWidget(addressFrame)
+
+    def channelChanged(self, val):
+        try:
+            value = int(val)
+            if value < 0 or value > 127:
+                raise ValueError("Value outside of acceptable range!")
+
+            self.appSettings.setValue(SettingsKey.RADIO_CHANNEL, value)
+            self.channelEdit.setProperty("class", "channelEdit")
+            self.channelEdit.style().polish(self.channelEdit)
+        except ValueError:
+            self.channelEdit.setProperty("class", ["channelEdit", "error"])
+            self.channelEdit.style().polish(self.channelEdit)
+            # self.appController.mainWindow.showStatusMessage("Invalid channel!")
+
+    def addressChanged(self, text):
+        minError = False
+        maxError = False
+        addressMinText = self.addressMin.text()
+        addressMaxText = self.addressMax.text()
+        invalidValue = False
+        try:
+            addressMin = int(addressMinText, 16)
+        except ValueError:
+            minError = True
+            invalidValue = True
+
+        try:
+            addressMax = int(addressMaxText, 16)
+        except ValueError:
+            invalidValue = True
+            maxError = True
+
+        if not invalidValue:
+            if addressMin >= addressMax:
+                minError = True
+                maxError = True
+
+            if addressMin < 0xE7E7E7E701:
+                minError = True
+
+            if addressMax > 0xE7E7E7E7100:
+                maxError = True
+
+        if minError:
+            self.addressMin.setProperty("class", ["addressMin", "error"])
+            self.addressMin.style().polish(self.addressMin)
+
+        if maxError:
+            self.addressMax.setProperty("class", ["addressMax", "error"])
+            self.addressMax.style().polish(self.addressMax)
+
+        if not minError and not maxError:
+            self.appSettings.setValue(SettingsKey.RADIO_ADDRESSES, [addressMinText, addressMaxText])
+            self.addressMin.setProperty("class", "addressMin")
+            self.addressMin.style().polish(self.addressMin)
+            self.addressMax.setProperty("class", "addressMax")
+            self.addressMax.style().polish(self.addressMax)
+
     def createDroneList(self):        
         scrollArea = QScrollArea()       
         self.cardList = QFrame()
@@ -93,7 +215,7 @@ class SwarmPanel(QFrame):
     def updateList(self):
         layoutUtil.clearLayout(self.listLayout)   
         numColumns = round(self.width() / 300.0)
-        droneList = self.appController.swarmController.drones
+        droneList = self.appController.swarmController.availableDrones
 
         for i, drone in enumerate(droneList):
             row = math.floor(i / numColumns)
@@ -197,20 +319,14 @@ class DroneCard(QFrame):
         return self.indicator
 
     def setDroneState(self, drone):
-        if drone.state == DroneState.IDLE:
-            self.statusLabel.setText('''Status:  <span style="color:#ffffff;font-weight:bold">IDLE</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "idle"])
-        elif drone.state == DroneState.INITIALIZING:
+        if drone.state == DroneState.INITIALIZING:
             self.statusLabel.setText('''Status:  <span style="color:#E2DD52;font-weight:bold">INITIALIZING</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])
-        elif drone.state == DroneState.POSITIONING:
-            self.statusLabel.setText('''Status:  <span style="color:#29bcff;font-weight:bold">POSITIONING</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "positioning"])
-        elif drone.state == DroneState.READY:
-            self.statusLabel.setText('''Status:  <span style="color:#16a81b;font-weight:bold">READY</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "ready"])
+        elif drone.state == DroneState.CONNECTED:
+            self.statusLabel.setText('''Status:  <span style="color:#16a81b;font-weight:bold">CONNECTED</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "connected"])
         elif drone.state == DroneState.IN_FLIGHT:
-            self.statusLabel.setText('''Status:  <span style="color:#04ff00;font-weight:bold">IN FLIGHT</span>''')
+            self.statusLabel.setText('''Status:  <span style="color:#29bcff;font-weight:bold">IN FLIGHT</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "in_flight"])
         elif drone.state == DroneState.LANDING:
             self.statusLabel.setText('''Status:  <span style="color:#e09422;font-weight:bold">LANDING</span>''')

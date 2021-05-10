@@ -45,7 +45,7 @@ git submodule update
 
 After than, run the following
 ```shell
-`mkdir build`
+mkdir build
 cd build
 cmake ..
 ```
@@ -135,6 +135,20 @@ python ../usbtools/nrfbootload.py flash bin/cradio.bin
 Make sure to then unlpug and plug the radio back in, to launch it back in firmware (normal operating) mode.
 
 ## Crazyflie Firmware & NRF24 Firmware
+Navigate to the `Python/firmware-tools/` directory using a GitBash Shell (or Cygwin). There you will find a `loader` 
+helper script, which can be called to flash the two firmwares sequentially. This must be called from a bash shell,
+with the Python virtual env active, and you must also provide two arguments, one for the channel (01 - 127), and one for
+the address "index", ex 01, 02, 03, etc. The address index will be used to construct a URI in the form `E7E7E7E7XX`, where
+the `XX` is replaced by the address index. Both arguments must be two at least two digits (do not omit the leading zeros). 
+Example:
+```shell
+./loader 55 01
+```
+
+### Flashing the firmware directly
+If the above script failes for whatever reason, you can flash the firmware directly to the drone using the following commands
+(**note:** be sure to update the channel & address in the commands below)
+
 To flash the main crazyflie firmware, a Git Bash shell, navigate to `Python/firmware-tools/` in the repository and run
 ```bash
 python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash crazyflie-firmware/cf2.bin stm32-fw
@@ -157,6 +171,11 @@ address for the crazyflie.
 ## Broadcasting
 To broadcast to all crazyflies on the channel, send a broadcast message with address `FFE7E7E7E7`.
 This will only work if all 3 firmwares have been upgraded to the right version (crazyflie main firmware, crazyflie nrf24 firmware,
- and the crazyradio firmware). 
+ and the crazyradio firmware). The modified python has a `Broadcaster` class that allows opening a broadcast link,
+and to use it, you should supply a uri in the form `radiobroadcast://*/55/2M`.
 
-# TODO - DESCRIBE PROCESS OF OPENING A BROADCAST LINK IN PYTHON
+# 7. Running from PyCharm IDE
+When running from PyCharm, to make sure any styling changes are applied, add the following as a pre-launch action:
+```shell
+pyqt5ac --config ./application/config.yml
+```

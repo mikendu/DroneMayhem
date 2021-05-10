@@ -327,11 +327,9 @@ QLabel.droneName {
     margin: 0px 0px 1px 0px;
 }
 
-.droneStatusIndicator.idle { background: #bebebe; }
 .droneStatusIndicator.initializing { background: #E2DD52; }
-.droneStatusIndicator.positioning { background: #2d9acc; }
-.droneStatusIndicator.ready { background: #126615; }
-.droneStatusIndicator.in_flight { background: #16a81b; }
+.droneStatusIndicator.connected { background: #16a81b; }
+.droneStatusIndicator.in_flight { background: #2d9acc; }
 .droneStatusIndicator.landing { background: #cf8e2d; }
 
 .swarmButton {
@@ -352,6 +350,50 @@ QLabel.droneName {
 
 .killButton:hover { background: #d13328; }
 .killButton:pressed { background: #f75940; }
+
+/* -- Swarm Settings -- */
+.settingsFrame {
+    background: #141414;
+}
+
+.settingsFrame QLabel {
+    margin-left: 15px;
+}
+
+.channelFrame, .addressFrame {
+    border: none;
+    border-top: 1px solid #353535;
+}
+
+.settingsFrame QLineEdit {
+    min-height: 40px;
+    color: #d2d2d2;
+    background: black;
+    border: none;
+    border-left: 1px solid #353535;
+    border-right: 1px solid #353535;
+}
+
+.settingsFrame QLineEdit:focus {
+    background: #959595;
+    color: black;
+}
+
+.toLabel {
+    max-width: 38px;
+}
+
+.addressMin, .addressMax {
+    max-width: 180px;
+}
+.channelEdit {
+    max-width: 415px;
+}
+
+.settingsFrame QLineEdit.error {
+    background: #c9685d;
+    color: black;
+}
 
 
 

@@ -1,5 +1,6 @@
 import time
 import os
+import json
 
 import cflib.crtp
 from cflib.crazyflie.broadcaster import Broadcaster
@@ -231,23 +232,45 @@ time.sleep(1.0)
 
 broadcaster.close_link()
 print("Done!")
-"""
+
 
 os.environ["USE_CFLINK"] = "cpp"
 cflib.crtp.init_drivers()
 
+color_data = None
+with open('../../Sequences/Straight Line.json') as jsonFile:
+    seq_data = json.load(jsonFile)
+    color_data = seq_data['Tracks'][0]['LedTimings']
 
-with SyncCrazyflie("radio://*/55/2M/E7E7E7E7E7?safelink=1&autoping=1", cf=Crazyflie(rw_cache='../cache')) as scf:
+possible = [
+    'radio://*/55/2M/E7E7E7E7E7',
+    'radio://*/55/2M/E7E7E7E7E8'
+]
+print("Possible:", possible)
+uris = CfLinkCppDriver.scan_selected(possible)
+print("Found:", uris)
+
+
+with SyncCrazyflie("radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1", cf=Crazyflie(ro_cache='../cache', rw_cache='../cache')) as scf:
     cf = scf.cf
 
     # Get LED memory and write to it
     mems = cf.mem.get_mems(MemoryElement.TYPE_DRIVER_LEDTIMING)
     if len(mems) > 0:
         mem = mems[0]
-        mem.add(10.0, r=255, g=0, b=0)
+        mem.add(0.0, r=255, g=0, b=0)
+        mem.add(1.0, r=255, g=0, b=0)
+        mem.add(0.01, r=0, g=0, b=0)
+        mem.add(0.25, r=0, g=0, b=0)
+        mem.add(0.0, r=255, g=255, b=0)
         mem.add(1.0, r=255, g=255, b=0)
+        mem.add(0.01, r=0, g=0, b=0)
+        mem.add(0.25, r=0, g=0, b=0)
+        mem.add(0.0, r=255, g=255, b=255)
         mem.add(1.0, r=255, g=255, b=255)
+
         mem.write_data(None)
+        mem.write_raw(color_data, None)
     else:
         print('No LED ring present')
 
@@ -255,4 +278,23 @@ with SyncCrazyflie("radio://*/55/2M/E7E7E7E7E7?safelink=1&autoping=1", cf=Crazyf
     cf.param.set_value('ring.effect', '0')
     time.sleep(0.5)
     cf.param.set_value('ring.effect', '17')
-    time.sleep(5)
+    time.sleep(9)
+"""
+broadcaster = Broadcaster(55)
+broadcaster.open_link()
+
+print("Taking off...")
+commander = broadcaster.high_level_commander
+commander.takeoff(0.5, 3.0)
+time.sleep(0.25)
+
+print("Landing...")
+commander.takeoff(0.0, 3.0)
+time.sleep(0.25)
+
+print("Stopping...")
+commander.stop()
+time.sleep(1.0)
+
+broadcaster.close_link()
+print("Done!")

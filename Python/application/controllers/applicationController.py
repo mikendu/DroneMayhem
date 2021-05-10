@@ -72,7 +72,7 @@ class ApplicationController(QObject):
     def initializeSwarm(self):
         os.environ["USE_CFLINK"] = "cpp"
         cflib.crtp.init_drivers()
-        self.swarmController = SwarmController(self)
+        self.swarmController = SwarmController(self, self.appSettings)
 
 
     def scanForDrones(self, force = False):
@@ -202,23 +202,14 @@ class ApplicationController(QObject):
             "Connection attempt failed,\ncancelling sequence.",
             self.mainWindow
         )
-        pass
-
 
     def onDroneDisconnected(self, uri):
         print("-- Drone Disconnected: " + uri + " --")
-        if self.swarm and uri in self.swarm._cfs:
-            """
-            dialogUtil.nonModalDialog(
-                "Drone Connection Error",
-                "Lost connection to a drone!\nAborting sequence.",
-                self.mainWindow
-            )
-            self.abortSequence()
-            QThreadPool.globalInstance().waitForDone()
-            self.scanForDrones(True)
-            """
-            pass
+        dialogUtil.nonModalDialog(
+            "Drone Connection Error",
+            "Lost connection to drone\n" + str(uri),
+            self.mainWindow
+        )
 
     def cleanup(self):
         self.swarmController.disconnectSwarm()

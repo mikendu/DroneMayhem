@@ -15,7 +15,7 @@ public class SequenceTrack
     public Vector3 StartPosition = Vector3.zero;
 
     public byte[] CompressedTrajectory = { };
-    public List<SequenceColorKeyframe> ColorKeyframes = new List<SequenceColorKeyframe>();
+    public byte[] LedTimings = { };
 }
 
 [Serializable]
@@ -26,19 +26,6 @@ public class SequenceCollection
     public List<SequenceTrack> Tracks = new List<SequenceTrack>();
 }
 
-
-[Serializable]
-public class SequenceColorKeyframe
-{
-    public float Timestamp;
-    public Color LightColor;
-
-    public SequenceColorKeyframe(ColorKeyframe keyframe)
-    {
-        this.Timestamp = (float)keyframe.time;
-        this.LightColor = keyframe.LightColor.ToCrazyflieColor();
-    }
-}
 
 
 public class TimelineExporter : MonoBehaviour
@@ -60,7 +47,7 @@ public class TimelineExporter : MonoBehaviour
                 List<ColorKeyframe> sortedColorKeyframes = processedKeyframes.Item1;
                 List<Waypoint> sortedWaypoints = processedKeyframes.Item2;
 
-                sequenceTrack.ColorKeyframes = sortedColorKeyframes.Select(keyframe => new SequenceColorKeyframe(keyframe)).ToList();
+                sequenceTrack.LedTimings = ColorExporter.Process(sortedColorKeyframes);
                 sequenceTrack.CompressedTrajectory = TrajectoryExporter.Process(sortedWaypoints);
                 sequenceTrack.StartPosition = GetStart(sortedWaypoints);
                 sequenceTrack.Name = crazyflieTrack.name;
@@ -102,28 +89,31 @@ public class TimelineExporter : MonoBehaviour
 
         if (waypoints.Count > 0 && waypoints[0].time > 0.0f)
         {
-            Waypoint fakeWaypoint = new Waypoint();
+            Waypoint fakeWaypoint = ScriptableObject.CreateInstance<Waypoint>();
             fakeWaypoint.Position = waypoints[0].Position;
             fakeWaypoint.JointType = JointType.Linear;
             fakeWaypoint.time = 0.0;
             waypoints.Insert(0, fakeWaypoint);
         }
 
-
         if (colorKeyframes.Count > 0 && colorKeyframes[0].time > 0.0f)
         {
-            ColorKeyframe fakeKeyframe = new ColorKeyframe();
+            ColorKeyframe fakeKeyframe = ScriptableObject.CreateInstance<ColorKeyframe>();
             fakeKeyframe.LightColor = colorKeyframes[0].LightColor;
             fakeKeyframe.time = 0.0;
             colorKeyframes.Insert(0, fakeKeyframe);
         }
 
-        return new Tuple<List<ColorKeyframe>, List<Waypoint>>(colorKeyframes, waypoints);
-    }
+        int lastIndex = colorKeyframes.Count - 1;
+        if (colorKeyframes.Count > 0 && colorKeyframes[lastIndex].time < track.Length)
+        {
+            ColorKeyframe lastKeyframe = ScriptableObject.CreateInstance<ColorKeyframe>();
+            lastKeyframe.LightColor = colorKeyframes[lastIndex].LightColor;
+            lastKeyframe.time = track.Length;
+            colorKeyframes.Add(lastKeyframe);
+        }
 
-    private static SequenceColorKeyframe ToSequenceKeyframe(ColorKeyframe keyframe)
-    {
-        return new SequenceColorKeyframe(keyframe);
+        return new Tuple<List<ColorKeyframe>, List<Waypoint>>(colorKeyframes, waypoints);
     }
 
     private static Vector3 GetStart(List<Waypoint> waypoints)

@@ -1,7 +1,11 @@
 from PyQt5.QtCore import QSettings
 from os import path
+from .settingsKey import SettingsKey
 
 class AppSettings():
+
+    DEFAULT_RADIO_CHANNEL = 55
+    DEFAULT_ADDRESS_RANGE = ['E7E7E7E701', 'E7E7E7E750']
 
     def __init__(self): 
         self.settings = QSettings('DroneMayhem', 'SwarmController')
@@ -10,16 +14,16 @@ class AppSettings():
 
 
     def loadSequences(self):
-        self.sequences = self.settings.value('recentSequences', [], str)
+        self.sequences = self.settings.value(SettingsKey.SEQUENCES, [], str)
         self.sequences = list(filter(lambda file: path.exists(file), self.sequences))
         self.sequences = list(dict.fromkeys(self.sequences))
         del self.sequences[10:] 
-        self.settings.setValue('recentSequences', self.sequences)
+        self.settings.setValue(SettingsKey.SEQUENCES, self.sequences)
 
     def updateSequences(self, sequenceList):
         self.sequences = sequenceList
         self.sequences = list(dict.fromkeys(self.sequences))
-        self.settings.setValue('recentSequences', self.sequences)
+        self.settings.setValue(SettingsKey.SEQUENCES, self.sequences)
 
     def getValue(self, key, default = None, valueType = None):
         if default is not None:

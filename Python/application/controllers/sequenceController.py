@@ -116,7 +116,6 @@ class SequenceController:
         except Exception:
             raise
 
-
     def completeSequence(self):
         self.appController.swarmController.disconnectSwarm()
         self.appController.onSequenceCompleted()
