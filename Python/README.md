@@ -187,7 +187,7 @@ the firmware on the individual drones needs to be flashed.
 A pre-built binary exists at `Python/firmware-tools/crazyflie-firmware/cf2.bin`, but if for whatever reason a new version needs
 to be built, see the [README instructions](./crazyflie-firmware/README.md) in the module.
 
-## Flashing crazyflie firmware & NRF24 firmware
+## Flashing crazyflie firmwares
 Navigate to the `Python/firmware-tools/` directory using a GitBash Shell (or Cygwin). There you will find a `loader` 
 helper script, which can be called to flash the two firmwares sequentially. This must be called from a bash shell,
 with the Python virtual env active, and you must also provide two arguments, one for the channel (01 - 127), and one for
@@ -199,17 +199,22 @@ Example:
 ```
 
 ### Flashing the firmware directly
-If the above script failes for whatever reason, you can flash the firmware directly to the drone using the following commands
+If the above script fails for whatever reason, you can flash the firmware directly to the drone using the following commands
 (**note:** be sure to update the channel & address in the commands below)
 
 To flash the main crazyflie firmware, a Git Bash shell, navigate to `Python/firmware-tools/` in the repository and run
 ```bash
-python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash crazyflie-firmware/cf2.bin stm32-fw
+python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2.bin stm32-fw
 ```
 
 Flashing the NRF 24 firmware follows a very similar process. From the same directory, run:
 ```bash
-python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash crazyflie2-nrf-firmware/cf2_nrf-2021.03.bin nrf51-fw
+python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2_nrf-2021.03.bin nrf51-fw
+```
+
+Lastly, flashing the Lighthouse FPGA firmware is similar as well:
+```shell
+python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash lighthouse.bin deck-bcLighthouse4-fw
 ```
 ***NOTE:** For both of these steps, make sure to update the channel/address to match the crazyflie that is currently being flashed.*
 
