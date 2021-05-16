@@ -10,6 +10,7 @@ from cflib.crazyflie.mem import LighthouseMemHelper
 
 from .droneState import DroneState
 from application.util import exceptionUtil
+from application.util import Logger
 
 
 class Drone():
@@ -26,15 +27,20 @@ class Drone():
         self.startHeight = 0.0
         self.writeEvent = None
         self.writeSuccess = False
+        self.commander = None
+        self.light_controller = None
 
     def initialize(self, address, disconnectCallback):
+        Logger.log("Connecting to address " + address, self.swarmIndex)
         crazyflie = Crazyflie(ro_cache='./cache', rw_cache='./cache')
         syncCrazyflie = SyncCrazyflie(address, cf=crazyflie)
         crazyflie.connection_lost.add_callback(disconnectCallback)
 
         self.crazyflie = syncCrazyflie
+        self.commander = syncCrazyflie.cf.high_level_commander
+        self.light_controller = syncCrazyflie.cf.light_controller
         self.state = DroneState.INITIALIZING
-        self.setLED(255, 255, 0)
+        self.light_controller.set_color(255, 255, 0, True)
 
     def startTrajectory(self):
         self.crazyflie.cf.high_level_commander.start_trajectory(Drone.TRAJECTORY_ID, 1.0, False)
@@ -42,17 +48,20 @@ class Drone():
     def disableAutoPing(self):
         self.crazyflie.cf.auto_ping = False
 
-    def updateSensors(self, geometryOne, geometryTwo):
+    def updateSensors(self, uploadGeometry, geometryOne, geometryTwo):
+        Logger.log("Updating light house data, sensors & positioning", self.swarmIndex)
         self.crazyflie.cf.param.set_value('lighthouse.method', '0')
         self.crazyflie.cf.param.set_value('stabilizer.controller', '2')  # Mellinger controller
         self.crazyflie.cf.param.set_value('commander.enHighLevel', '1')
         self.crazyflie.cf.param.set_value('ring.effect', '14')
         exceptionUtil.checkInterrupt()
 
-        self.writeBaseStationData(geometryOne, geometryTwo)
-        self.resetEstimator()
+        if uploadGeometry:
+            self.writeBaseStationData(geometryOne, geometryTwo)
+            self.resetEstimator()
 
         self.state = DroneState.CONNECTED
+        self.light_controller.set_color(0, 255, 0, True)
         exceptionUtil.checkInterrupt()
 
     def resetEstimator(self):
@@ -76,7 +85,6 @@ class Drone():
         var_x_history = [1000] * 10
         var_z_history = [1000] * 10
         threshold = 0.001
-        print("-- WAITING FOR POSITION -- ")
 
         with SyncLogger(self.crazyflie, log_config) as logger:
             for log_entry in logger:
@@ -156,12 +164,3 @@ class Drone():
 
         if not self.writeSuccess:
             raise Exception("Write failed!")
-
-
-    # -- Color Utils -- #
-
-    def setLED(self, r, g, b):
-        color = (int(r) << 16) | (int(g) << 8) | int(b)
-        self.crazyflie.param.set_value('ring.effect', '14')
-        self.crazyflie.param.set_value('ring.fadeTime', str(0.1))
-        self.crazyflie.param.set_value('ring.fadeColor', str(color))

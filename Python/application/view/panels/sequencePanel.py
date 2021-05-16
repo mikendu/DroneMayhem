@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea, QSizePolicy, QProgressBar
+from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QSizePolicy, QProgressBar
 from PyQt5.QtCore import Qt
 import time
 
+from .sequenceLog import SequenceLog
 from application.model import SequenceTestMode
 from application.util import layoutUtil
 from application.view import LayoutType
@@ -62,7 +63,8 @@ class SequencePanel(QFrame):
         self.startButton.style().polish(self.startButton)
 
     def updateButtonStatus(self):
-        self.startButton.setEnabled(self.appController.droneRequirementMet)
+        met = self.appController.droneRequirementMet
+        self.startButton.setEnabled(met)
 
 
     def createSequenceLog(self):
@@ -149,94 +151,3 @@ class SequenceData(QFrame):
 
         self.progressText.setText(timeString  + " / " + self.durationString)
         self.progressBar.setValue(progress)
-
-
-class SequenceLog(QFrame):
-        
-    def __init__(self, appController, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.appController = appController
-        self.appController.sequenceSelected.connect(self.clearLog)
-        self.appController.sequenceStarted.connect(self.clearLog)
-        # self.appController.sequenceFinished.connect(self.clearLog)
-        self.appController.addLogEntry.connect(self.addLogEntry)
-        self.appController.sequenceUpdated.connect(self.scrollBottom)
-        
-        self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
-        self.createTitle()
-        self.createLogPanel()
-        self.clearLog()
-
-    
-    def createTitle(self):
-        label = QLabel("Action Log")
-        label.setProperty("class", "sequenceLogTitle")
-        self.layout.addWidget(label)
-
-    def createLogPanel(self):
-        self.scrollArea = QScrollArea()       
-        self.logList = QFrame()
-        self.listLayout = layoutUtil.createLayout(LayoutType.VERTICAL, self.logList)
-        self.listLayout.setAlignment(Qt.AlignTop)
-        self.logList.setObjectName("LogHolder")
-
-        self.scrollArea.setWidget(self.logList)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        # self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scrollArea.verticalScrollBar().setSingleStep(10)
-        QScroller.grabGesture(self.scrollArea.viewport(), QScroller.LeftMouseButtonGesture)
-
-        self.layout.addWidget(self.scrollArea)
-
-    def clearLog(self):
-        layoutUtil.clearLayout(self.listLayout)
-        self.logEntries = []
-        self.latestEntry = None
-
-    def addLogEntry(self, logData):
-        swarmIndex, actionString, x, y, z, time = logData
-        dataString = "({:4.2f}, {:4.2f}, {:4.2f})".format(x, y, z)
-        entry = LogEntry(swarmIndex, actionString + dataString, time)
-        self.listLayout.addWidget(entry)
-        self.latestEntry = entry
-
-    def scrollBottom(self):
-        if self.latestEntry:
-            self.scrollArea.ensureWidgetVisible(self.latestEntry)
-        
-
-class LogEntry(QFrame):
-    
-    def __init__(self, droneNumber, actionText, timeDuration, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        self.drone = droneNumber
-        self.action = actionText
-        self.time = timeDuration
-        
-        self.layout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
-        self.createDroneLabel()
-        self.createActionText()
-        self.createTimeLabel()
-        self.createIndicator()
-
-    def createDroneLabel(self):
-        label = QLabel("Drone " + str(self.drone))
-        label.setProperty("class", "sequenceDroneLabel")
-        self.layout.addWidget(label, 25)
-        
-    def createActionText(self):
-        label = QLabel(self.action)
-        self.layout.addWidget(label, 50)
-
-    
-    def createTimeLabel(self):
-        label = QLabel("{:0.2f}".format(self.time) + " s")
-        label.setProperty("class", "timeLabel")
-        self.layout.addWidget(label, 25)
-
-    def createIndicator(self):
-        pass
-
-

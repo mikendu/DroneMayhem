@@ -22,7 +22,7 @@ class Sequence():
 
     @property
     def duration(self):
-        return self.sequenceData["Length"]
+        return float(self.sequenceData["Length"])
 
     @property
     def fullPath(self):

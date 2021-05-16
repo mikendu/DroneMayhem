@@ -1,8 +1,12 @@
+import time
 from threading import Thread
+
 from cflib.crazyflie.broadcaster import Broadcaster
 from cflib.crtp.cflinkcppdriver import CfLinkCppDriver
+
 from application.model import Drone, DroneState
 from application.common import SettingsKey, AppSettings
+from application.util import Logger
 
 
 class SwarmController():
@@ -37,9 +41,11 @@ class SwarmController():
             end = max(0, min(desiredCount, totalCount))
             toConnect = self.availableDrones[:end]
 
+        Logger.log("Attempting to open " + str(toConnect) + " drone connections")
         self.broadcaster = Broadcaster(self.channel)
         self.broadcaster.open_link()
         self.connectedDrones = self.parallel(self.connectToDrone, toConnect)
+        Logger.log("Successfully opened " + str(self.connectedDrones) + " drone connections")
 
     def connectToDrone(self, drone):
         try:
@@ -53,7 +59,7 @@ class SwarmController():
                 raise
 
     def onDisconnect(self, uri, errorMessage):
-        print(errorMessage)
+        Logger.log(errorMessage)
         if uri in self.droneMapping:
             drone = self.droneMapping[uri]
             drone.state = DroneState.DISCONNECTED
@@ -62,6 +68,7 @@ class SwarmController():
 
     def disconnectSwarm(self):
         if self.broadcaster:
+            self.broadcaster.high_level_commander.stop()
             self.broadcaster.close_link()
             self.broadcaster = None
 
@@ -80,10 +87,10 @@ class SwarmController():
                 filtered.append(drone)
         self.availableDrones = filtered
 
-    def initializeSensors(self):
+    def initializeSensors(self, uploadGeometry=True):
         geometryOne = self.appController.baseStationController.geometryOne
         geometryTwo = self.appController.baseStationController.geometryTwo
-        self.parallel(lambda drone: drone.updateSensors(geometryOne, geometryTwo))
+        self.parallel(lambda drone: drone.updateSensors(uploadGeometry, geometryOne, geometryTwo))
 
     def parallel(self, function, droneCollection=None):
         """

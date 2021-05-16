@@ -5,7 +5,7 @@ import cflib.crtp
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 
 from application.model import SequenceTestMode
-from application.util import dialogUtil, threadUtil, exceptionUtil
+from application.util import dialogUtil, threadUtil, exceptionUtil, Logger
 from .sequenceController import SequenceController
 from .baseStationController import BaseStationController
 from .swarmController import SwarmController
@@ -36,6 +36,7 @@ class ApplicationController(QObject):
 
     def __init__(self, mainWindow, appSettings):
         super().__init__()
+        Logger.initialize(ApplicationController.addLogEntry)
 
         self.clearSequence = False
         self.sequencePlaying = False
@@ -223,14 +224,6 @@ class ApplicationController(QObject):
         if self.startTimestamp is not None:
             return min(time.time() - self.startTimestamp, self.sequenceDuration)
         return 0
-    
-    @property
-    def swarm(self):
-        return self.swarmController.swarm
-
-    @property
-    def swarmArguments(self):
-        return self.swarmController.swarmArguments
 
     @property
     def requiredDrones(self):
@@ -238,7 +231,7 @@ class ApplicationController(QObject):
 
     @property
     def availableDrones(self):
-        return len(self.swarmController.drones)
+        return len(self.swarmController.availableDrones)
 
     @property
     def droneRequirementMet(self):
@@ -248,7 +241,7 @@ class ApplicationController(QObject):
         if SequenceController.CURRENT is None:
             return False
 
-        available = len(self.swarmController.drones)
+        available = len(self.swarmController.availableDrones)
         required = SequenceController.CURRENT.displayedDroneCount
         return available >= required
 
