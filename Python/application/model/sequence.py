@@ -41,9 +41,8 @@ class Sequence():
         if track is None:
             return None
 
-        keyframes = track['ColorKeyframes']
-        if (len(keyframes) > 0):
-            color = keyframes[0]['LightColor']
+        if 'StartColor' in track:
+            color = track['StartColor']
             r, g, b = [color[key] for key in ('r', 'g', 'b')]
             return int(r), int(g), int(b)
         else:

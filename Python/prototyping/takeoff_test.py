@@ -58,19 +58,6 @@ cf_to_openvr = np.array([
 ])
 
 
-def initCrazyflie():
-    cflib.crtp.init_drivers()
-    print('Scanning interfaces for Crazyflies...')
-    available = cflib.crtp.scan_interfaces()
-
-    if len(available) == 0:
-        print('No crazyflie found!')
-        exit(0)
-
-    uri = available[0][0]
-    print('Found crazyflie: ', uri)
-    return uri
-
 
 def signal_handler(sig, frame):
     print('Interrupt signal received, exiting!')
@@ -236,7 +223,7 @@ def startPrinting(scf):
     log_conf.start()
 
 
-# os.environ["USE_CFLINK"] = "cpp"
+os.environ["USE_CFLINK"] = "cpp"
 
 # if 'USE_CFLINK' in os.environ:
     # del os.environ['USE_CFLINK']
@@ -244,73 +231,23 @@ signal.signal(signal.SIGINT, signal_handler)
 vr = openvr.init(openvr.VRApplication_Other)
 findBaseStations()
 
-print("Found crazyflie with URI: ", uri)
 
-uri = initCrazyflie()
-with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
+cflib.crtp.init_drivers()
+uri = "radio://*/55/2M/E7E7E7E701"
+with SyncCrazyflie(uri, cf=Crazyflie(ro_cache='./cache',rw_cache='./cache')) as scf:
+    print("Crazyflie TOC", scf.cf.param.toc.toc)
 
     cf = scf.cf
     cf.param.set_value('lighthouse.method', '0')
+    time.sleep(0.5)
+    cf.param.set_value('lighthouse.method', '1')
+    time.sleep(0.5)
+    cf.param.set_value('lighthouse.method', '0')
+    time.sleep(0.5)
     cf.param.set_value('stabilizer.controller', '2') # Mellinger controller
     cf.param.set_value('commander.enHighLevel', '1')
-
+    time.sleep(0.5)
     # updateBaseStations(cf)
     # resetEstimator(scf)
 
     # mainLoop(scf)
-
-def fakeTakeoff(radio, height, time):
-    data = struct.pack('<BBff?f',
-                                      HighLevelCommander.COMMAND_TAKEOFF_2,
-                                      HighLevelCommander.ALL_GROUPS,
-                                      height,
-                                      0,
-                                      False,
-                                      time)
-    pk = CRTPPacket()
-    pk.port = CRTPPort.SETPOINT_HL
-    pk.data = data
-    radio.send_packet(pk)
-
-
-def fakeLand(radio, height, time):
-    data = struct.pack('<BBff?f',
-                                      HighLevelCommander.COMMAND_LAND_2,
-                                      HighLevelCommander.ALL_GROUPS,
-                                      height,
-                                      0,
-                                      False,
-                                      time)
-    pk = CRTPPacket()
-    pk.port = CRTPPort.SETPOINT_HL
-    pk.data = data
-    radio.send_packet(pk)
-
-
-def fakeStop(radio):
-    data = struct.pack('<BB',
-                                      HighLevelCommander.COMMAND_STOP,
-                                      HighLevelCommander.ALL_GROUPS)
-    pk = CRTPPacket()
-    pk.port = CRTPPort.SETPOINT_HL
-    pk.data = data
-    radio.send_packet(pk)
-
-# Broadcast address == 0xFFE7E7E7E7 ??
-radioDriver = RadioDriver()
-radioDriver.connect("radio://0/55/2M/E7E7E7E7E7", None, None)
-
-print('Taking off')
-fakeTakeoff(radioDriver, START_Z + 0.05, 4.0)
-time.sleep(0.25)
-
-print('Landing')
-fakeLand(radioDriver, START_Z, 4.0)
-time.sleep(0.25)
-
-fakeStop(radioDriver)
-
-print('Sequence done!!')
-
-time.sleep(1.5)
-radioDriver.close()

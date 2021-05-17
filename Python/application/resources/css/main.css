@@ -293,7 +293,20 @@ LogEntry QLabel {
     margin-left: 30px;
 }
 
-.logContextLabel { max-width: 200px; }
+LogEntry.WARN QLabel {
+    color: #fff536;
+    font-weight: 500;
+}
+
+LogEntry.ERROR QLabel {
+    color: #ff4929;
+    font-weight: 500;
+}
+
+.logContextLabel {
+    max-width: 120px;
+    min-width: 120px;
+}
 
 /* ---------- MAIN PAGE: SWARM ---------- */
 SwarmPanel { 

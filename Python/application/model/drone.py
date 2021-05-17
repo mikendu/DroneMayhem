@@ -35,12 +35,13 @@ class Drone():
         crazyflie = Crazyflie(ro_cache='./cache', rw_cache='./cache')
         syncCrazyflie = SyncCrazyflie(address, cf=crazyflie)
         crazyflie.connection_lost.add_callback(disconnectCallback)
+        syncCrazyflie.open_link()
 
         self.crazyflie = syncCrazyflie
         self.commander = syncCrazyflie.cf.high_level_commander
         self.light_controller = syncCrazyflie.cf.light_controller
         self.state = DroneState.INITIALIZING
-        self.light_controller.set_color(255, 255, 0, True)
+        self.light_controller.set_color(255, 200, 0, 0.0, True)
 
     def startTrajectory(self):
         self.crazyflie.cf.high_level_commander.start_trajectory(Drone.TRAJECTORY_ID, 1.0, False)
@@ -53,7 +54,6 @@ class Drone():
         self.crazyflie.cf.param.set_value('lighthouse.method', '0')
         self.crazyflie.cf.param.set_value('stabilizer.controller', '2')  # Mellinger controller
         self.crazyflie.cf.param.set_value('commander.enHighLevel', '1')
-        self.crazyflie.cf.param.set_value('ring.effect', '14')
         exceptionUtil.checkInterrupt()
 
         if uploadGeometry:
@@ -61,7 +61,7 @@ class Drone():
             self.resetEstimator()
 
         self.state = DroneState.CONNECTED
-        self.light_controller.set_color(0, 255, 0, True)
+        self.light_controller.set_color(0, 255, 0, 0.0, True)
         exceptionUtil.checkInterrupt()
 
     def resetEstimator(self):
@@ -141,7 +141,7 @@ class Drone():
         if self.crazyflie is None or len(color_data) == 0:
             raise ValueError("Cannot led timing data")
 
-        mems[0].write_raw(color_data, None)
+        mems[0].write_raw(color_data, self.writeComplete)
         self.waitForCompletion()
         exceptionUtil.checkInterrupt()
 

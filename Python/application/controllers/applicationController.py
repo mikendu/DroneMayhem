@@ -23,7 +23,6 @@ class ApplicationController(QObject):
     startTimer = pyqtSignal()
     sequenceStarted = pyqtSignal()
     sequenceUpdated = pyqtSignal()
-    addLogEntry = pyqtSignal(tuple)
     sequenceFinished = pyqtSignal()
     resetTestMode = pyqtSignal()
 
@@ -36,7 +35,7 @@ class ApplicationController(QObject):
 
     def __init__(self, mainWindow, appSettings):
         super().__init__()
-        Logger.initialize(ApplicationController.addLogEntry)
+        Logger.initialize()
 
         self.clearSequence = False
         self.sequencePlaying = False

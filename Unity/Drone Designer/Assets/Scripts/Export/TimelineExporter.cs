@@ -13,6 +13,7 @@ public class SequenceTrack
     public string Name = "";
     public float Length = 0.0f;
     public Vector3 StartPosition = Vector3.zero;
+    public Color StartColor = Color.black;
 
     public byte[] CompressedTrajectory = { };
     public byte[] LedTimings = { };
@@ -50,6 +51,7 @@ public class TimelineExporter : MonoBehaviour
                 sequenceTrack.LedTimings = ColorExporter.Process(sortedColorKeyframes);
                 sequenceTrack.CompressedTrajectory = TrajectoryExporter.Process(sortedWaypoints);
                 sequenceTrack.StartPosition = GetStart(sortedWaypoints);
+                sequenceTrack.StartColor = GetStart(sortedColorKeyframes);
                 sequenceTrack.Name = crazyflieTrack.name;
                 sequenceCollection.Tracks.Add(sequenceTrack);
             }
@@ -122,5 +124,21 @@ public class TimelineExporter : MonoBehaviour
             return Vector3.zero;
 
         return waypoints[0].Position.ToCrazyflieCoordinates();
+    }
+
+
+
+    private static Color GetStart(List<ColorKeyframe> keyframes)
+    {
+        if (keyframes.Count == 0)
+            return Color.black;
+
+        Color firstColor = keyframes[0].LightColor;
+        return new Color(
+            ColorExporter.ToByte(firstColor.r),
+            ColorExporter.ToByte(firstColor.g),
+            ColorExporter.ToByte(firstColor.b),
+            0
+        );
     }
 }

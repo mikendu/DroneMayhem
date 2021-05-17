@@ -69,8 +69,6 @@ unicast.close()
 
 
 
-os.environ["USE_CFLINK"] = "cpp"
-cflib.crtp.init_drivers()
 
 with SyncCrazyflie("radio://*/55/2M/E7E7E7E7E7?safelink=1&autoping=1") as scf:
     while scf.cf.state != State.SETUP_FINISHED:
@@ -260,36 +258,26 @@ broadcaster.close_link()
 print("Done!")
 
 
-color_data = None
-with open('../../Sequences/Straight Line.json') as jsonFile:
-    seq_data = json.load(jsonFile)
-    color_data = seq_data['Tracks'][0]['LedTimings']
-
-def get_color(r, g, b):
-    return (int(r) << 16) | (int(g) << 8) | int(b)
-
-
-
 """
-
-ITERATION_COUNT = 10
-fadeTime = 0.25
-sleepTime = 0.35
-pauseTime = 1.0
-
-os.environ["USE_CFLINK"] = "cpp"
-cflib.crtp.init_drivers()
-
-link = Broadcaster(55)
-link.open_link()
-time.sleep(2.0)
-
-def setParam(cf, paramId, paramValue):
-    packet = CRTPPacket()
-    packet.set_header(CRTPPort.PARAM, WRITE_CHANNEL)
-    packet.data = struct.pack('<H', int(paramId))
-    packet.data += struct.pack('<L', int(paramValue))
-    cf.send_packet(packet)
+#
+# ITERATION_COUNT = 10
+# fadeTime = 0.25
+# sleepTime = 0.35
+# pauseTime = 1.0
+#
+# os.environ["USE_CFLINK"] = "cpp"
+# cflib.crtp.init_drivers()
+#
+# link = Broadcaster(55)
+# link.open_link()
+# time.sleep(2.0)
+#
+# def setParam(cf, paramId, paramValue):
+#     packet = CRTPPacket()
+#     packet.set_header(CRTPPort.PARAM, WRITE_CHANNEL)
+#     packet.data = struct.pack('<H', int(paramId))
+#     packet.data += struct.pack('<L', int(paramValue))
+#     cf.send_packet(packet)
 
 
 # with SyncCrazyflie("radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1", cf=Crazyflie(ro_cache='../cache', rw_cache='../cache')) as scf:
@@ -345,41 +333,41 @@ def setParam(cf, paramId, paramValue):
 #     controller.set_color(0, 0, 0, 0.15)
 #     time.sleep(0.25)
 #     time.sleep(1.5)
-
-with SyncCrazyflie("radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1", cf=Crazyflie(ro_cache='../cache', rw_cache='../cache')) as scf:
-    time.sleep(1.0)
-    time.sleep(0.5)
-    controller = link.light_controller
-    controller.set_effect(RingEffect.FADE_EFFECT)
-    time.sleep(0.5)
-
-    commander = link.high_level_commander
-    for i in range(0, ITERATION_COUNT):
-
-        controller.set_color(255, 0, 0, fadeTime)
-        time.sleep(sleepTime)
-        controller.set_color(0, 0, 0, fadeTime)
-        time.sleep(sleepTime)
-
-        controller.set_color(0, 255, 0, fadeTime)
-        time.sleep(sleepTime)
-        controller.set_color(0, 0, 0, fadeTime)
-        time.sleep(sleepTime)
-
-        controller.set_color(0, 0, 255, fadeTime)
-        time.sleep(sleepTime)
-        controller.set_color(0, 0, 0, fadeTime)
-
-        time.sleep(sleepTime + pauseTime)
-        print("Taking off...")
-        commander.takeoff(0.1, 3.0)
-        time.sleep(0.2)
-
-        print("Stopping...")
-        commander.stop()
-
-
-link.close_link()
+#
+# with SyncCrazyflie("radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1", cf=Crazyflie(ro_cache='../cache', rw_cache='../cache')) as scf:
+#     time.sleep(1.0)
+#     time.sleep(0.5)
+#     controller = link.light_controller
+#     controller.set_effect(RingEffect.FADE_EFFECT)
+#     time.sleep(0.5)
+#
+#     commander = link.high_level_commander
+#     for i in range(0, ITERATION_COUNT):
+#
+#         controller.set_color(255, 0, 0, fadeTime)
+#         time.sleep(sleepTime)
+#         controller.set_color(0, 0, 0, fadeTime)
+#         time.sleep(sleepTime)
+#
+#         controller.set_color(0, 255, 0, fadeTime)
+#         time.sleep(sleepTime)
+#         controller.set_color(0, 0, 0, fadeTime)
+#         time.sleep(sleepTime)
+#
+#         controller.set_color(0, 0, 255, fadeTime)
+#         time.sleep(sleepTime)
+#         controller.set_color(0, 0, 0, fadeTime)
+#
+#         time.sleep(sleepTime + pauseTime)
+#         print("Taking off...")
+#         commander.takeoff(0.1, 3.0)
+#         time.sleep(0.2)
+#
+#         print("Stopping...")
+#         commander.stop()
+#
+#
+# link.close_link()
 
 
 #
@@ -407,30 +395,48 @@ link.close_link()
 #
 
 
-"""
-with SyncCrazyflie("radio://*/55/2M/E7E7E7E702?safelink=1&autoping=1", cf=Crazyflie(ro_cache='../cache', rw_cache='../cache')) as scf:
+
+
+color_data = None
+with open('../../Sequences/Straight Line.json') as jsonFile:
+    seq_data = json.load(jsonFile)
+    color_data = seq_data['Tracks'][0]['LedTimings']
+
+def get_color(r, g, b):
+    return (int(r) << 16) | (int(g) << 8) | int(b)
+
+def write_finished(*args):
+    print("Args: ", args)
+    print("\n\n------- WRITE FINISHED --------\n\n")
+
+
+os.environ["USE_CFLINK"] = "cpp"
+cflib.crtp.init_drivers()
+
+with SyncCrazyflie("radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1", cf=Crazyflie(ro_cache='../cache', rw_cache='../cache')) as scf:
     cf = scf.cf
 
-    time.sleep(1.0)
+    time.sleep(0.5)
     cf.light_controller.set_effect(RingEffect.OFF)
-    time.sleep(1.0)
+    time.sleep(0.5)
 
-    fadeTime = 0.5
+    fadeTime = 0.25
+    sleepTime = 0.5
     cf.light_controller.set_effect(RingEffect.FADE_EFFECT)
     cf.light_controller.set_color(255, 0, 0, fadeTime)
-    time.sleep(1.0)
+    time.sleep(sleepTime)
     cf.light_controller.set_color(0, 0, 0, fadeTime)
-    time.sleep(1.0)
+    time.sleep(sleepTime)
 
     cf.light_controller.set_color(0, 255, 0, fadeTime)
-    time.sleep(1.0)
+    time.sleep(sleepTime)
     cf.light_controller.set_color(0, 0, 0, fadeTime)
-    time.sleep(1.0)
+    time.sleep(sleepTime)
 
     cf.light_controller.set_color(0, 0, 255, fadeTime)
-    time.sleep(1.0)
-    # cf.light_controller.set_color(0, 0, 0, fadeTime)
-    time.sleep(1.0)
+    time.sleep(sleepTime)
+    cf.light_controller.set_color(0, 0, 0, fadeTime)
+    time.sleep(sleepTime)
 
     # Get LED memory and write to it
     mems = cf.mem.get_mems(MemoryElement.TYPE_DRIVER_LEDTIMING)
@@ -449,7 +455,7 @@ with SyncCrazyflie("radio://*/55/2M/E7E7E7E702?safelink=1&autoping=1", cf=Crazyf
         # mem.add(1.0, r=255, g=255, b=255)
         # mem.write_data(None)
 
-        mem.write_raw(color_data, None)
+        mem.write_raw(bytearray(color_data), write_finished)
     else:
         print('No LED ring present')
 
@@ -464,4 +470,3 @@ with SyncCrazyflie("radio://*/55/2M/E7E7E7E702?safelink=1&autoping=1", cf=Crazyf
     time.sleep(0.5)
     cf.light_controller.set_effect(RingEffect.TIMING_EFFECT)
     time.sleep(10.0)
-    """

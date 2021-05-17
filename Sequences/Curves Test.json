@@ -10,6 +10,12 @@
                 "y": -0.5,
                 "z": 0.5
             },
+            "StartColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
             "CompressedTrajectory": [
                 0,
                 0,
@@ -311,6 +317,12 @@
                 "y": 0.0,
                 "z": 0.5
             },
+            "StartColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
             "CompressedTrajectory": [
                 244,
                 1,
@@ -602,6 +614,12 @@
                 "y": 0.5,
                 "z": 0.5
             },
+            "StartColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
             "CompressedTrajectory": [
                 0,
                 0,
@@ -892,6 +910,12 @@
                 "x": -0.5,
                 "y": 0.0,
                 "z": 0.5
+            },
+            "StartColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
             },
             "CompressedTrajectory": [
                 12,

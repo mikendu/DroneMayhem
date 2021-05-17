@@ -1,5 +1,6 @@
 import time
 from threading import Thread
+from concurrent.futures import ThreadPoolExecutor, wait
 
 from cflib.crazyflie.broadcaster import Broadcaster
 from cflib.crtp.cflinkcppdriver import CfLinkCppDriver
@@ -41,16 +42,17 @@ class SwarmController():
             end = max(0, min(desiredCount, totalCount))
             toConnect = self.availableDrones[:end]
 
-        Logger.log("Attempting to open " + str(toConnect) + " drone connections")
+        Logger.log("Attempting to open " + str(len(toConnect)) + " drone connections")
         self.broadcaster = Broadcaster(self.channel)
         self.broadcaster.open_link()
         self.connectedDrones = self.parallel(self.connectToDrone, toConnect)
-        Logger.log("Successfully opened " + str(self.connectedDrones) + " drone connections")
+        Logger.log("Successfully opened " + str(len(self.connectedDrones)) + " drone connections")
 
     def connectToDrone(self, drone):
         try:
             address = drone.address + "?safelink=1&autoping=1"
             drone.initialize(address, self.onDisconnect)
+            return drone
         except Exception as e:
             if "Too many packets lost" in str(e):
                 drone.state = DroneState.DISCONNECTED
@@ -100,17 +102,13 @@ class SwarmController():
         :return:
         """
         drones = droneCollection if droneCollection is not None else self.connectedDrones
-        threads = []
-        for drone in drones:
-            args = [drone]
-            thread = Thread(target=function, args=args)
-            threads.append(thread)
-            thread.start()
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(function, drone) for drone in drones]
+            wait(futures) # Await all
+            results = [future.result() for future in futures]
+            results = list(filter(None, results))
 
-        for thread in threads:
-            thread.join()
-
-        return drones
+        return results
 
 
     @property

@@ -1,21 +1,43 @@
-from PyQt5.QtCore import QObject
+from enum import Enum
+
+from PyQt5.QtCore import QObject, pyqtSignal
+
+class LogLevel(Enum):
+    INFO = 0
+    WARN = 1
+    ERROR = 2
+
+    def __str__(self):
+        return self.name
 
 class Logger(QObject):
 
     _instance = None
+    LOG_SIGNAL = pyqtSignal(tuple)
 
-    def __init__(self, signal):
+    def __init__(self):
         super().__init__()
-        self.signal = signal
-
-    def logMessage(self, message, droneIndex=None):
-        self.signal.emit((message, droneIndex))
 
     @staticmethod
-    def initialize(logSignal):
-        _instance = Logger(logSignal)
+    def initialize():
+        Logger._instance = Logger()
+
+    @staticmethod
+    def bind_handler(signal_handler):
+        if Logger._instance:
+            Logger._instance.LOG_SIGNAL.connect(signal_handler)
 
     @staticmethod
     def log(message, droneIndex=None):
         if Logger._instance:
-            Logger._instance.logMessage(message, droneIndex)
+            Logger._instance.LOG_SIGNAL.emit((message, LogLevel.INFO, droneIndex))
+
+    @staticmethod
+    def warn(message, droneIndex=None):
+        if Logger._instance:
+            Logger._instance.LOG_SIGNAL.emit((message, LogLevel.WARN, droneIndex))
+
+    @staticmethod
+    def error(message, droneIndex=None):
+        if Logger._instance:
+            Logger._instance.LOG_SIGNAL.emit((message, LogLevel.ERROR, droneIndex))

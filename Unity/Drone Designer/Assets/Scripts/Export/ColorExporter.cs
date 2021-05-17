@@ -7,6 +7,11 @@ using UnityEngine;
 
 public static class ColorExporter
 {
+    public static byte ToByte(float colorValue)
+    {
+        return (byte)(Mathf.RoundToInt(255 * colorValue) & 0xFF);
+    }
+
     public static byte[] Process(List<ColorKeyframe> keyframes)
     {
         if (keyframes.Count == 0)
@@ -72,8 +77,4 @@ public static class ColorExporter
         return (short)(combined & 0xFFFF);
     }
 
-    private static byte ToByte(float colorValue)
-    {
-        return (byte)(Mathf.RoundToInt(255 * colorValue) & 0xFF);
-    }
 }
