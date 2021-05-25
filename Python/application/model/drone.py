@@ -7,10 +7,10 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncLogger import SyncLogger
 from cflib.crazyflie.mem import MemoryElement
 from cflib.crazyflie.mem import LighthouseMemHelper
+from cflib.localization import LighthouseConfigWriter
 
 from .droneState import DroneState
-from application.util import exceptionUtil
-from application.util import Logger
+from application.util import exceptionUtil, threadUtil, Logger, calibration
 
 
 class Drone():
@@ -25,7 +25,7 @@ class Drone():
         self.swarmIndex = None
         self.state = DroneState.DISCONNECTED
         self.startHeight = 0.0
-        self.writeEvent = None
+        self.writeEvent = Event()
         self.writeSuccess = False
         self.commander = None
         self.light_controller = None
@@ -40,6 +40,9 @@ class Drone():
         self.crazyflie = syncCrazyflie
         self.commander = syncCrazyflie.cf.high_level_commander
         self.light_controller = syncCrazyflie.cf.light_controller
+        self.light_controller.set_color(0, 0, 0, 0.0, True)
+        threadUtil.interruptibleSleep(0.5)
+
         self.state = DroneState.INITIALIZING
         self.light_controller.set_color(255, 200, 0, 0.0, True)
 
@@ -50,9 +53,12 @@ class Drone():
         self.crazyflie.cf.auto_ping = False
 
     def updateSensors(self, uploadGeometry, geometryOne, geometryTwo):
-        Logger.log("Updating light house data, sensors & positioning", self.swarmIndex)
+        Logger.log("Updating sensor & positioning data", self.swarmIndex)
         self.crazyflie.cf.param.set_value('lighthouse.method', '0')
-        self.crazyflie.cf.param.set_value('stabilizer.controller', '2')  # Mellinger controller
+        self.crazyflie.cf.param.set_value('lighthouse.systemType', '1')
+
+        # PID controller
+        self.crazyflie.cf.param.set_value('stabilizer.controller', '0')
         self.crazyflie.cf.param.set_value('commander.enHighLevel', '1')
         exceptionUtil.checkInterrupt()
 
@@ -66,7 +72,7 @@ class Drone():
 
     def resetEstimator(self):
         self.crazyflie.cf.param.set_value('kalman.resetEstimation', '1')
-        time.sleep(0.1)
+        time.sleep(0.25)
 
         exceptionUtil.checkInterrupt()
         self.crazyflie.cf.param.set_value('kalman.resetEstimation', '0')
@@ -113,39 +119,45 @@ class Drone():
                     self.startHeight = z
                     break
                 elif timed_out:
+                    self.setError()
                     raise ConnectionAbortedError("Drone position was not able to converge!")
 
     def writeTrajectory(self, data):
-        self.writeSuccess = False
         if self.crazyflie is None or len(data) == 0:
             raise ValueError("Cannot write trajectory data")
 
         trajectoryMemory = self.crazyflie.cf.mem.get_mems(MemoryElement.TYPE_TRAJ)[0]
-        trajectoryMemory.write_raw(data, self.writeComplete, self.writeFailed)
+        self.write(lambda: trajectoryMemory.write_raw(data, self.writeComplete, self.writeFailed))
 
-        self.waitForCompletion()
         exceptionUtil.checkInterrupt()
         self.crazyflie.cf.high_level_commander.define_trajectory_compressed(Drone.TRAJECTORY_ID, 0)
 
     def writeBaseStationData(self, geometryOne, geometryTwo):
-        self.writeSuccess = False
         geo_dict = {0: geometryOne, 1: geometryTwo}
         helper = LighthouseMemHelper(self.crazyflie.cf)
-        helper.write_geos(geo_dict, self.writeComplete)
-        self.waitForCompletion()
+        writer = LighthouseConfigWriter(self.crazyflie.cf, nr_of_base_stations=2)
+        self.write(lambda: helper.write_geos(geo_dict, self.writeComplete))
+        self.write(lambda: writer.write_and_store_config(self.writeComplete, geos=geo_dict, calibs=calibration.CALIBRATION_DATA))
         exceptionUtil.checkInterrupt()
 
     def writeLedTimings(self, color_data):
-        self.writeSuccess = False
         mems = self.crazyflie.cf.mem.get_mems(MemoryElement.TYPE_DRIVER_LEDTIMING)
         if self.crazyflie is None or len(color_data) == 0:
             raise ValueError("Cannot led timing data")
 
-        mems[0].write_raw(color_data, self.writeComplete)
-        self.waitForCompletion()
+        self.write(lambda: mems[0].write_raw(color_data, self.writeComplete))
         exceptionUtil.checkInterrupt()
 
     # -- DATA UTILS -- #
+
+    def write(self, writeOperation):
+        self.writeSuccess = False
+        self.writeEvent.clear()
+        writeOperation()
+
+        self.writeEvent.wait()
+        if not self.writeSuccess:
+            raise Exception("Write failed!")
 
     def writeComplete(self, *args):
         self.writeSuccess = True
@@ -154,13 +166,10 @@ class Drone():
 
     def writeFailed(self, *args):
         self.writeSuccess = False
+        self.setError()
         if self.writeEvent:
             self.writeEvent.set()
 
-    def waitForCompletion(self):
-        self.writeEvent = Event()
-        self.writeEvent.wait()
-        self.writeEvent = None
-
-        if not self.writeSuccess:
-            raise Exception("Write failed!")
+    def setError(self):
+        self.state = DroneState.ERROR
+        self.light_controller.set_color(255, 200, 0, 0.0, True)

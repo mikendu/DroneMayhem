@@ -7,9 +7,9 @@ def raiseError(message, exceptionType = UnknownException):
     print(message)
     raise exceptionType(message)
 
-def checkInterrupt():
+def checkInterrupt(ignore=False):
     global INTERRUPT_FLAG
-    if INTERRUPT_FLAG.is_set():
+    if INTERRUPT_FLAG.is_set() and not ignore:
         raise SequenceInterrupt()
 
 def setInterrupt(value):

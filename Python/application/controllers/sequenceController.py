@@ -90,19 +90,19 @@ class SequenceController:
             numDrones = min(SequenceController.CURRENT.drones, self.appController.availableDrones)
             self.appController.swarmController.connectSwarm(numDrones)
             self.appController.sequenceUpdated.emit()
-            threadUtil.interruptibleSleep(0.5)
+            threadUtil.interruptibleSleep(0.25)
 
             # ensure all drones have updated light house info & know their positions
             uploadLighthouseData = self.appController.trajectoryEnabled or self.appController.positioningEnabled
             swarmController.initializeSensors(uploadLighthouseData)
             self.appController.sequenceUpdated.emit()
-            threadUtil.interruptibleSleep(0.5)
+            threadUtil.interruptibleSleep(0.25)
 
             # get all drones in position
             swarmController.parallel(self.uploadFlightData)
             self.synchronizedTakeoff()
             swarmController.parallel(self.setInitialPosition)
-            threadUtil.interruptibleSleep(0.75)
+            threadUtil.interruptibleSleep(0.25)
 
             # kick off the actual sequence action
             self.runSequence()
@@ -116,6 +116,7 @@ class SequenceController:
         except SequenceInterrupt:
             Logger.log("ABORTING SEQUENCE")
             self.abort()
+            return
 
         except ConnectionAbortedError:
             print("-- Drone connection failed, cancelling sequence --")
@@ -162,7 +163,7 @@ class SequenceController:
             drone.state = DroneState.IN_FLIGHT
 
         self.appController.sequenceUpdated.emit()
-        threadUtil.interruptibleSleep(3.5)
+        threadUtil.interruptibleSleep(3.0)
 
 
     def setInitialPosition(self, drone):
@@ -186,7 +187,7 @@ class SequenceController:
                 # Step 1 - Move to some height determined by index
                 targetHeight = min(SequenceController.MIN_HEIGHT + (drone.swarmIndex * 0.1), SequenceController.MAX_HEIGHT)
                 relativeHeight = targetHeight - SequenceController.MIN_HEIGHT
-                numDrones = self.appController.swarmController.connectedDrones
+                numDrones = len(self.appController.swarmController.connectedDrones)
                 moveTime = 3.0 * (numDrones * 0.3)
 
                 commander.go_to(0, 0, relativeHeight, 0, moveTime, True) # relative move
@@ -223,7 +224,7 @@ class SequenceController:
         self.appController.startTimer.emit()
         threadUtil.interruptibleSleep(duration + 0.25)
 
-    def landDrones(self):
+    def landDrones(self, ignoreInterrupt=False):
         if not (self.appController.trajectoryEnabled or self.appController.positioningEnabled):
             return
 
@@ -240,7 +241,7 @@ class SequenceController:
                 drone.state = DroneState.LANDING
 
         self.appController.sequenceUpdated.emit()
-        threadUtil.interruptibleSleep(4.5)
+        threadUtil.interruptibleSleep(4.5, ignoreInterrupt)
 
         light_controller.set_color(0, 0, 0, 0.25, True)
         commander.stop()
@@ -250,14 +251,15 @@ class SequenceController:
                 drone.state = DroneState.CONNECTED
 
         self.appController.sequenceUpdated.emit()
-        exceptionUtil.checkInterrupt()
+        exceptionUtil.checkInterrupt(ignoreInterrupt)
 
     def completeSequence(self):
+        Logger.log("SEQUENCE COMPLETE")
         self.appController.swarmController.disconnectSwarm()
         self.appController.onSequenceCompleted()
         self.appController.sequenceUpdated.emit()
 
     def abort(self):
-        self.landDrones()
+        self.landDrones(True)
         self.completeSequence()
 

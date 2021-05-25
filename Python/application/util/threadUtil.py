@@ -7,14 +7,14 @@ def runInBackground(function, *args, **kwargs):
     QThreadPool.globalInstance().start(runnable)
 
 
-def interruptibleSleep(duration, interval = 0.25):
+def interruptibleSleep(duration, ignore=False, interval=0.25):
     start = time.time()
     elapsed = time.time() - start
 
     while elapsed < duration:
         sleepTime = max(min(interval, duration - elapsed), 0)
         time.sleep(sleepTime)
-        exceptionUtil.checkInterrupt()
+        exceptionUtil.checkInterrupt(ignore)
         elapsed = time.time() - start
 
 class GenericRunnable(QRunnable):

@@ -340,6 +340,7 @@ QLabel.droneName {
 .droneStatusIndicator.connected { background: #16a81b; }
 .droneStatusIndicator.in_flight { background: #2d9acc; }
 .droneStatusIndicator.landing { background: #cf8e2d; }
+.droneStatusIndicator.error { background: #ed3f00; }
 
 .swarmButton {
     max-width: 90px;

@@ -331,6 +331,9 @@ class DroneCard(QFrame):
         elif drone.state == DroneState.LANDING:
             self.statusLabel.setText('''Status:  <span style="color:#e09422;font-weight:bold">LANDING</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "landing"])
+        elif drone.state == DroneState.ERROR:
+            self.statusLabel.setText('''Status:  <span style="color:#ed3f00;font-weight:bold">ERROR</span>''')
+            self.indicator.setProperty("class", ["droneStatusIndicator", "error"])
         else:
             self.statusLabel.setText('''Status:  <span style="color:#b1b1b1;font-weight:bold">NOT CONNECTED</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator"])

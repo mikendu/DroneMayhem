@@ -6,3 +6,4 @@ class DroneState(Enum):
     CONNECTED = 3
     IN_FLIGHT = 4
     LANDING = 5
+    ERROR = 6
