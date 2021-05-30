@@ -11,6 +11,7 @@ from cflib.localization import LighthouseConfigWriter
 
 from .droneState import DroneState
 from application.util import exceptionUtil, threadUtil, Logger, calibration
+from application.common.exceptions import DroneException
 
 
 class Drone():
@@ -24,7 +25,7 @@ class Drone():
         self.address = None
         self.swarmIndex = None
         self.state = DroneState.DISCONNECTED
-        self.startHeight = 0.0
+        self.startPosition = (0, 0, 0)
         self.writeEvent = Event()
         self.writeSuccess = False
         self.commander = None
@@ -76,7 +77,7 @@ class Drone():
 
         exceptionUtil.checkInterrupt()
         self.crazyflie.cf.param.set_value('kalman.resetEstimation', '0')
-        self.startHeight = 0.0
+        self.startPosition = (0, 0, 0)
         self.waitForEstimator()
 
     def waitForEstimator(self):
@@ -85,6 +86,8 @@ class Drone():
         log_config.add_variable('kalman.varPX', 'float')
         log_config.add_variable('kalman.varPY', 'float')
         log_config.add_variable('kalman.varPZ', 'float')
+        log_config.add_variable('kalman.stateX', 'float')
+        log_config.add_variable('kalman.stateY', 'float')
         log_config.add_variable('kalman.stateZ', 'float')
 
         var_y_history = [1000] * 10
@@ -111,19 +114,56 @@ class Drone():
                 max_y = max(var_y_history)
                 min_z = min(var_z_history)
                 max_z = max(var_z_history)
+
+                x = data['kalman.stateX']
+                y = data['kalman.stateY']
                 z = data['kalman.stateZ']
+
                 has_converged = (max_x - min_x) < threshold and (max_y - min_y) < threshold and (max_z - min_z) < threshold
                 timed_out = (time.time() - startTime) > Drone.ESTIMATOR_TIMEOUT_SEC
 
                 if has_converged:
-                    self.startHeight = z
+                    print("Initial position for drone", self.swarmIndex, "has converged, to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                    self.startPosition = (float(x), float(y), float(z))
                     break
                 elif timed_out:
+                    Logger.error("Drone position sensor failed to update!", self.swarmIndex)
+                    self.setError()
+                    raise DroneException("Drone did not achieve the target position")
+
+    def waitForTargetPosition(self, targetX, targetY, targetZ, timeoutSeconds=None):
+        startTime = time.time()
+        log_config = LogConfig(name='Kalman Position', period_in_ms=50)
+        log_config.add_variable('kalman.stateX', 'float')
+        log_config.add_variable('kalman.stateY', 'float')
+        log_config.add_variable('kalman.stateZ', 'float')
+        threshold = 0.05
+
+        with SyncLogger(self.crazyflie, log_config) as logger:
+            for log_entry in logger:
+
+                exceptionUtil.checkInterrupt()
+                data = log_entry[1]
+
+                x = float(data['kalman.stateX'])
+                y = float(data['kalman.stateY'])
+                z = float(data['kalman.stateZ'])
+
+                has_converged = abs(targetX - x) < threshold and abs(targetY - y) and abs(targetZ - z)
+                timed_out = (time.time() - startTime) > timeoutSeconds if timeoutSeconds else False
+
+                if has_converged:
+                    print("Target position for drone", self.swarmIndex, "has converged. Target was:", ("({:.2f}, {:.2f}, {:.2f})".format(targetX, targetY, targetZ)), ", converged to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                    break
+                elif timed_out:
+                    Logger.error("Drone failed to reach target position!", self.swarmIndex)
                     self.setError()
                     raise ConnectionAbortedError("Drone position was not able to converge!")
 
+
     def writeTrajectory(self, data):
         if self.crazyflie is None or len(data) == 0:
+            Logger.error("Could not upload trajectory data!", self.swarmIndex)
             raise ValueError("Cannot write trajectory data")
 
         trajectoryMemory = self.crazyflie.cf.mem.get_mems(MemoryElement.TYPE_TRAJ)[0]
@@ -143,7 +183,8 @@ class Drone():
     def writeLedTimings(self, color_data):
         mems = self.crazyflie.cf.mem.get_mems(MemoryElement.TYPE_DRIVER_LEDTIMING)
         if self.crazyflie is None or len(color_data) == 0:
-            raise ValueError("Cannot led timing data")
+            Logger.error("Could not upload LED data", self.swarmIndex)
+            raise ValueError("Cannot write led timing data")
 
         self.write(lambda: mems[0].write_raw(color_data, self.writeComplete))
         exceptionUtil.checkInterrupt()

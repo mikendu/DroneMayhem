@@ -61,7 +61,7 @@ class SwarmController():
                 raise
 
     def onDisconnect(self, uri, errorMessage):
-        Logger.log(errorMessage)
+        Logger.error(errorMessage)
         if uri in self.droneMapping:
             drone = self.droneMapping[uri]
             drone.state = DroneState.DISCONNECTED

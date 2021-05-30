@@ -9,6 +9,7 @@ vispy
 pyinstaller
 cmake
 cflinkcpp
+munkres
 
 
 ###### Local Packages ######`

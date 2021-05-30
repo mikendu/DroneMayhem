@@ -104,7 +104,7 @@ class SequenceController:
             swarmController.parallel(self.setInitialPosition)
             threadUtil.interruptibleSleep(0.25)
 
-            # kick off the actual sequence action
+            # kick off the actual sequence action4
             self.runSequence()
 
             # land all drones
@@ -145,7 +145,7 @@ class SequenceController:
                 drone.writeLedTimings(lightData)
                 exceptionUtil.checkInterrupt()
 
-        drone.disableAutoPing()
+        # drone.disableAutoPing()
 
     def synchronizedTakeoff(self):
         if not (self.appController.trajectoryEnabled or self.appController.positioningEnabled):
@@ -157,13 +157,14 @@ class SequenceController:
         light_controller = swarmController.broadcaster.light_controller
 
         light_controller.set_color(0, 127, 255, 0.1, True)
-        commander.takeoff(SequenceController.MIN_HEIGHT, 3.0)
+        commander.takeoff(SequenceController.MIN_HEIGHT, 4.0)
+        print("Taking off to height:", SequenceController.MIN_HEIGHT, ", over time:", 4.0)
 
         for drone in swarmController.connectedDrones:
             drone.state = DroneState.IN_FLIGHT
 
         self.appController.sequenceUpdated.emit()
-        threadUtil.interruptibleSleep(3.0)
+        threadUtil.interruptibleSleep(4.0)
 
 
     def setInitialPosition(self, drone):
@@ -184,22 +185,36 @@ class SequenceController:
             if self.appController.trajectoryEnabled or self.appController.positioningEnabled:
                 Logger.log("Getting into position", drone.swarmIndex)
 
+                # Step 0 - Make sure the drone has reached its takeoff position
+                initialX, initialY, initialZ = drone.startPosition
+
+                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(initialX, initialY, SequenceController.MIN_HEIGHT)))
+                drone.waitForTargetPosition(initialX, initialY, SequenceController.MIN_HEIGHT)
+
                 # Step 1 - Move to some height determined by index
                 targetHeight = min(SequenceController.MIN_HEIGHT + (drone.swarmIndex * 0.1), SequenceController.MAX_HEIGHT)
-                relativeHeight = targetHeight - SequenceController.MIN_HEIGHT
                 numDrones = len(self.appController.swarmController.connectedDrones)
-                moveTime = 3.0 * (numDrones * 0.3)
+                moveTime = 5.0 + (numDrones * 0.3)
 
-                commander.go_to(0, 0, relativeHeight, 0, moveTime, True) # relative move
+                print("Moving drone", drone.swarmIndex, "to position", ("({:.2f}, {:.2f}, {:.2f})".format(initialX, initialY, targetHeight)), "over time:", moveTime)
+                commander.go_to(initialX, initialY, targetHeight, 0, moveTime)
                 threadUtil.interruptibleSleep(moveTime + 0.25)
+                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(initialX, initialY, targetHeight)))
+                drone.waitForTargetPosition(initialX, initialY, targetHeight)
 
                 # Step 2 - Move to position, maintaining target height
-                commander.go_to(x, y, targetHeight, 0, 3.0)
-                threadUtil.interruptibleSleep(3.25)
+                print("Moving drone", drone.swarmIndex, "to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, targetHeight)), "over time:", 8.0)
+                commander.go_to(x, y, targetHeight, 0, 8.0)
+                threadUtil.interruptibleSleep(8.25)
+                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, targetHeight)))
+                drone.waitForTargetPosition(x, y, targetHeight)
 
                 # Step 3 - Move to actual starting position
-                commander.go_to(x, y, z, 0.0, 3.0)
-                threadUtil.interruptibleSleep(3.25)
+                print("Moving drone", drone.swarmIndex, "to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)), "over time:", 8.0)
+                commander.go_to(x, y, z, 0.0, 8.0)
+                threadUtil.interruptibleSleep(8.25)
+                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                drone.waitForTargetPosition(x, y, z)
 
             Logger.log("Ready!", drone.swarmIndex)
             self.appController.updateSequence()

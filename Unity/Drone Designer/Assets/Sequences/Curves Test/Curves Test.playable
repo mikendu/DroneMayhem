@@ -338,7 +338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   LightColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!114 &-6462292706427462391
 MonoBehaviour:
@@ -380,7 +380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   JointType: 0
   Position: {x: 0.25, y: 1, z: -0.002511017}
   Tangent: {x: -0.125, y: 0.000001065521, z: 0}
@@ -498,7 +498,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   LightColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!114 &-5398867528453812720
 MonoBehaviour:
@@ -1054,7 +1054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 27.466666666666665
   JointType: 0
-  Position: {x: 1, y: 0.25, z: 0}
+  Position: {x: 0.5, y: 0.25, z: 0}
   Tangent: {x: 0, y: 0, z: 0}
 --- !u!114 &-2180073690614214612
 MonoBehaviour:
@@ -1407,7 +1407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   JointType: 0
   Position: {x: 0, y: 1, z: -0.25}
   Tangent: {x: 0, y: 0, z: 0.125}
@@ -1425,7 +1425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 27.466666666666665
   JointType: 0
-  Position: {x: 0, y: 0.25, z: -1}
+  Position: {x: 0, y: 0.25, z: -0.5}
   Tangent: {x: 0, y: -0.1118034, z: -0.0559017}
 --- !u!114 &310799292205927711
 MonoBehaviour:
@@ -1453,7 +1453,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   LightColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!114 &482158082838376792
 MonoBehaviour:
@@ -1595,7 +1595,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   JointType: 0
   Position: {x: -0.25, y: 1, z: 0}
   Tangent: {x: 0.125, y: 0, z: 0}
@@ -1611,7 +1611,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   LightColor: {r: 1, g: 0, b: 1, a: 1}
 --- !u!114 &1623471702975013185
 MonoBehaviour:
@@ -1767,7 +1767,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 27.466666666666665
   JointType: 0
-  Position: {x: -1, y: 0.25, z: 0}
+  Position: {x: -0.5, y: 0.25, z: 0}
   Tangent: {x: -0.0559017, y: -0.1118034, z: 0}
 --- !u!114 &2429555554494075882
 MonoBehaviour:
@@ -2099,7 +2099,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 17.233333333333334
+  m_Time: 20.55
   JointType: 0
   Position: {x: 0, y: 1, z: 0.25}
   Tangent: {x: 0, y: 0, z: -0.125}
@@ -2341,7 +2341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 27.466666666666665
   JointType: 0
-  Position: {x: 0, y: 0.25, z: 1}
+  Position: {x: 0, y: 0.25, z: 0.5}
   Tangent: {x: 0, y: 0, z: 0}
 --- !u!114 &6947526070214863337
 MonoBehaviour:
