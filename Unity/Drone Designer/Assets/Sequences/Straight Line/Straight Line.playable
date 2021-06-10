@@ -42,7 +42,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 7
+  m_Time: 7.533333333333333
   LightColor: {r: 0.9616375, g: 0.08444116, b: 0.038362473, a: 1}
 --- !u!114 &-2215191786325676805
 MonoBehaviour:
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 7
+  m_Time: 7.533333333333333
   JointType: 0
   Position: {x: -0.3596739, y: 0.49975586, z: -0.038362503}
   Tangent: {x: -0.08686417, y: 0, z: 0.08988667}
