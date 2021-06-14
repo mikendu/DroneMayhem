@@ -15,6 +15,9 @@ public struct CubicBezier
     public Vector3 control1;
     public Vector3 control2;
 
+    public float startTime;
+    public float endTime;
+
     public void SetAnchor1(Vector3 anchor1) { this.anchor1 = anchor1; }
     public void SetAnchor2(Vector3 anchor2) { this.anchor2 = anchor2; }
     public void SetControl1(Vector3 control1) { this.control1 = control1; }
@@ -25,6 +28,16 @@ public class BezierInterpolator
 {
     public static List<CubicBezier> Interpolate(List<Vector3> points)
     {
+        if (points.Count == 2)
+        {
+            CubicBezier bezier = new CubicBezier();
+            bezier.anchor1 = points[0];
+            bezier.control1 = points[0];
+            bezier.control2 = points[1];
+            bezier.anchor2 = points[1];
+            return new List<CubicBezier>() { bezier };
+        }
+
         int n = points.Count - 1;
         Matrix<float> coefficientMatrix = GetCoefficientsMatrix(n);
 

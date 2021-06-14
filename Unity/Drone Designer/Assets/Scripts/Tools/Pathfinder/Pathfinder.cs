@@ -9,124 +9,116 @@ using Random = UnityEngine.Random;
 
 
 
-public struct Node
-{
-    public Vector3Int gridPosition;
-    public Vector3 position;
-    public float time;
-
-    public Node(Vector3Int pos, Vector3 position, float t)
-    {
-        this.gridPosition = pos;
-        this.position = position;
-        this.time = t;
-    }
-}
-
-public class PathData
+public struct CompletedPath
 {
     public GameObject drone;
-    public Vector3 currentPosition;
+    public List<Vector3> discrete;
+    public List<CubicBezier> continuous;
+}
+
+public struct DroneAssignment
+{
+    public GameObject drone;
     public Vector3 target;
-    public Vector3Int targetGridPos;
-    public float distance;
-    public float currentDistance;
-
-    public float staticPenalty = 0.0f;
-    public HashSet<Vector3Int> visitedGridPositions = new HashSet<Vector3Int>();
-    public List<Node> nodes = new List<Node>();
-    public List<CubicBezier> curves = new List<CubicBezier>();
-
-    public bool complete = false;
+    public float centroidDistance;
+    public float targetHeight;
 }
-
-public class PathDataComparer : IComparer<PathData>
-{
-    public int Compare(PathData x, PathData y)
-    {
-        return x.currentDistance.CompareTo(y.currentDistance);
-    }
-}
-
-public enum RowMode
-{
-    DEPTH, HEIGHT
-}
-
 
 [ExecuteInEditMode]
 public class Pathfinder: MonoBehaviour
 {
-    private static readonly float DRONE_RADIUS = 0.15f;
-    private const float MAX_VELOCITY = 0.25f;
-    private const float TIMESTEP = 0.5f;
+    public const float MAX_VELOCITY = 0.5f;
 
     [Range(1, 4)]
     public int Rows = 1;
-    public RowMode RowStyle = RowMode.DEPTH;
-
-    [Range(0, 10000)]
-    public int MaxIterations = 1;
+    public ArrangmentRowType RowStyle = ArrangmentRowType.DEPTH;
 
     public bool DrawMatch = true;
     public bool DrawDiscrete = true;
     public bool DrawContinuous = true;
+    public bool DrawTangents = true;
     public bool DrawGrid = true;
 
     public GameObject DroneHolder;
     public GameObject TargetHolder;
 
+    [Range(0, 150.0f)]
+    public float PathTime = 0.0f;
+
+    [Range(1.0f, 5.0f)]
+    public float DelayPerLevel = 1.0f;
+
+    [Range(0, 50)]
+    public int SolutionSize = 1;
+
+    public bool Playing = false;
 
     private List<GameObject> drones = new List<GameObject>();
     private List<Vector3> targets = new List<Vector3>();
-    private List<PathData> pathData = new List<PathData>();
-    
-    // private AStarGrid gridArea = null;
-    private PathGrid grid = null;
+
+    private List<DroneAssignment> assignments = new List<DroneAssignment>();
+    private List<CompletedPath> finishedPaths = new List<CompletedPath>();
+
+    private SearchGrid searchGrid;
     private float totalTime = 0.0f;
+
 
     public void Update()
     {
+        if (Playing)
+        {
+            PathTime = Mathf.Clamp(PathTime + Time.deltaTime, 0.0f, 150.0f);
+        }
+
+        if (Application.isPlaying)
+        {
+            foreach(CompletedPath path in finishedPaths)
+            {
+                path.drone.transform.position = BezierEvaluator.FindPosition(path.continuous, PathTime);
+            }
+        }
     }
 
     public void OnDrawGizmos()
     {
-        if (pathData == null)
-            return;
+        if (searchGrid != null && DrawGrid)
+        {
+            //searchGrid.DrawVoxelGrid();
+            searchGrid.DrawObstacles(PathTime);
+        }
+
+
+        if (DrawMatch)
+        {
+            foreach (DroneAssignment assignment in assignments)
+            {
+                Gizmos.color = new Color(1, 1, 1, 0.15f);
+                Gizmos.DrawLine(assignment.drone.transform.position, assignment.target);
+            }
+        }
 
         Color color = Gizmos.color;
-        foreach (PathData path in pathData)
+        foreach (CompletedPath path in finishedPaths )
         {
-            if (path == null) 
-                continue;
-
-            if (DrawMatch)
-            {
-                Gizmos.color = new Color(1, 1, 1, 0.05f);
-                Gizmos.DrawLine(path.drone.transform.position, path.target);
-            }
-
-
             if (DrawDiscrete)
             {
-                for (int i = 1; i < path.nodes.Count; i++)
+                for (int i = 1; i < path.discrete.Count;  i++)
                 {
                     Gizmos.color = new Color(1, 1, 1, 0.25f);
-                    Vector3 start = path.nodes[i - 1].position;
-                    Vector3 end = path.nodes[i].position;
+                    Vector3 start = path.discrete[i - 1];
+                    Vector3 end = path.discrete[i];
                     Gizmos.DrawLine(start, end);
 
                     Gizmos.color = Color.white;
                     Gizmos.DrawSphere(end, 0.0075f);
-                    Handles.Label(end + (0.02f * Vector3.right), path.nodes[i].time.ToString("n2"), CustomGUI.LabelStyle);
                 }
             }
 
             if (DrawContinuous)
             {
-                for (int i = 0; i < path.curves.Count; i++)
+                for (int i = 0; i < path.continuous.Count; i++)
                 {
-                    CubicBezier bezier = path.curves[i];
+                    CubicBezier bezier = path.continuous[i];
                     Handles.DrawBezier(bezier.anchor1,
                                         bezier.anchor2,
                                         bezier.control1,
@@ -134,371 +126,388 @@ public class Pathfinder: MonoBehaviour
                                         Color.white,
                                         null,
                                         2.0f);
+
+                    if (DrawTangents)
+                    {
+                        Gizmos.DrawLine(bezier.anchor1, bezier.control1);
+                        Gizmos.DrawLine(bezier.anchor2, bezier.control2);
+
+                        Gizmos.DrawSphere(bezier.control1, 0.0025f);
+                        Gizmos.DrawSphere(bezier.control2, 0.0025f);
+                    }
+
+                    Handles.Label(bezier.anchor2 + new Vector3(0.025f, 0, 0), bezier.endTime.ToString("n2"), CustomGUI.LabelStyle);
                 }
             }
         }
         Gizmos.color = color;
-
-        if (grid != null && DrawGrid)
-        {
-            grid.Draw();
-        }
     }
-    public void SmoothPaths()
-    {
-        foreach(PathData data in pathData)
-        {
-            List<Vector3> points = data.nodes.Select(x => x.position).ToList();
-            data.curves = BezierInterpolator.Interpolate(points);
 
-            int n = data.curves.Count - 1;
-            data.curves[0].SetControl1(data.curves[0].anchor1);
-            data.curves[n].SetControl2(data.curves[n].anchor2);
-        }
+    public void Refresh()
+    {
+        drones.Clear();
+        targets.Clear();
+        assignments.Clear();
+        finishedPaths.Clear();
+        searchGrid = null;
+        totalTime = 0.0f;
         EditorApplication.QueuePlayerLoopUpdate();
+    }
+
+    public void Rearrange(bool shuffle = true)
+    {
+        Refresh();
+        if (shuffle)
+            DroneArranger.Shuffle(Drones);
+        else
+            DroneArranger.LineUp(Drones, Rows, RowStyle);
+
+        EditorApplication.QueuePlayerLoopUpdate();
+    }
+
+    public void FindMatching()
+    {
+        this. assignments.Clear();
+        finishedPaths.Clear();
+
+        HungarianSolver.FindAssignments(Drones, Targets)
+            .ForEach(assignment =>
+            {
+                DroneAssignment droneAssignment = new DroneAssignment();
+                droneAssignment.drone = Drones[assignment.Item1];
+                droneAssignment.target = Targets[assignment.Item2];
+                this.assignments.Add(droneAssignment);
+            });
+
+        /*
+
+        Vector3 centroid = GetCentroid();
+        for(int i = 0; i < assignments.Count; i++)
+        {
+            DroneAssignment assignment = assignments[i];
+            assignment.centroidDistance = Vector3.Distance(assignment.target, centroid);
+            assignment.targetHeight = assignment.target.y;
+            assignments[i] = assignment;
+        }*/
+
+        EditorApplication.QueuePlayerLoopUpdate();
+    }
+
+    private void LayeredPathing()
+    {
+        SortedDictionary<int, List<CompletedPath>> partitionedPaths = new SortedDictionary<int, List<CompletedPath>>();
+        float maxTime = 0.0f;
+
+        foreach(DroneAssignment assignment in assignments)
+        {
+            CompletedPath path = new CompletedPath();
+            path.drone = assignment.drone;
+            path.discrete = new List<Vector3>();
+            path.continuous = new List<CubicBezier>();
+
+            Vector3 start = path.drone.transform.position;
+            Vector3 end = assignment.target;
+
+            CubicBezier curve = new CubicBezier();
+            curve.startTime = 0.0f;
+            curve.endTime = GetTime(Vector3.Distance(start, end));
+            curve.anchor1 = start;
+            curve.control1 = start;
+            curve.control2 = end;
+            curve.anchor2 = end;
+
+            maxTime = Mathf.Max(maxTime, curve.endTime);
+
+
+            int scaledHeight = Mathf.RoundToInt(assignment.target.y * 10);
+            if (!partitionedPaths.ContainsKey(scaledHeight))
+                partitionedPaths[scaledHeight] = new List<CompletedPath>();
+
+
+            partitionedPaths[scaledHeight].Add(path);
+            path.continuous.Add(curve);
+            finishedPaths.Add(path);
+        }
+
+        float delayPerLevel = 0.25f * maxTime;
+        float delay = delayPerLevel * (partitionedPaths.Count - 1);
+
+
+        foreach(var kvPair in partitionedPaths)
+        {
+            foreach(CompletedPath path in kvPair.Value)
+            {
+                CubicBezier bezier = path.continuous[0];
+                bezier.startTime += delay;
+                bezier.endTime += delay;
+                path.continuous[0] = bezier;
+            }
+
+            delay -= delayPerLevel;
+        }
     }
 
     public void FindPaths()
     {
-        grid = new PathGrid(Drones, Targets);
-        pathData.Sort((a, b) => a.distance.CompareTo(b.distance));
-
-        totalTime = 0.0f;
-        foreach (PathData path in pathData)
-            StartPath(path, grid);
-
-
-        totalTime += TIMESTEP;
-        grid.ClearOccupancy();
-        int completeCount = 0;
-        int iterationCount = 0;
-
-        while(completeCount < pathData.Count)
+        finishedPaths.Clear();
+        if (this.assignments.Count == 0)
         {
-            completeCount = StepPathfinding();
-            iterationCount += 1;
-            if (iterationCount >= MaxIterations)
-                break;
-        }
-        MergeNodes();
-        Debug.Log("Complete count: " + completeCount + " / " + pathData.Count);
-
-        EditorApplication.QueuePlayerLoopUpdate();
-    }
-
-
-    private void MergeNodes()
-    {
-        foreach (PathData path in pathData)
-        {
-            List<Node> merged = new List<Node>();
-            if (path.nodes.Count == 0)
-                continue;
-
-            Node currentNode = path.nodes[0];
-            if (path.nodes.Count == 1)
-                continue;
-
-            for (int i = 1; i < path.nodes.Count; i++)
-            {
-                Node node = path.nodes[i];
-
-                if (node.gridPosition != currentNode.gridPosition)                
-                    merged.Add(currentNode);
-
-                currentNode = node;                
-            }
-            merged.Add(currentNode);
-
-            // Advanced Merge
-            List<Node> superMerged = new List<Node>();
-            if (merged.Count < 3)
-                continue;
-
-            Vector3 direction = merged[1].position - merged[0].position;
-            path.nodes = superMerged;
-        }
-    }
-
-    public void StartPathfinding()
-    {
-        grid = new PathGrid(Drones, Targets);
-        pathData.Sort((a, b) => a.distance.CompareTo(b.distance));
-
-        totalTime = 0.0f;
-        foreach (PathData path in pathData)
-            StartPath(path, grid);
-
-
-        totalTime += TIMESTEP;
-        grid.ClearOccupancy();
-        EditorApplication.QueuePlayerLoopUpdate();
-    }
-
-    public int StepPathfinding()
-    {
-        int completeCount = pathData.Count(item => item.complete);
-        if (completeCount == pathData.Count)
-            return completeCount;
-
-        grid.ClearOccupancy();
-        Step(grid, TIMESTEP, totalTime);
-        //Debug.Log($"Grid occupancy: {grid.TotalOccupancy} / {grid.Capacity}");
-        totalTime += TIMESTEP;
-        EditorApplication.QueuePlayerLoopUpdate();
-        return completeCount;
-    }
-
-    private void OccupyPhysicalPosition(Vector3 position, GameObject drone)
-    {
-        Vector3Int gridPos = grid.GetGridPosition(position);
-        grid.OccupyVolume(gridPos, drone);
-    }
-
-    private void AddPositionToPath(PathData data, Vector3 pos, float time)
-    {
-        Vector3Int gridPos = grid.GetGridPosition(pos);
-        data.currentPosition = pos;
-        data.currentDistance = Vector3.Distance(data.currentPosition, data.target);
-        data.nodes.Add(new Node(gridPos, pos, time));
-        data.visitedGridPositions.Add(gridPos);
-    }
-
-    private void AddNodeToPath(PathData data, Vector3Int node, float time)
-    {
-        AddPositionToPath(data, grid.GetCenter(node), time);
-    }
-
-
-    private void Step(PathGrid grid, float deltaTime, float time)
-    {
-        pathData.Sort((x, y) => x.currentDistance.CompareTo(y.currentDistance));
-        foreach (PathData path in pathData)
-            StepForward(path, grid, deltaTime, time);
-    }
-
-    private void StartPath(PathData path, PathGrid grid)
-    {
-        GameObject drone = path.drone;
-        path.currentPosition = drone.transform.position;
-        path.currentDistance = Vector3.Distance(path.currentPosition, path.target);
-        path.targetGridPos = grid.GetGridPosition(path.target);
-        AddPositionToPath(path, drone.transform.position, 0.0f);
-    }
-
-    private void StepForward(PathData pathData, PathGrid grid, float deltaTime, float totalTime)
-    {
-        OccupyPhysicalPosition(pathData.currentPosition, pathData.drone);
-        if (pathData.complete)
-            return;
-
-        Vector3Int newGridPos = GetTargetPosition(pathData, grid, deltaTime, totalTime);
-        if (newGridPos == grid.GetGridPosition(pathData.currentPosition))
-        {
-            //Debug.Log("CHECK 2 | not moving during this time step, couldn't find valid position!!");
-        }
-        if (newGridPos == pathData.targetGridPos)
-        {
-            pathData.complete = true;
-            AddPositionToPath(pathData, pathData.target, totalTime);
+            Debug.LogWarning("No drone assignments have been made yet!");
             return;
         }
-        else
+
+        searchGrid = SearchGrid.Generate(Drones, Targets);
+
+        int numSolved = 0;
+        while(assignments.Count > 0 && numSolved < SolutionSize)
         {
-            AddNodeToPath(pathData, newGridPos, totalTime);
-        }
-        
-    }
-
-    private Vector3Int GetTargetPosition(PathData path, PathGrid grid, float delta, float totalTime)
-    {
-        Vector3 toTarget = (path.target - path.currentPosition);
-        Vector3 direction = toTarget.normalized;
-        Vector3Int startGridPosition = grid.GetGridPosition(path.currentPosition);
-        Vector3Int targetGridPos = startGridPosition;
-
-        float moveAmount = Mathf.Min(MAX_VELOCITY, toTarget.magnitude);
-        int maxBoxesPerStep = Mathf.Max(1, Mathf.CeilToInt((MAX_VELOCITY * delta) / PathGrid.GridSize));
-        float interval = moveAmount / maxBoxesPerStep;
-
-        for (int i = 1; i <= maxBoxesPerStep; i++)
-        {
-            float amt = i * interval;
-            Vector3 physicalPos = path.currentPosition + (amt * direction);
-            Vector3Int gridPos = grid.GetGridPosition(physicalPos);
-            bool available = (gridPos == path.targetGridPos || grid.IsVolumeAvailable(gridPos, path.drone));
-            if (gridPos != targetGridPos && available)
-            {
-                targetGridPos = gridPos;
-                grid.OccupyVolume(gridPos, path.drone);
-                path.visitedGridPositions.Add(gridPos);
-
-                if (gridPos == path.targetGridPos)
-                    return targetGridPos;
-            }
-        }
-
-        if (targetGridPos == startGridPosition)
-        {
-            float minHeuristic = SearchHeuristic(path, targetGridPos, direction) + path.staticPenalty;
-            for (int i = -1; i <= 1; i++)
-            {
-                for (int j = -1; j <= 1; j++)
-                {
-                    for (int k = -1; k <= 1; k++)
-                    {
-                        Vector3Int potentialPosition = startGridPosition + new Vector3Int(i, j, k);
-                        if (grid.IsVolumeAvailable(potentialPosition, path.drone) && !path.visitedGridPositions.Contains(potentialPosition))
-                        {
-                            float currentHeuristic = SearchHeuristic(path, potentialPosition, direction);
-                            if (currentHeuristic < minHeuristic)
-                            {
-                                targetGridPos = potentialPosition;
-                                minHeuristic = currentHeuristic;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (targetGridPos == startGridPosition)
-        {
-            path.staticPenalty += 0.05f;
-            Debug.Log($"Drone not moving during this time step (totalTime: {totalTime}) couldn't find valid position!! Penalty: {path.staticPenalty}");
-        }
-        else
-        {
-            path.staticPenalty = 0.0f;
-        }
-
-        path.visitedGridPositions.Add(targetGridPos);
-        grid.OccupyVolume(targetGridPos, path.drone);
-        return targetGridPos;
-
-    }
-
-    private float SearchHeuristic(PathData path, Vector3Int gridPosition, Vector3 targetDirection)
-    {
-        Vector3 direction = ((Vector3)(path.targetGridPos - gridPosition)).normalized;
-        float targetAlignment = 1.0f - Vector3.Dot(direction, targetDirection);
-        return Vector3Int.Distance(gridPosition, path.targetGridPos) + targetAlignment;
-    }
-
-    public void Match()
-    {
-        drones.Clear();
-        targets.Clear();
-        pathData.Clear();
-        List<Tuple<int, int>> assignments = HungarianSolver.FindAssignments(Drones, Targets);
-
-        foreach(Tuple<int, int> assignment in assignments)
-        {
-            PathData path = new PathData();
-            path.drone = Drones[assignment.Item1];
-            path.target = Targets[assignment.Item2];
-            path.distance = Vector3.Distance(path.drone.transform.position, path.target);
-            pathData.Add(path);
-        }
-        EditorApplication.QueuePlayerLoopUpdate();
-    }
-
-
-    public void Shuffle()
-    {
-        drones.Clear();
-        targets.Clear();
-        pathData.Clear();
-
-        Quaternion rotation = Quaternion.Euler(-90, 0, 0);
-        foreach(GameObject drone in Drones)
-        {
-            Vector3 position = rotation * Random.insideUnitCircle;
-            position.y = 0.25f;
-            drone.transform.position = position;
-        }
-
-        float minDistance = 1.9f * DRONE_RADIUS;
-        float offset = 0.0f;
-        do
-        {
-            offset = Offset();
-        } while (offset < minDistance);
-
-
-        EditorApplication.QueuePlayerLoopUpdate();
-    }
-
-    public void LineUp()
-    {
-        drones.Clear();
-        targets.Clear();
-        pathData.Clear();
-
-        int dronesPerRow = Mathf.CeilToInt((float)Drones.Count / Rows);
-
-        float interval = (2.0f * DRONE_RADIUS);
-        float startZ = -0.75f;
-        float startY = 0.25f;
-
-
-
-        for(int i = 0; i < Drones.Count; i++)
-        {
-            int row = i / dronesPerRow;
-            int col = i % dronesPerRow;
-            int numDronesInRow = Math.Min(dronesPerRow, Drones.Count - (row * dronesPerRow));
-            float totalLength = (numDronesInRow - 1) * interval;
-            float startX = -totalLength / 2.0f;
-
-            GameObject drone = Drones[i];
-            float x = startX + (col * interval);
-            float y = startY + (row * 0.25f);
-            float z = startZ - (row * interval);
-            Vector3 position = Vector3.zero;
-            if (RowStyle == RowMode.HEIGHT)
-                position = new Vector3(x, y, startZ);
+            if (numSolved == 1)
+                Searcher.DEBUG_PRINT = true;
             else
-                position = new Vector4(x, startY, z);
-            drone.transform.position = position;
+                Searcher.DEBUG_PRINT = false;
+
+            assignments.Sort(this.AssignmentSorter);
+
+            DroneAssignment currentAssignment = assignments[0];
+            assignments.RemoveAt(0);
+
+            finishedPaths.Add(FindAndSmoothPath(currentAssignment));
+            numSolved += 1;
         }
+
+        AddDynamicObstacles();
 
 
         EditorApplication.QueuePlayerLoopUpdate();
     }
 
-
-    public float Offset()
+    private CompletedPath FindAndSmoothPath(DroneAssignment assignment)
     {
-        float minDistanceFound = float.MaxValue;
-        float minDistance = 2.0f * DRONE_RADIUS;
-        for (int i = 0; i < Drones.Count - 1; i++)
-        {
-            GameObject drone1 = Drones[i];
-            for (int j = i + 1; j < Drones.Count; j++)
-            {
-                GameObject drone2 = Drones[j];
-                float distance = Vector3.Distance(drone1.transform.position, drone2.transform.position);
-                minDistanceFound = Mathf.Min(distance, minDistanceFound);
+        searchGrid.ClearObstacles();
+        AddUnassignedObstacles(assignment);
+        AddDynamicObstacles();
 
-                if (distance < minDistance)
-                {
-                    Vector3 centroid = (0.5f * (drone1.transform.position + drone2.transform.position));
-                    OffsetDrone(drone1, centroid);
-                    OffsetDrone(drone2, centroid);
-                }
+        CompletedPath path = new CompletedPath();
+        path.drone = assignment.drone;
+        path.discrete = Searcher.FindPath(searchGrid, assignment.drone, assignment.target);
+
+        float totalTime = 0.0f;
+        path.continuous = new List<CubicBezier>();
+        for (int i = 1; i < path.discrete.Count; i++)
+        {
+            Vector3 previous = path.discrete[i - 1];
+            Vector3 current = path.discrete[i];
+            CubicBezier bezier = new CubicBezier();
+            bezier.anchor1 = previous;
+            bezier.control1 = previous;
+            bezier.control2 = current;
+            bezier.anchor2 = current;
+            bezier.startTime = totalTime;
+
+            totalTime += GetTime(Vector3.Distance(previous, current));
+            bezier.endTime = totalTime;
+
+            /*
+            float multiplier = Mathf.Max(1.0f, BezierEvaluator.RescaleTime(bezier, MAX_VELOCITY));
+            float delta = bezier.endTime - bezier.startTime;
+            bezier.endTime = bezier.startTime + (multiplier * delta);
+            totalTime = bezier.endTime;*/
+
+            path.continuous.Add(bezier);
+        }
+
+        
+
+        //path.continuous = BezierInterpolator.Interpolate(path.discrete);
+
+        // Smoothing Pass (Minimizes Jerk)
+        /*
+        for (int i = 0; i < path.continuous.Count - 1; i++)
+        {
+            CubicBezier current = path.continuous[i];
+            CubicBezier next = path.continuous[i + 1];
+
+            float maxSize = 0.01f * Vector3.Distance(current.anchor1, current.anchor2);
+            Vector3 firstTangent = Vector3.ClampMagnitude(current.control1 - current.anchor1, maxSize);
+            Vector3 secondTangent = Vector3.ClampMagnitude(current.control2 - current.anchor2, maxSize);
+
+            current.control1 = current.anchor1 + firstTangent;
+            current.control2 = current.anchor2 + secondTangent;
+
+            next.control1 = next.anchor1 - secondTangent;
+
+            path.continuous[i] = current;
+            path.continuous[i + 1] = next;
+
+            if (i > 0)
+            {
+                CubicBezier previous = path.continuous[i - 1];
+                previous.control2 = previous.anchor2 - firstTangent;
+                path.continuous[i - 1] = previous;
             }
         }
 
-        return minDistanceFound;
+        for (int i = path.continuous.Count - 1; i > 0; i--)
+        {
+            CubicBezier current = path.continuous[i];
+            CubicBezier previous = path.continuous[i - 1];
+
+            float maxSize = 0.25f * Vector3.Distance(current.anchor1, current.anchor2);
+            Vector3 minimized = ((3 * current.control2) + current.anchor1 - current.anchor2) / 3.0f;
+
+            Vector3 delta = Vector3.ClampMagnitude(minimized - current.anchor1, 100);
+            current.control1 = current.anchor1 + delta;
+            previous.control2 = previous.anchor2 - delta;
+
+            path.continuous[i] = current;
+            path.continuous[i - 1] = previous;
+        }
+
+        int n = path.continuous.Count - 1;
+        CubicBezier first = path.continuous[0];
+        CubicBezier last = path.continuous[n];
+       
+        first.control1 = first.anchor1;
+        last.control2 = last.anchor2;
+
+        path.continuous[0] = first;
+        path.continuous[n] = last;
+
+
+        // Time Assignments
+
+        float totalTime = 0.0f;
+        for(int i = 0; i < path.continuous.Count; i++)
+        {
+            CubicBezier bezier = path.continuous[i];
+            float travelTime = BezierEvaluator.Integrate(bezier, MAX_VELOCITY);
+
+            bezier.startTime = totalTime;
+            totalTime += travelTime;
+
+            bezier.endTime = totalTime;
+            path.continuous[i] = bezier;
+        }
+
+        
+        /*
+        for (int i = 0; i < path.continuous.Count; i++)
+        {
+            CubicBezier bezier = path.continuous[i];
+            Vector3 jerkVector = -bezier.anchor1 + (3 * bezier.control1) - (3 * bezier.control2) + (bezier.anchor2);
+            float jerk = 6 * jerkVector.magnitude;
+            Debug.Log("REVISED | Curve from " + bezier.startTime + " to " + bezier.endTime + " has herk energy: " + jerk);
+        }*/
+
+
+
+        /*
+        // Smoothing Pass
+        for (int i = 0; i < path.continuous.Count - 1; i++)
+        {
+
+            CubicBezier current = path.continuous[i];
+            CubicBezier next = path.continuous[i + 1];
+
+            float maxSize = 0.75f * Vector3.Distance(current.anchor1, current.anchor2);
+            Vector3 firstTangent = Vector3.ClampMagnitude(current.control1 - current.anchor1, maxSize);
+            Vector3 secondTangent = Vector3.ClampMagnitude(current.control2 - current.anchor2, maxSize);
+
+            current.control1 = current.anchor1 + firstTangent;
+            current.control2 = current.anchor2 + secondTangent;
+
+            next.control1 = next.anchor1 - secondTangent;
+
+            path.continuous[i] = current;
+            path.continuous[i + 1] = next;
+
+            if (i > 0)
+            {
+                CubicBezier previous = path.continuous[i - 1];
+                previous.control2 = previous.anchor2 - firstTangent;
+                path.continuous[i - 1] = previous;
+            }
+        }*/
+
+        return path;
     }
 
-    private void OffsetDrone(GameObject drone, Vector3 centroid)
+    private void AddUnassignedObstacles(DroneAssignment currentAssignment)
     {
-        Vector3 diff = drone.transform.position - centroid;
-        Vector3 direction = diff.normalized;
-        float offsetAmt = (DRONE_RADIUS - diff.magnitude);
-        drone.transform.position += (offsetAmt * direction);
+        List<Bounds> staticObstacles = new List<Bounds>();
+        foreach (DroneAssignment assign in assignments)
+        {
+            if (assign.drone != currentAssignment.drone)
+                staticObstacles.Add(GetDroneBounds(assign.drone.transform.position));
+        }
+
+        searchGrid.AddStaticObstacles(staticObstacles);
+    }
+
+    private void AddDynamicObstacles()
+    {
+        float timestep = MinTimestep(searchGrid.CellSize.x);
+        float maxTime = MaxTime;
+
+        for (float time = 0.0f; time < maxTime; time += timestep)
+        {
+            List<Bounds> allBounds = new List<Bounds>();            
+            foreach(CompletedPath path in finishedPaths)
+            {
+                Vector3 position = BezierEvaluator.FindPosition(path.continuous, time);
+                allBounds.Add(GetDroneBounds(position));
+            }
+
+            searchGrid.AddDynamicObstacles(allBounds, time, timestep);
+        }
+    }
+
+    private int AssignmentSorter(DroneAssignment a, DroneAssignment b)
+    {
+        if (Mathf.Approximately(a.centroidDistance, b.centroidDistance))
+            return a.targetHeight.CompareTo(b.targetHeight);
+
+        return a.centroidDistance.CompareTo(b.centroidDistance);
+    }
+    
+    private Bounds GetDroneBounds(Vector3 position)
+    {
+        float radius = DroneArranger.DRONE_RADIUS;
+        return new Bounds(position, new Vector3(2 * radius, 4 * radius, 2 * radius));
+    }
+
+    public void Solve()
+    {
+        Refresh();
+        FindMatching();
+        //FindPaths();
+        LayeredPathing();
+    }
+
+    private Vector3 GetCentroid()
+    {
+        Vector3 total = Vector3.zero;
+        for (int i = 0; i < assignments.Count; i++)
+            total += assignments[i].target;
+
+        return (1.0f / assignments.Count) * total;
+    }
+
+    private float MaxTime
+    {
+        get
+        {
+            if (finishedPaths.Count == 0)
+                return 0.0f;
+
+            return finishedPaths.Max(path => {
+
+                if (path.continuous.Count > 0)
+                    return path.continuous.Max((bezier) => bezier.endTime);
+
+                return 0.0f;
+            });
+        }
     }
 
     private List<GameObject> Drones
@@ -545,6 +554,15 @@ public class Pathfinder: MonoBehaviour
         }
     }
 
+    public static float MinTimestep(float gridSize)
+    {
+        return GetTime(gridSize);
+    }
+
+    public static float GetTime(float distance)
+    {
+        return (distance / MAX_VELOCITY);
+    }
 }
 
 
@@ -554,38 +572,38 @@ public class PathfinderEditor : Editor
 
     public override void OnInspectorGUI()
     {
+        if (GUILayout.Button("Reset"))
+            ((Pathfinder)target).Refresh();
+
+        EditorGUILayout.BeginHorizontal();
+        {
+            if (GUILayout.Button("Shuffle"))
+                ((Pathfinder)target).Rearrange(true);
+
+            if (GUILayout.Button("Line Up"))
+                ((Pathfinder)target).Rearrange(false);
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(30.0f);
+
+        EditorGUILayout.BeginHorizontal();
+        {
+            if (GUILayout.Button("Find Matching"))
+                ((Pathfinder)target).FindMatching();
+
+            if (GUILayout.Button("Find Paths"))
+                ((Pathfinder)target).FindPaths();
+
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(30.0f);
+
+
+        if (GUILayout.Button("Solve"))
+            ((Pathfinder)target).Solve();
+
+
+        EditorGUILayout.Space(30.0f);
         DrawDefaultInspector();
-
-        EditorGUILayout.Space(30.0f);
-
-        if (GUILayout.Button("Shuffle"))
-            ((Pathfinder)target).Shuffle();
-
-        if (GUILayout.Button("Line Up"))
-            ((Pathfinder)target).LineUp();
-
-
-        EditorGUILayout.Space(30.0f);
-
-        if (GUILayout.Button("Match"))
-            ((Pathfinder)target).Match();
-
-        if (GUILayout.Button("Full Pathfinding"))
-            ((Pathfinder)target).FindPaths();
-
-        if (GUILayout.Button("Bezier Interpolate"))
-            ((Pathfinder)target).SmoothPaths();
-
-
-
-        EditorGUILayout.Space(30.0f);
-
-        if (GUILayout.Button("Start Pathfinding"))
-            ((Pathfinder)target).StartPathfinding();
-
-        if (GUILayout.Button("Step Pathfinding"))
-            ((Pathfinder)target).StepPathfinding();
-
-        EditorGUILayout.Space(30.0f);
     }
 }
