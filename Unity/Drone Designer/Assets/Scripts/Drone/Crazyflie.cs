@@ -20,6 +20,7 @@ public class Crazyflie : MonoBehaviour
     protected MaterialPropertyBlock properties;
     protected TrackAsset track;
 
+
     public List<ColorKeyframe> ColorKeyframes { get; private set; } = new List<ColorKeyframe>();
     public List<Waypoint> Waypoints { get; private set; } = new List<Waypoint>();
     public float Time { get; private set; } = 0.0f;
@@ -27,13 +28,33 @@ public class Crazyflie : MonoBehaviour
     public bool TrackLocked { get; set; } = false;
 
     protected Color previousColor;
+    protected AttachmentPoint attachmentPoint = null;
+
+    public AttachmentPoint AttachmentPoint {  get { return attachmentPoint; } }
+
 
     void Start()
     {
-        
+        attachmentPoint = null;
     }
 
+    public void Attach(AttachmentPoint point)
+    {
+        if (this.attachmentPoint != null)
+            Release();
 
+        this.attachmentPoint = point;
+        this.attachmentPoint.Drone = this;
+    }
+
+    public void Release()
+    {
+        if (this.attachmentPoint == null)
+            return;
+
+        this.attachmentPoint.Drone = null;
+        this.attachmentPoint = null;
+    }
 
     void Update()
     {
@@ -99,8 +120,15 @@ public class Crazyflie : MonoBehaviour
     public void UpdateView()
     {
         previousColor = LightColor;
-        transform.position = KeyframeUtil.GetPosition(Waypoints, Time, transform.position);
         LightColor = KeyframeUtil.GetColor(ColorKeyframes, Time, LightColor);
+
+        if (attachmentPoint != null && attachmentPoint.Parent == null)
+            Release();
+
+        if (attachmentPoint == null)
+            transform.position = KeyframeUtil.GetPosition(Waypoints, Time, transform.position);
+        else
+            transform.position = attachmentPoint.Position;
     }
 
 
@@ -110,7 +138,6 @@ public class Crazyflie : MonoBehaviour
         {
             SetColorKeyframe(LightColor, this.Time);
         }
-
     }
 
 
@@ -177,10 +204,20 @@ public class Crazyflie : MonoBehaviour
 
         if (endpoint)
         {
-            keyframe.JointType = JointType.Linear;
+            keyframe.JointType = JointType.Stop;
         }
 
         UpdateView();
+    }
+
+    public void AddWaypoint(Vector3 position, Vector3 tangent, float time)
+    {
+        Waypoint keyframe = Track.CreateMarker<Waypoint>(time);
+        keyframe.JointType = JointType.Continuous;
+        keyframe.Position = position;
+        keyframe.SetTangent(tangent);
+
+        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
     }
 
     public void SetColorKeyframe(Color lightColor, float time)
@@ -210,6 +247,21 @@ public class Crazyflie : MonoBehaviour
         EnforceWaypointConstraints();
     }
 
+    public void ClearWaypoints(float start, float end)
+    {
+        UpdateProperties();
+        foreach (Waypoint waypoint in Waypoints)
+        {
+            if (waypoint.time >= start & waypoint.time <= end)
+                Track.DeleteMarker(waypoint);
+        }
+
+        UpdateProperties();
+        TimelineEditor.Refresh(RefreshReason.ContentsAddedOrRemoved);
+        EnforceWaypointConstraints();
+
+    }
+
     public void RemoveColorKeyframe(ColorKeyframe keyframe)
     {
         Track.DeleteMarker(keyframe);
@@ -228,8 +280,8 @@ public class Crazyflie : MonoBehaviour
         Waypoint lastWaypoint = waypoints[waypoints.Count - 1];
         Undo.RecordObjects(new Object[] { firstWaypoint, lastWaypoint }, "Change Waypoints");
 
-        firstWaypoint.JointType = JointType.Linear;
-        lastWaypoint.JointType = JointType.Linear;
+        firstWaypoint.JointType = JointType.Stop;
+        lastWaypoint.JointType = JointType.Stop;
     }
 
     private T GetKeyframe<T>(float time) where T : DroneKeyframe

@@ -8,7 +8,6 @@ using UnityEditor;
 
 [TrackColor(232f / 255f, 99f / 255f, 5f / 255f)]
 [TrackBindingType(typeof(Crazyflie))]
-[TrackClipType(typeof(CrazyflieControlClip))]
 public class CrazyflieTrack : TrackAsset 
 {
     private Crazyflie drone;

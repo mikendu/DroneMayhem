@@ -84,8 +84,8 @@ public class CustomHandles
         {
             Waypoint currentKeyframe = waypoints[i];
             Waypoint nextKeyframe = waypoints[i + 1];
-            bool linearStart = (currentKeyframe.JointType == JointType.Linear);
-            bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
+            bool linearStart = (currentKeyframe.JointType == JointType.Stop);
+            bool linearEnd = (nextKeyframe.JointType == JointType.Stop);
 
             Vector3 startPos = GlobalTransform.Transfomed(currentKeyframe.Position);
             Vector3 endPos = GlobalTransform.Transfomed(nextKeyframe.Position);

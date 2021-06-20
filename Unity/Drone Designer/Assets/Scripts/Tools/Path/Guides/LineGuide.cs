@@ -25,17 +25,22 @@ public class LineGuide : GuideShape
 
         return points;
     }
+
+    public override void DrawSceneGUI()
+    {
+        LineGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(LineGuide))]
-public class LineGuideEditor : GuideEditor<LineGuide>
+public class LineGuideEditor : GuideShapeEditor<LineGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(LineGuide guide)
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

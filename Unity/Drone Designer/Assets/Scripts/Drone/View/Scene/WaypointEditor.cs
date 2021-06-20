@@ -29,7 +29,7 @@ public class WaypointEditor : CustomEditor<Waypoint>
         CrazyflieEditor.Draw(drone);
         Vector3 position = GlobalTransform.Transfomed(keyframe.Position);
 
-        if (keyframe.JointType != JointType.Linear)
+        if (keyframe.JointType != JointType.Stop)
         {
             DrawTangent(keyframe, false);
             DrawTangent(keyframe, true);

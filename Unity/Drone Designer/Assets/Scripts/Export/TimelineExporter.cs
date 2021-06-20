@@ -93,7 +93,7 @@ public class TimelineExporter : MonoBehaviour
         {
             Waypoint fakeWaypoint = ScriptableObject.CreateInstance<Waypoint>();
             fakeWaypoint.Position = waypoints[0].Position;
-            fakeWaypoint.JointType = JointType.Linear;
+            fakeWaypoint.JointType = JointType.Stop;
             fakeWaypoint.time = 0.0;
             waypoints.Insert(0, fakeWaypoint);
         }

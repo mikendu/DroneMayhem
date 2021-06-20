@@ -120,8 +120,8 @@ public static class KeyframeUtil
 
     private static Vector3 CalculateTangent(Waypoint currentKeyframe, Waypoint nextKeyframe, float interpolation, bool normalize = false)
     {
-        bool linearStart = (currentKeyframe.JointType == JointType.Linear);
-        bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
+        bool linearStart = (currentKeyframe.JointType == JointType.Stop);
+        bool linearEnd = (nextKeyframe.JointType == JointType.Stop);
 
         Vector3 startPos = GlobalTransform.Transfomed(currentKeyframe.Position);
         Vector3 endPos = GlobalTransform.Transfomed(nextKeyframe.Position);
@@ -144,8 +144,8 @@ public static class KeyframeUtil
 
     private static Vector3 EvaluateBezier(Waypoint currentKeyframe, Waypoint nextKeyframe, float interpolation)
     {
-        bool linearStart = (currentKeyframe.JointType == JointType.Linear);
-        bool linearEnd = (nextKeyframe.JointType == JointType.Linear);
+        bool linearStart = (currentKeyframe.JointType == JointType.Stop);
+        bool linearEnd = (nextKeyframe.JointType == JointType.Stop);
 
         Vector3 startPos = currentKeyframe.Position;
         Vector3 endPos = nextKeyframe.Position;

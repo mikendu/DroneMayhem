@@ -79,17 +79,22 @@ public class SquarePyramidGuide : GuideShape
         if (includeEnd)
             points.Add(new AttachmentPoint(transform, position + (sizeMultiplier * direction)));
     }
+
+    public override void DrawSceneGUI()
+    {
+        SquarePyramidGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(SquarePyramidGuide))]
-public class SquarePyramidGuideEditor : GuideEditor<SquarePyramidGuide>
+public class SquarePyramidGuideEditor : GuideShapeEditor<SquarePyramidGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(SquarePyramidGuide guide)
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

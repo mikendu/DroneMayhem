@@ -78,18 +78,28 @@ public class TrianglePyramidGuide : GuideShape
         if (includeEnd)
             points.Add(new AttachmentPoint(transform, position + (sizeMultiplier * direction)));
     }
+
+    public override void DrawSceneGUI()
+    {
+        TrianglePyramidGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(TrianglePyramidGuide))]
-public class TrianglePyramidGuideEditor : GuideEditor<TrianglePyramidGuide>
+public class TrianglePyramidGuideEditor : GuideShapeEditor<TrianglePyramidGuide>
 {
     private void OnSceneGUI()
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
     }
+
+    public static void Draw(TrianglePyramidGuide guide)
+    {
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
+    }
+
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]
     private static void DrawGizmo(TrianglePyramidGuide shape, GizmoType gizmo)

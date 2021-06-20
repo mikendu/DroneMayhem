@@ -10,6 +10,7 @@ pyinstaller
 cmake
 cflinkcpp
 munkres
+pylint
 
 
 ###### Local Packages ######`

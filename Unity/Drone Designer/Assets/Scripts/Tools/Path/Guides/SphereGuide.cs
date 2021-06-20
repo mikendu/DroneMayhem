@@ -68,17 +68,21 @@ public class SphereGuide : GuideShape
         return new Tuple<float, float>(height, radius);
     }
 
+    public override void DrawSceneGUI()
+    {
+        SphereGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(SphereGuide))]
-public class SphereGuideEditor : GuideEditor<SphereGuide>
+public class SphereGuideEditor : GuideShapeEditor<SphereGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(SphereGuide guide)
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

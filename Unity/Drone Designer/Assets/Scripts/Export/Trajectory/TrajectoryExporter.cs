@@ -97,8 +97,8 @@ public static class TrajectoryExporter
         Vector3 startTangent = first.Tangent;
         Vector3 endTangent = -second.Tangent;
 
-        float startTangentValue = (first.JointType == JointType.Linear) ? 0.0f : startTangent.Get(axis);
-        float endTangentValue = (second.JointType == JointType.Linear) ? 0.0f : endTangent.Get(axis);
+        float startTangentValue = (first.JointType == JointType.Stop) ? 0.0f : startTangent.Get(axis);
+        float endTangentValue = (second.JointType == JointType.Stop) ? 0.0f : endTangent.Get(axis);
 
         bool linearStart = Mathf.Approximately(startTangentValue, 0.0f);
         bool linearEnd = Mathf.Approximately(endTangentValue, 0.0f);

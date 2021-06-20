@@ -61,6 +61,9 @@ public class BezierInterpolator
         List<Vector3> controlB = Stitch(bx, by, bz);
 
         List<CubicBezier> curves = new List<CubicBezier>();
+        float timeInterval = 1.0f / n;
+        float time = 0.0f;
+
         for(int i = 0; i < n; i++)
         {
             CubicBezier curve = new CubicBezier();
@@ -68,6 +71,10 @@ public class BezierInterpolator
             curve.control1 = controlA[i];
             curve.control2 = controlB[i];
             curve.anchor2 = points[i + 1];
+            curve.startTime = time;
+            curve.endTime = time + timeInterval;
+
+            time = curve.endTime;
             curves.Add(curve);
         }
 

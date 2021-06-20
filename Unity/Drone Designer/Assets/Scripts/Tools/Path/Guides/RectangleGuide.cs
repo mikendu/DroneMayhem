@@ -34,17 +34,22 @@ public class RectangleGuide : GuideShape
 
         return points;
     }
+
+    public override void DrawSceneGUI()
+    {
+        RectangleGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(RectangleGuide))]
-public class RectangleGuideEditor : GuideEditor<RectangleGuide>
+public class RectangleGuideEditor : GuideShapeEditor<RectangleGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(RectangleGuide guide)
     {
-        DrawSquare(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawSquare(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

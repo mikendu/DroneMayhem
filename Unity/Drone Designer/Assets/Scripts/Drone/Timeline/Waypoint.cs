@@ -9,7 +9,7 @@ using UnityEngine.Playables;
 
 public enum JointType
 {
-    Linear,
+    Stop,
     Continuous
 }
 
@@ -17,7 +17,7 @@ public enum JointType
 [CustomStyle("Waypoint")]
 public class Waypoint : DroneKeyframe
 {
-    public JointType JointType = JointType.Linear;
+    public JointType JointType = JointType.Stop;
     public Vector3 Position = Vector3.zero;
     public Vector3 Tangent = 0.25f * Vector3.right;
 
@@ -41,7 +41,7 @@ public class Waypoint : DroneKeyframe
 
     private Vector3 TangentVector(Vector3 tangentVector)
     {
-        if (this.JointType == JointType.Linear)
+        if (this.JointType == JointType.Stop)
             return Position;
 
         return tangentVector;

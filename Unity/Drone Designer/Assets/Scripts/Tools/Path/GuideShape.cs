@@ -20,8 +20,10 @@ public enum ShapeType
 }
 
 public abstract class GuideShape : MonoBehaviour
-{
+{ 
     public List<AttachmentPoint> AttachmentPoints { get; protected set; }
+
+    protected Guide guide;
 
     public virtual void Update()
     {
@@ -76,5 +78,19 @@ public abstract class GuideShape : MonoBehaviour
 
         return null;
     }
+
+    public abstract void DrawSceneGUI();
+
+    public Guide Guide
+    {
+        get
+        {
+            if (this.guide == null)
+                this.guide = GetComponent<Guide>();
+
+            return this.guide;
+        }
+    }
+    
 }
 

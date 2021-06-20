@@ -1,160 +1,148 @@
-import struct
+# -*- coding: utf-8 -*-
+#
+#     ||          ____  _ __
+#  +------+      / __ )(_) /_______________ _____  ___
+#  | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
+#  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
+#   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
+#
+#  Copyright (C) 2017 Bitcraze AB
+#
+#  Crazyflie Nano Quadcopter Client
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA  02110-1301, USA.
+"""
+A script to fly 5 Crazyflies in formation. One stays in the center and the
+other four fly around it in a circle. Mainly intended to be used with the
+Flow deck.
+The starting positions are vital and should be oriented like this
+     >
+^    +    v
+     <
+The distance from the center to the perimeter of the circle is around 0.5 m
+"""
+import math
 import time
-from enum import Enum
 
-from cflib.crtp.cflinkcppdriver import CfLinkCppDriver
-from cflib.crtp.radiodriver import Crazyradio
-from cflib.crtp.crtpstack import CRTPPacket
-from cflib.crtp.crtpstack import CRTPPort
-from cflib.crazyflie import HighLevelCommander
-from cflib.crazyflie.param import WRITE_CHANNEL
+import cflib.crtp
+from cflib.crazyflie.swarm import CachedCfFactory
+from cflib.crazyflie.swarm import Swarm
 
-class RingEffect(Enum):
-    OFF = 0
-    FADE_EFFECT = 14
-    TIMING_EFFECT = 17
+"""
+radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1
+-- Drone 1 	|	 Connecting to address radio://*/55/2M/E7E7E7E704?safelink=1&autoping=1
+-- Drone 2 	|	 Connecting to address radio://*/55/2M/E7E7E7E705?safelink=1&autoping=1
+-- Drone 3 	|	 Connecting to address radio://*/55/2M/E7E7E7E706?safelink=1&autoping=1
+"""
 
-# Hard coding TOC param ids for now, based on the current firmware
-class ParameterID(Enum):
-    RING_EFFECT = 181       # uint8_t, <B
-    FADE_COLOR = 190        # uint32_t, <L
-    FADE_TIME = 191         # float, <f
+# Change uris according to your setup
+URI0 = 'radio://0/55/2M/E7E7E7E701'
+URI1 = 'radio://0/55/2M/E7E7E7E704'
+URI2 = 'radio://0/55/2M/E7E7E7E705'
+URI3 = 'radio://0/55/2M/E7E7E7E706'
 
-class LightController:
-    def __init__(self, cf):
-        self.cf = cf
-
-    def set_effect(self, effect):
-        if not isinstance(effect, RingEffect):
-            raise ValueError("Invalid effect given: " + str(effect))
-
-        packet = self._effect_change(effect.value)
-        self.cf.send_packet(packet)
-
-    def set_color(self, r, g, b, time = 0.0):
-        color = (int(r) << 16) | (int(g) << 8) | int(b)
-        color_packet = self._fade_color(color)
-        time_packet = self._fade_time(time)
-        self.cf.send_packet(color_packet)
-        self.cf.send_packet(time_packet)
-
-    def _fade_time(self, duration):
-        packet = CRTPPacket()
-        packet.set_header(CRTPPort.PARAM, WRITE_CHANNEL)
-        packet.data = struct.pack('<H', int(ParameterID.FADE_TIME.value))
-        packet.data += struct.pack('<f', float(duration))
-        return packet
-
-    def _fade_color(self, color):
-        packet = CRTPPacket()
-        packet.set_header(CRTPPort.PARAM, WRITE_CHANNEL)
-        packet.data = struct.pack('<H', int(ParameterID.FADE_COLOR.value))
-        packet.data += struct.pack('<L', int(color))
-        return packet
-
-    def _effect_change(self, effect):
-        packet = CRTPPacket()
-        packet.set_header(CRTPPort.PARAM, WRITE_CHANNEL)
-        packet.data = struct.pack('<H', int(ParameterID.RING_EFFECT.value))
-        packet.data += struct.pack('<B', int(effect))
-        return packet
-
-class Broadcaster():
-
-    def __init__(self, channel, datarate = Crazyradio.DR_2MPS):
-        self._validate_channel(channel)
-        self._validate_datarate(datarate)
-
-        self._uri = self._construct_uri(channel, datarate)
-        self._link = CfLinkCppDriver()
-        self._is_link_open = False
-
-        self.high_level_commander = HighLevelCommander(self)
-        self.light_controller = LightController(self)
-
-    def open_link(self):
-        if (self.is_link_open()):
-            raise Exception('Link already open')
-
-        print('Connecting to %s' % self._uri)
-        self._link.connect(self._uri, None, None)
-        self._is_link_open = True
-
-    def close_link(self):
-        if (self.is_link_open()):
-            self._link.close()
-            self._is_link_open = False
-
-    def __enter__(self):
-        self.open_link()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close_link()
-
-    def is_link_open(self):
-        return self._is_link_open
-
-    def send_packet(self, packet):
-        if not self.is_link_open():
-            raise Exception('Link is not open')
-
-        self._link.send_packet(packet)
-
-    def __str__(self):
-        return "BroadcastLink <" + str(self._uri)  + ">"
-
-    def _construct_uri(self, channel, datarate):
-        return "radiobroadcast://*/" + str(channel) + "/" + self._get_data_rate_string(datarate)
-
-    def _validate_channel(self, channel):
-        if channel and (isinstance(channel, int) or channel.is_integer()):
-            if channel >= 0 and channel <= 127:
-                return
-        raise ValueError("Invalid channel: " + str(channel))
-
-    def _validate_datarate(self, datarate):
-        if not(datarate == Crazyradio.DR_250KPS or \
-            datarate == Crazyradio.DR_1MPS or \
-            datarate == Crazyradio.DR_2MPS):
-            raise ValueError("Invalid data rate: " + str(datarate))
-
-    def _get_data_rate_string(self, datarate):
-        if datarate == Crazyradio.DR_250KPS:
-            return '250K'
-        elif datarate == Crazyradio.DR_1MPS:
-            return '1M'
-        elif datarate == Crazyradio.DR_2MPS:
-            return '2M'
+# d: diameter of circle
+# z: altitude
+params0 = {'d': 1.0, 'z': 0.3}
+params1 = {'d': 1.0, 'z': 0.3}
+params3 = {'d': 1.0, 'z': 0.3}
+params4 = {'d': 1.0, 'z': 0.3}
 
 
-link = Broadcaster(55)
-link.open_link()
+uris = {
+    URI0,
+    URI1,
+    URI2,
+    URI3,
+}
 
-link.light_controller.set_color(255, 0, 0, 0.5)
-time.sleep(0.5)
-link.light_controller.set_color(0, 0, 0, 0.5)
-time.sleep(0.5)
+params = {
+    URI0: [params0],
+    URI1: [params1],
+    URI2: [params3],
+    URI3: [params4],
+}
 
-link.light_controller.set_color(0, 255, 0, 0.5)
-time.sleep(0.5)
-link.light_controller.set_color(0, 0, 0, 0.5)
-time.sleep(0.5)
 
-link.light_controller.set_color(0, 0, 255, 0.5)
-time.sleep(0.5)
-link.light_controller.set_color(0, 0, 0, 0.5)
-time.sleep(1.0)
+def reset_estimator(scf):
+    cf = scf.cf
+    cf.param.set_value('kalman.resetEstimation', '1')
+    time.sleep(0.1)
+    cf.param.set_value('kalman.resetEstimation', '0')
+    time.sleep(2)
 
-print("Taking off...")
-link.high_level_commander.takeoff(0.5, 3.0)
-time.sleep(3.2)
 
-print("Landing...")
-link.high_level_commander.land(0.05, 3.0)
-time.sleep(3.2)
+def poshold(cf, t, z):
+    steps = t * 10
 
-link.high_level_commander.stop()
-time.sleep(1.0)
+    for r in range(steps):
+        cf.commander.send_hover_setpoint(0, 0, 0, z)
+        time.sleep(0.1)
 
-link.close_link()
+
+def run_sequence(scf, params):
+    cf = scf.cf
+
+    # Number of setpoints sent per second
+    fs = 4
+    fsi = 1.0 / fs
+
+    # Compensation for unknown error :-(
+    comp = 1.3
+
+    # Base altitude in meters
+    base = 0.15
+
+    d = params['d']
+    z = params['z']
+
+    poshold(cf, 2, base)
+
+    ramp = fs * 2
+    for r in range(ramp):
+        cf.commander.send_hover_setpoint(0, 0, 0, base + r * (z - base) / ramp)
+        time.sleep(fsi)
+
+    poshold(cf, 2, z)
+
+    for _ in range(2):
+        # The time for one revolution
+        circle_time = 8
+
+        steps = circle_time * fs
+        for _ in range(steps):
+            cf.commander.send_hover_setpoint(d * comp * math.pi / circle_time,
+                                             0, 360.0 / circle_time, z)
+            time.sleep(fsi)
+
+    poshold(cf, 2, z)
+
+    for r in range(ramp):
+        cf.commander.send_hover_setpoint(0, 0, 0,
+                                         base + (ramp - r) * (z - base) / ramp)
+        time.sleep(fsi)
+
+    poshold(cf, 1, base)
+
+    cf.commander.send_stop_setpoint()
+
+
+if __name__ == '__main__':
+    cflib.crtp.init_drivers()
+
+    factory = CachedCfFactory(rw_cache='./cache')
+    with Swarm(uris, factory=factory) as swarm:
+        swarm.parallel(reset_estimator)
+        swarm.parallel(run_sequence, args_dict=params)

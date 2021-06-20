@@ -25,8 +25,16 @@ class Sequence():
         return float(self.sequenceData["Length"])
 
     @property
+    def tracks(self):
+        return self.sequenceData['Tracks']
+
+    @property
     def fullPath(self):
         return os.path.join(self.location, self.name + ".json")
+
+    @property
+    def allStartingPositions(self):
+        return [self.getStartingPosition(i) for i in range(0, len(self.tracks))]
 
     def getTrack(self, swarmIndex):
         allTracks = self.sequenceData["Tracks"]

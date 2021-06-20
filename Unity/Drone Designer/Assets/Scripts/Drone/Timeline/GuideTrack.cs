@@ -22,6 +22,11 @@ public class GuideTrack : TrackAsset
         }
     }
 
+    public void Initialize(DynamicGuide guide)
+    {
+        this.guide = guide;
+    }
+
     private void OnDestroy()
     {
         foreach (IMarker marker in this.GetMarkers())
@@ -29,6 +34,7 @@ public class GuideTrack : TrackAsset
 
         if (guide?.gameObject != null)
         {
+            guide.ResetReferences();
             Undo.DestroyObjectImmediate(guide.gameObject);
         }
     }

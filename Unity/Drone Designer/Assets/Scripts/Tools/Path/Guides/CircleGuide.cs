@@ -40,17 +40,26 @@ public class CircleGuide : GuideShape
             points.Add(new AttachmentPoint(transform, new Vector3(x, 0, z)));
         }
     }
+
+    public override void DrawSceneGUI()
+    {
+        CircleGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(CircleGuide))]
-public class CircleGuideEditor : GuideEditor<CircleGuide>
+public class CircleGuideEditor : GuideShapeEditor<CircleGuide>
 {
     private void OnSceneGUI()
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+    }
+
+    public static void Draw(CircleGuide guide)
+    {
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

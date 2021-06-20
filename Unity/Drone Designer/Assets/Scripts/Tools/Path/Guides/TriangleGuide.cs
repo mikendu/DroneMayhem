@@ -64,17 +64,22 @@ public class TriangleGuide : GuideShape
         if (includeEnd)
             points.Add(new AttachmentPoint(transform, position + (sizeMultiplier * direction)));
     }
+
+    public override void DrawSceneGUI()
+    {
+        TriangleGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(TriangleGuide))]
-public class TriangleGuideEditor : GuideEditor<TriangleGuide>
+public class TriangleGuideEditor : GuideShapeEditor<TriangleGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(TriangleGuide guide)
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

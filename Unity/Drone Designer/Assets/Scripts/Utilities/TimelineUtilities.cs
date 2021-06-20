@@ -26,6 +26,7 @@ public class TimelineUtilities : MonoBehaviour
     private static GameObject EnvironmentTemplate;
     private static GameObject TimelineTemplate;
     private static GameObject StaticGuideTemplate;
+    private static GameObject DynamicGuideTemplate;
     private static GameObject GlobalTransformTemplate;
 
     static TimelineUtilities()
@@ -40,6 +41,7 @@ public class TimelineUtilities : MonoBehaviour
         EnvironmentTemplate = Resources.Load<GameObject>("Prefabs/Environment");
         TimelineTemplate = Resources.Load<GameObject>("Prefabs/Timeline");
         StaticGuideTemplate = Resources.Load<GameObject>("Prefabs/Shape Guide (Static)");
+        DynamicGuideTemplate = Resources.Load<GameObject>("Prefabs/Shape Guide (Dynamic)");
         GlobalTransformTemplate = Resources.Load<GameObject>("Prefabs/Global Transform");
 
         EditorSceneManager.sceneClosing -= OnPreClose;
@@ -296,6 +298,42 @@ public class TimelineUtilities : MonoBehaviour
         guide.transform.position = new Vector3(0, 0.5f, 0);
         guide.transform.SetAsLastSibling();
         Undo.RegisterCreatedObjectUndo(guide, "Create Static Shape Guide");
+        Selection.activeObject = guide;
+    }
+
+
+
+
+    [MenuItem("Drone Tools/Insert Dynamic Shape Guide", false, 16)]
+    [MenuItem("GameObject/Create Other/Dynamic Shape Guide")]
+    static void CreateDynamicGuide()
+    {
+        if (DynamicGuideTemplate == null)
+            DynamicGuideTemplate = Resources.Load<GameObject>("Prefabs/Shape Guide (Dynamic)");
+
+        string operationName = "Create Dynamic Shape Guide";
+        Undo.RecordObject(Director, operationName);
+        Undo.RecordObject(Timeline, operationName);
+
+        GameObject guide = GameObject.Instantiate(DynamicGuideTemplate);
+        guide.name = "Shape Guide (Dynamic)";
+        guide.transform.position = new Vector3(0, 0.5f, 0);
+        guide.transform.SetAsLastSibling();
+
+        GuideTrack track = Timeline.CreateTrack<GuideTrack>(guide.name + " Track");
+        DynamicGuide dynamicGuide = guide.GetComponent<DynamicGuide>();
+        dynamicGuide?.Initialize(track);
+        dynamicGuide?.SetPose(guide.transform, 0.0f, JointType.Stop);
+        Director.SetGenericBinding(track, dynamicGuide);
+
+        AssetDatabase.Refresh();
+        EditorUtility.SetDirty(Timeline);
+        EditorUtility.SetDirty(track);
+        EditorUtility.SetDirty(Director);
+        UnityEditor.Timeline.TimelineEditor.Refresh(UnityEditor.Timeline.RefreshReason.ContentsAddedOrRemoved);
+
+        Undo.RegisterCreatedObjectUndo(guide, "Create Drone");
+        Undo.RegisterCreatedObjectUndo(track, "Create Drone");
         Selection.activeObject = guide;
     }
 

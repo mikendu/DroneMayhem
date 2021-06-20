@@ -71,6 +71,9 @@ class SwarmController():
     def disconnectSwarm(self):
         if self.broadcaster:
             self.broadcaster.high_level_commander.stop()
+            self.broadcaster.high_level_commander.stop()
+
+            time.sleep(0.25)
             self.broadcaster.close_link()
             self.broadcaster = None
 

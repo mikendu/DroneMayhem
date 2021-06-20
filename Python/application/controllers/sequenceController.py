@@ -6,16 +6,16 @@ import pathlib
 from cflib.crazyflie.light_controller import RingEffect
 
 from application.model import Sequence, DroneState, Drone
-from application.common.exceptions import SequenceInterrupt
+from application.common.exceptions import SequenceInterrupt, DroneException
 from application.util import exceptionUtil, threadUtil, Logger
+from application.planner import DroneMatcher
+from application.constants import Constants
+from application.util import vectorMath
 
 
 class SequenceController:
 
     CURRENT = None
-    MIN_HEIGHT = 0.3
-    MAX_HEIGHT = 3.0
-    LANDING_HEIGHT = 0.05
 
     def __init__(self, appController, settings):
         self.appController = appController
@@ -76,7 +76,6 @@ class SequenceController:
 
 
     def run(self):
-
         # Update the order of the recent sequences
         if self.sequenceIndex:
             self.sequences.insert(0, self.sequences.pop(self.sequenceIndex))
@@ -85,24 +84,26 @@ class SequenceController:
         try:
             Logger.log("SEQUENCE STARTING")
             swarmController = self.appController.swarmController
+            sequence = SequenceController.CURRENT
 
             # connect to required drones
-            numDrones = min(SequenceController.CURRENT.drones, self.appController.availableDrones)
+            numDrones = min(sequence.drones, self.appController.availableDrones)
             self.appController.swarmController.connectSwarm(numDrones)
             self.appController.sequenceUpdated.emit()
-            threadUtil.interruptibleSleep(0.25)
 
             # ensure all drones have updated light house info & know their positions
             uploadLighthouseData = self.appController.trajectoryEnabled or self.appController.positioningEnabled
             swarmController.initializeSensors(uploadLighthouseData)
             self.appController.sequenceUpdated.emit()
-            threadUtil.interruptibleSleep(0.25)
 
             # get all drones in position
-            swarmController.parallel(self.uploadFlightData)
+            if sequence is not None and sequence.tracks is not None and len(sequence.tracks) > 0:
+                startingPositions = sequence.allStartingPositions
+                DroneMatcher.assign(swarmController.connectedDrones, startingPositions)
+                swarmController.parallel(self.uploadFlightData)
+
             self.synchronizedTakeoff()
-            swarmController.parallel(self.setInitialPosition)
-            threadUtil.interruptibleSleep(0.25)
+            self.setInitialPositions()
 
             # kick off the actual sequence action4
             self.runSequence()
@@ -118,6 +119,11 @@ class SequenceController:
             self.abort()
             return
 
+        except DroneException:
+            Logger.error("Drones did not reach starting positions, aborting!")
+            self.abort()
+            return
+
         except ConnectionAbortedError:
             print("-- Drone connection failed, cancelling sequence --")
             self.appController.connectionFailed.emit()
@@ -129,7 +135,7 @@ class SequenceController:
 
     def uploadFlightData(self, drone):
         sequence = SequenceController.CURRENT
-        track = sequence.getTrack(drone.swarmIndex)
+        track = sequence.getTrack(drone.trackIndex)
         exceptionUtil.checkInterrupt()
 
         if track is not None:
@@ -156,65 +162,87 @@ class SequenceController:
         commander = swarmController.broadcaster.high_level_commander
         light_controller = swarmController.broadcaster.light_controller
 
-        light_controller.set_color(0, 127, 255, 0.1, True)
-        commander.takeoff(SequenceController.MIN_HEIGHT, 4.0)
-        print("Taking off to height:", SequenceController.MIN_HEIGHT, ", over time:", 4.0)
+        light_controller.set_color(0, 0, 0, 0.1, True)
+        light_controller.set_color(0, 0, 0, 0.1, True)
+        commander.takeoff(Constants.MIN_HEIGHT, 1.5)
+        commander.takeoff(Constants.MIN_HEIGHT, 1.5)
+        print("Taking off to height:", Constants.MIN_HEIGHT, ", over time:", 1.5)
 
         for drone in swarmController.connectedDrones:
             drone.state = DroneState.IN_FLIGHT
 
         self.appController.sequenceUpdated.emit()
-        threadUtil.interruptibleSleep(4.0)
+        threadUtil.interruptibleSleep(1.6)
 
 
-    def setInitialPosition(self, drone):
-        exceptionUtil.checkInterrupt()
+    def setInitialPositions(self):
+        if not (self.appController.trajectoryEnabled or self.appController.positioningEnabled):
+            return
 
         sequence = SequenceController.CURRENT
-        track = sequence.getTrack(drone.swarmIndex)
+        if sequence is None or sequence.tracks is None or len(sequence.tracks) == 0:
+            return
+
+        swarmController = self.appController.swarmController
+        exceptionUtil.checkInterrupt()
+        drones = swarmController.connectedDrones
+
+        maxTime = 0.0
+        layers = {}
+
+        for drone in drones:
+            x, y, z = drone.targetPosition
+            travelDistance = vectorMath.distance(drone.currentPosition, drone.targetPosition)
+            drone.travelTime = travelDistance / Drone.MAX_VELOCITY
+            maxTime = max(drone.travelTime, maxTime)
+
+            layer = int(round(z * 10))
+            if layer not in layers:
+                layers[layer] = []
+
+            layers[layer].append(drone)
+
+        layerIndexes = list(layers.keys())
+        layerIndexes.sort()
+
+        delayPerLayer = 0.25 * maxTime
+        delay = 0.0
+
+        for layer, drones in layers.items():
+            for drone in drones:
+                drone.takeoffDelay = delay
+
+            delay += delayPerLayer
+
+        exceptionUtil.checkInterrupt()
+        swarmController.parallel(self.moveToStartingPosition)
+
+
+
+    def moveToStartingPosition(self, drone):
+
+        sequence = SequenceController.CURRENT
+        track = sequence.getTrack(drone.trackIndex)
         commander = drone.commander
         self.appController.updateSequence()
         exceptionUtil.checkInterrupt()
 
         if track is not None:
 
-            r, g, b = sequence.getStartingColor(drone.swarmIndex)
-            x, y, z = sequence.getStartingPosition(drone.swarmIndex)
-            drone.light_controller.set_color(r, g, b, 0.25, True)
+            r, g, b = sequence.getStartingColor(drone.trackIndex)
+            x, y, z = sequence.getStartingPosition(drone.trackIndex)
+            Logger.log("Getting into position", drone.swarmIndex)
 
-            if self.appController.trajectoryEnabled or self.appController.positioningEnabled:
-                Logger.log("Getting into position", drone.swarmIndex)
+            # Step 1 - Make sure the drone has reached its takeoff position
+            tx, ty, tz = drone.currentPosition
+            drone.waitForTargetPosition(tx, ty, Constants.MIN_HEIGHT, 1.0, 5.0)
 
-                # Step 0 - Make sure the drone has reached its takeoff position
-                initialX, initialY, initialZ = drone.startPosition
+            # Step 2 - Wait for takeoff delay, then move to starting position
+            threadUtil.interruptibleSleep(drone.takeoffDelay)
 
-                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(initialX, initialY, SequenceController.MIN_HEIGHT)))
-                drone.waitForTargetPosition(initialX, initialY, SequenceController.MIN_HEIGHT)
-
-                # Step 1 - Move to some height determined by index
-                targetHeight = min(SequenceController.MIN_HEIGHT + (drone.swarmIndex * 0.1), SequenceController.MAX_HEIGHT)
-                numDrones = len(self.appController.swarmController.connectedDrones)
-                moveTime = 5.0 + (numDrones * 0.3)
-
-                print("Moving drone", drone.swarmIndex, "to position", ("({:.2f}, {:.2f}, {:.2f})".format(initialX, initialY, targetHeight)), "over time:", moveTime)
-                commander.go_to(initialX, initialY, targetHeight, 0, moveTime)
-                threadUtil.interruptibleSleep(moveTime + 0.25)
-                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(initialX, initialY, targetHeight)))
-                drone.waitForTargetPosition(initialX, initialY, targetHeight)
-
-                # Step 2 - Move to position, maintaining target height
-                print("Moving drone", drone.swarmIndex, "to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, targetHeight)), "over time:", 8.0)
-                commander.go_to(x, y, targetHeight, 0, 8.0)
-                threadUtil.interruptibleSleep(8.25)
-                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, targetHeight)))
-                drone.waitForTargetPosition(x, y, targetHeight)
-
-                # Step 3 - Move to actual starting position
-                print("Moving drone", drone.swarmIndex, "to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)), "over time:", 8.0)
-                commander.go_to(x, y, z, 0.0, 8.0)
-                threadUtil.interruptibleSleep(8.25)
-                print("Waiting for drone", drone.swarmIndex, "to converge to position", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
-                drone.waitForTargetPosition(x, y, z)
+            commander.go_to(x, y, z, 0.0, drone.travelTime)
+            threadUtil.interruptibleSleep(drone.travelTime)
+            drone.waitForTargetPosition(x, y, z, 1.0, drone.travelTime + 5.0)
 
             Logger.log("Ready!", drone.swarmIndex)
             self.appController.updateSequence()
@@ -231,9 +259,11 @@ class SequenceController:
         # Start the automated trajectory
         if self.appController.trajectoryEnabled:
             commander.start_trajectory(Drone.TRAJECTORY_ID)
+            commander.start_trajectory(Drone.TRAJECTORY_ID)
 
         # Start the automated LED sequence
         if self.appController.colorSequenceEnabled:
+            light_controller.set_effect(RingEffect.TIMING_EFFECT)
             light_controller.set_effect(RingEffect.TIMING_EFFECT)
 
         self.appController.startTimer.emit()
@@ -246,20 +276,23 @@ class SequenceController:
         Logger.log("Landing drones...")
         swarmController = self.appController.swarmController
         commander = swarmController.broadcaster.high_level_commander
-        light_controller = swarmController.broadcaster.light_controller
-
-        light_controller.set_color(32, 32, 32, 4.0, True)
-        commander.land(SequenceController.LANDING_HEIGHT, 4.0)
+        commander.land(Constants.LANDING_HEIGHT, 2.0)
+        commander.land(Constants.LANDING_HEIGHT, 2.0)
 
         for drone in swarmController.connectedDrones:
             if (drone.state == DroneState.IN_FLIGHT):
                 drone.state = DroneState.LANDING
 
         self.appController.sequenceUpdated.emit()
-        threadUtil.interruptibleSleep(4.5, ignoreInterrupt)
+        threadUtil.interruptibleSleep(2.0, ignoreInterrupt)
 
+        light_controller = swarmController.broadcaster.light_controller
         light_controller.set_color(0, 0, 0, 0.25, True)
+        light_controller.set_color(0, 0, 0, 0.25, True)
+        threadUtil.interruptibleSleep(0.25, ignoreInterrupt)
         commander.stop()
+        commander.stop()
+        time.sleep(0.25)
 
         for drone in swarmController.connectedDrones:
             if (drone.state == DroneState.LANDING):

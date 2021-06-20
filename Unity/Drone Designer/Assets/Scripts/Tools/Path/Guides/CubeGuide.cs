@@ -41,17 +41,22 @@ public class CubeGuide : GuideShape
         
         return points;
     }
+
+    public override void DrawSceneGUI()
+    {
+        CubeGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(CubeGuide))]
-public class CubeGuideEditor : GuideEditor<CubeGuide>
+public class CubeGuideEditor : GuideShapeEditor<CubeGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(CubeGuide guide)
     {
-        DrawCube(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawCube(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

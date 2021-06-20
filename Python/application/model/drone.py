@@ -10,22 +10,32 @@ from cflib.crazyflie.mem import LighthouseMemHelper
 from cflib.localization import LighthouseConfigWriter
 
 from .droneState import DroneState
-from application.util import exceptionUtil, threadUtil, Logger, calibration
 from application.common.exceptions import DroneException
+from application.util import exceptionUtil, threadUtil, Logger, calibration, vectorMath
 
 
 class Drone():
 
     TRAJECTORY_ID = 1
     ESTIMATOR_TIMEOUT_SEC = 15.0
+    MAX_VELOCITY = 0.5
 
     def __init__(self):
         # SyncCrazyflie instance
         self.crazyflie = None
         self.address = None
         self.swarmIndex = None
+        self.trackIndex = None
+
+        self.travelTime = None
+        self.takeoffDelay = 0.0
+
+        self.targetPosition = (0, 0, 0)
+        self.currentPosition = (0, 0, 0)
+
         self.state = DroneState.DISCONNECTED
-        self.startPosition = (0, 0, 0)
+
+
         self.writeEvent = Event()
         self.writeSuccess = False
         self.commander = None
@@ -77,12 +87,12 @@ class Drone():
 
         exceptionUtil.checkInterrupt()
         self.crazyflie.cf.param.set_value('kalman.resetEstimation', '0')
-        self.startPosition = (0, 0, 0)
+        self.currentPosition = (0, 0, 0)
         self.waitForEstimator()
 
     def waitForEstimator(self):
         startTime = time.time()
-        log_config = LogConfig(name='Kalman Variance', period_in_ms=500)
+        log_config = LogConfig(name='Kalman Variance', period_in_ms=50)
         log_config.add_variable('kalman.varPX', 'float')
         log_config.add_variable('kalman.varPY', 'float')
         log_config.add_variable('kalman.varPZ', 'float')
@@ -94,6 +104,9 @@ class Drone():
         var_x_history = [1000] * 10
         var_z_history = [1000] * 10
         threshold = 0.001
+
+        convergedDuration = 0
+        lastTime = None
 
         with SyncLogger(self.crazyflie, log_config) as logger:
             for log_entry in logger:
@@ -118,26 +131,42 @@ class Drone():
                 x = data['kalman.stateX']
                 y = data['kalman.stateY']
                 z = data['kalman.stateZ']
+                has_valid_data = z < 0.25
 
-                has_converged = (max_x - min_x) < threshold and (max_y - min_y) < threshold and (max_z - min_z) < threshold
+                has_converged = (max_x - min_x) < threshold and (max_y - min_y) < threshold and (max_z - min_z) < threshold and has_valid_data
                 timed_out = (time.time() - startTime) > Drone.ESTIMATOR_TIMEOUT_SEC
+                currentTime = time.time()
+                elapsed = 0 if lastTime is None else currentTime - lastTime
+                lastTime = currentTime
 
                 if has_converged:
-                    print("Initial position for drone", self.swarmIndex, "has converged, to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
-                    self.startPosition = (float(x), float(y), float(z))
-                    break
-                elif timed_out:
-                    Logger.error("Drone position sensor failed to update!", self.swarmIndex)
-                    self.setError()
-                    raise DroneException("Drone did not achieve the target position")
+                    convergedDuration += elapsed
+                    if convergedDuration >= 1.5:
+                        print("Initial position for drone", self.swarmIndex, "has converged, to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                        self.currentPosition = (float(x), float(y), float(z))
+                        break
+                else:
+                    convergedDuration = 0
+                    if timed_out:
+                        message = "Invalid position data received. Height: " + str(z)
+                        Logger.error(message, self.swarmIndex)
+                        self.setError()
+                        raise ConnectionAbortedError(message)
 
-    def waitForTargetPosition(self, targetX, targetY, targetZ, timeoutSeconds=None):
+    def waitForTargetPosition(self, targetX, targetY, targetZ, minTime=None, timeoutSeconds=None):
         startTime = time.time()
         log_config = LogConfig(name='Kalman Position', period_in_ms=50)
         log_config.add_variable('kalman.stateX', 'float')
         log_config.add_variable('kalman.stateY', 'float')
         log_config.add_variable('kalman.stateZ', 'float')
-        threshold = 0.05
+        threshold = 0.125
+
+        timeAtTarget = 0
+        lastTime = None
+        commandIssued = False
+
+        if not (self.crazyflie and self.crazyflie.cf and self.crazyflie.cf.link):
+            return
 
         with SyncLogger(self.crazyflie, log_config) as logger:
             for log_entry in logger:
@@ -151,14 +180,29 @@ class Drone():
 
                 has_converged = abs(targetX - x) < threshold and abs(targetY - y) and abs(targetZ - z)
                 timed_out = (time.time() - startTime) > timeoutSeconds if timeoutSeconds else False
+                currentTime = time.time()
+                elapsed = 0 if lastTime is None else currentTime - lastTime
+                lastTime = currentTime
 
                 if has_converged:
-                    print("Target position for drone", self.swarmIndex, "has converged. Target was:", ("({:.2f}, {:.2f}, {:.2f})".format(targetX, targetY, targetZ)), ", converged to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
-                    break
-                elif timed_out:
-                    Logger.error("Drone failed to reach target position!", self.swarmIndex)
-                    self.setError()
-                    raise ConnectionAbortedError("Drone position was not able to converge!")
+                    timeAtTarget += elapsed
+                    commandIssued = False
+                    if minTime is None or timeAtTarget >= minTime:
+                        print("Target position for drone", self.swarmIndex, "has converged. Target was:", ("({:.2f}, {:.2f}, {:.2f})".format(targetX, targetY, targetZ)), ", converged to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                        break
+
+                else:
+                    timeAtTarget = 0
+                    if not commandIssued:
+                        distance = vectorMath.distance((x, y, z), (targetX, targetY, targetZ))
+                        travelTime = distance / Drone.MAX_VELOCITY
+                        self.commander.go_to(x, y, z, 0, travelTime)
+                        commandIssued = True
+
+                    if timed_out:
+                        Logger.error("Drone failed to reach target position!", self.swarmIndex)
+                        self.setError()
+                        raise DroneException("Drone did not achieve the target position")
 
 
     def writeTrajectory(self, data):

@@ -52,17 +52,22 @@ public class CylinderGuide : GuideShape
             points.Add(new AttachmentPoint(transform, new Vector3(x, height, z)));
         }
     }
+
+    public override void DrawSceneGUI()
+    {
+        CylinderGuideEditor.Draw(this);
+    }
 }
 
 
 
 [CustomEditor(typeof(CylinderGuide))]
-public class CylinderGuideEditor : GuideEditor<CylinderGuide>
+public class CylinderGuideEditor : GuideShapeEditor<CylinderGuide>
 {
-    private void OnSceneGUI()
+    public static void Draw(CylinderGuide guide)
     {
-        DrawGuide(Target, Color.white);
-        DrawPointHandles(Target.AttachmentPoints);
+        DrawGuide(guide, Color.white);
+        DrawPointHandles(guide.AttachmentPoints, guide.Guide.Dynamic);
     }
 
     [DrawGizmo(GizmoType.NonSelected | GizmoType.Active | GizmoType.Selected)]

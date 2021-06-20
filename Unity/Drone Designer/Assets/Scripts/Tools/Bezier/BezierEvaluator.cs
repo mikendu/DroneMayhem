@@ -99,7 +99,7 @@ public static class BezierEvaluator
         Tuple<CubicBezier, float> interpolationData = Interpolate(curves, time);
         return EvaluateBezier(interpolationData.Item1, interpolationData.Item2);
     }
-    private static Vector3 EvaluateBezier(CubicBezier curve, float t)
+    public static Vector3 EvaluateBezier(CubicBezier curve, float t)
     {
         Vector3 startPos = curve.anchor1;
         Vector3 endPos = curve.anchor2;

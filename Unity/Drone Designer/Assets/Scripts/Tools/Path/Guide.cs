@@ -9,6 +9,7 @@ using UnityEditor;
 public abstract class Guide : MonoBehaviour
 {
     public ShapeType ShapeType = ShapeType.Rectangle;
+    public abstract bool Dynamic { get; }
 
     public void SetShape(ShapeType shapeType)
     {
