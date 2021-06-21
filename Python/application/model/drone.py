@@ -92,7 +92,7 @@ class Drone():
 
     def waitForEstimator(self):
         startTime = time.time()
-        log_config = LogConfig(name='Kalman Variance', period_in_ms=50)
+        log_config = LogConfig(name='Kalman Variance', period_in_ms=100)
         log_config.add_variable('kalman.varPX', 'float')
         log_config.add_variable('kalman.varPY', 'float')
         log_config.add_variable('kalman.varPZ', 'float')
@@ -155,7 +155,7 @@ class Drone():
 
     def waitForTargetPosition(self, targetX, targetY, targetZ, minTime=None, timeoutSeconds=None):
         startTime = time.time()
-        log_config = LogConfig(name='Kalman Position', period_in_ms=50)
+        log_config = LogConfig(name='Kalman Position', period_in_ms=100)
         log_config.add_variable('kalman.stateX', 'float')
         log_config.add_variable('kalman.stateY', 'float')
         log_config.add_variable('kalman.stateZ', 'float')
