@@ -65,6 +65,7 @@ class SequenceLog(QFrame):
 class LogColors():
 
     WARN = '\033[93m'
+    SUCCESS = '\033[92m'
     ERROR = '\033[91m'
     RESET = '\033[0m'
 
@@ -97,6 +98,9 @@ class LogEntry(QFrame):
     def printToConsole(self):
         if self.logLevel == LogLevel.INFO:
             print(LogColors.RESET + "--", self.context, "\t|\t", self.message)
+
+        elif self.logLevel == LogLevel.SUCCESS:
+            print(LogColors.SUCCESS + "--", self.context, "\t|\t", self.message)
 
         elif self.logLevel == LogLevel.WARN:
             print(LogColors.WARN + "--", self.context, "\t|\t", self.message, LogColors.RESET)

@@ -28,6 +28,7 @@ class ApplicationController(QObject):
 
     droneDisconnected = pyqtSignal(str)
     connectionFailed = pyqtSignal()
+    takeoffTestComplete = pyqtSignal()
 
     POSITION_DRONES = True
     RUN_COLORS = True
@@ -37,11 +38,11 @@ class ApplicationController(QObject):
         super().__init__()
         Logger.initialize()
 
-        self.clearSequence = False
         self.sequencePlaying = False
         self.appSettings = appSettings
         self.mainWindow = mainWindow
         self.sequenceController = SequenceController(self, appSettings)
+        self.takeoffTestDialog = None
         
         self.initializePositioning()
         self.initializeSwarm()
@@ -62,6 +63,7 @@ class ApplicationController(QObject):
         self.droneDisconnected.connect(self.onDroneDisconnected)
         self.sequenceOrderUpdated.connect(self.saveSequenceSettings)
         self.connectionFailed.connect(self.onConnectionFailed)
+        self.takeoffTestComplete.connect(self.completeTakeoffTest)
         self.scanForDrones()
 
 
@@ -121,7 +123,6 @@ class ApplicationController(QObject):
 
     def onSequenceClick(self):
         if not self.sequencePlaying:
-            self.clearSequence = False
             self.startSequence()
         else:
             self.abortSequence()
@@ -159,9 +160,7 @@ class ApplicationController(QObject):
             exceptionUtil.setInterrupt(True)
             self.stopSequenceTimer()
             self.killTimer.start(5000)
-
-            if self.clearSequence:
-                self.clearSequenceSelection()
+            self.clearSequenceSelection()
 
     def hardKill(self):
         if (self.sequencePlaying):    
@@ -169,15 +168,12 @@ class ApplicationController(QObject):
             self.sequenceFinished.emit()
             self.sequencePlaying = False
             self.sequenceUpdated.emit()
-
-            if self.clearSequence:
-                self.clearSequenceSelection()
+            self.clearSequenceSelection()
 
     def onSequenceCompleted(self):
         self.sequenceFinished.emit()
         self.sequencePlaying = False
-        if self.clearSequence:
-            self.clearSequenceSelection()
+        self.clearSequenceSelection()
 
         # self.elapsedTime = 0
         # self.sequenceProgress = 0
@@ -278,28 +274,36 @@ class ApplicationController(QObject):
         print("Emergency Shutdown Complete")
 
     def takeoffTest(self):
-        self.clearSequence = True
         if self.sequencePlaying:
             self.mainWindow.showStatusMessage("Cannot run takeoff & land test while a sequence is running.")
             return
 
-        if not dialogUtil.confirmModal("Takeoff & Land Test", "Run take off & landing test?"):
+        result = dialogUtil.optionsModal("Takeoff & Land Test", "Run take off & landing test?", "All drones", "One at a time")
+        proceed = (result == 0) or (result == 1)
+
+        if not proceed:
             return
 
         if self.availableDrones == 0:
             self.mainWindow.showStatusMessage("No drones found!")
             return
 
-        self.sequenceController.setTestSequence()
-        self.sequenceSelected.emit()
-        self.resetTestMode.emit()       # set back to test mode == NONE
-        self.startSequence()
+        sequential = (result == 1)
+        self.clearSequenceSelection()
+        self.mainWindow.setEnabled(False)
+
+        self.takeoffTestDialog = dialogUtil.nonModalDialog("Takeoff Test", "Running...", self.mainWindow, False)
+        threadUtil.runInBackground(lambda: self.swarmController.takeoffTest(sequential))
+
+    def completeTakeoffTest(self):
+        self.takeoffTestDialog.accept()
+        self.takeoffTestDialog = None
+        self.mainWindow.setEnabled(True)
 
     def clearSequenceSelection(self):
-        SequenceController.CURRENT = None
+        self.sequenceController.clearSelection()
         self.sequenceSelected.emit()
         self.resetTestMode.emit()
-        self.clearSequence = False
 
     @property
     def positioningEnabled(self):

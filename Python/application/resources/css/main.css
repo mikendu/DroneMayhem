@@ -303,6 +303,11 @@ LogEntry.ERROR QLabel {
     font-weight: 500;
 }
 
+LogEntry.SUCCESS QLabel {
+    color: #00de07;
+    font-weight: 500;
+}
+
 .logContextLabel {
     max-width: 120px;
     min-width: 120px;

@@ -70,8 +70,8 @@ class SequenceController:
             return True
         return False
 
-    def setTestSequence(self):
-        SequenceController.CURRENT = Sequence.EMPTY
+    def clearSelection(self):
+        SequenceController.CURRENT = None
         self.sequenceIndex = None
 
 
@@ -166,7 +166,6 @@ class SequenceController:
         light_controller.set_color(0, 0, 0, 0.1, True)
         commander.takeoff(Constants.MIN_HEIGHT, 1.5)
         commander.takeoff(Constants.MIN_HEIGHT, 1.5)
-        print("Taking off to height:", Constants.MIN_HEIGHT, ", over time:", 1.5)
 
         for drone in swarmController.connectedDrones:
             drone.state = DroneState.IN_FLIGHT
@@ -208,8 +207,9 @@ class SequenceController:
         delayPerLayer = 0.25 * maxTime
         delay = 0.0
 
-        for layer, drones in layers.items():
-            for drone in drones:
+        for layer in layerIndexes:
+            layerDrones = layers[layer]
+            for drone in layerDrones:
                 drone.takeoffDelay = delay
 
             delay += delayPerLayer

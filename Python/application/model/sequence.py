@@ -2,8 +2,6 @@ import os
 
 
 class Sequence():
-    EMPTY = None
-
     def __init__(self, name, location, data):
         self.name = name
         self.location = location

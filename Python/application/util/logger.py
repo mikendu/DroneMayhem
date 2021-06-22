@@ -6,6 +6,7 @@ class LogLevel(Enum):
     INFO = 0
     WARN = 1
     ERROR = 2
+    SUCCESS = 3
 
     def __str__(self):
         return self.name
@@ -31,6 +32,11 @@ class Logger(QObject):
     def log(message, droneIndex=None):
         if Logger._instance:
             Logger._instance.LOG_SIGNAL.emit((message, LogLevel.INFO, droneIndex))
+
+    @staticmethod
+    def success(message, droneIndex=None):
+        if Logger._instance:
+            Logger._instance.LOG_SIGNAL.emit((message, LogLevel.SUCCESS, droneIndex))
 
     @staticmethod
     def warn(message, droneIndex=None):

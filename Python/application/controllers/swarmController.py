@@ -1,5 +1,6 @@
 import time
-from threading import Thread
+import sys
+
 from concurrent.futures import ThreadPoolExecutor, wait
 
 from cflib.crazyflie.broadcaster import Broadcaster
@@ -7,6 +8,8 @@ from cflib.crtp.cflinkcppdriver import CfLinkCppDriver
 
 from application.model import Drone, DroneState
 from application.common import SettingsKey, AppSettings
+from application.common.exceptions import DroneException
+from application.constants import Constants
 from application.util import Logger
 
 
@@ -112,6 +115,88 @@ class SwarmController():
             results = list(filter(None, results))
 
         return results
+
+    def takeoffTest(self, sequential=False):
+        mode = "(sequentially)" if sequential else "(in parallel)"
+        Logger.log("Running takeoff test " + mode)
+        try:
+            self.connectSwarm(-1)
+            self.initializeSensors(True)
+
+            if (sequential):
+                for drone in self.connectedDrones:
+                    self.runTakeoffTest(drone)
+            else:
+                Logger.log("Taking off")
+                commander = self.broadcaster.high_level_commander
+                light_controller = self.broadcaster.light_controller
+
+                light_controller.set_color(0, 0, 0, 0.1, True)
+                light_controller.set_color(0, 0, 0, 0.1, True)
+                commander.takeoff(Constants.MIN_HEIGHT, 1.5)
+                commander.takeoff(Constants.MIN_HEIGHT, 1.5)
+
+                results = self.parallel(self.verifyTakeoff)
+
+                Logger.log("Landing drones...")
+                commander.land(Constants.LANDING_HEIGHT, 2.0)
+                commander.land(Constants.LANDING_HEIGHT, 2.0)
+                time.sleep(2.0)
+
+                light_controller.set_color(0, 0, 0, 0.25, True)
+                light_controller.set_color(0, 0, 0, 0.25, True)
+                commander.stop()
+                commander.stop()
+                time.sleep(0.25)
+
+                anyFailure = all(results)
+                if not anyFailure:
+                    Logger.success("Takeoff test successful!")
+
+        except ConnectionAbortedError as e:
+            Logger.error("Connection error!")
+
+        except Exception as e:
+            Logger.error("Unknown error occurred!")
+            print("Error: ", e, file=sys.stderr)
+
+        self.disconnectSwarm()
+
+        Logger.log("Takeoff test complete")
+        self.appController.takeoffTestComplete.emit()
+
+    def verifyTakeoff(self, drone):
+        try:
+            tx, ty, tz = drone.currentPosition
+            drone.waitForTargetPosition(tx, ty, Constants.MIN_HEIGHT, 0.5, 5.0)
+            return True
+        except DroneException as e:
+            Logger.error("Takeoff test failed!", drone.swarmIndex)
+            return False
+
+
+    def runTakeoffTest(self, drone):
+        Logger.log("Taking off", drone.swarmIndex)
+
+        commander = drone.commander
+        light_controller = drone.light_controller
+
+        light_controller.set_color(0, 0, 0, 0.1, True)
+        commander.takeoff(Constants.MIN_HEIGHT, 1.5)
+        time.sleep(1.25)
+
+        success = self.verifyTakeoff(drone)
+
+        Logger.log("Landing...", drone.swarmIndex)
+        commander.land(Constants.LANDING_HEIGHT, 2.0)
+        time.sleep(2.0)
+
+        light_controller.set_color(0, 0, 0, 0.25, True)
+        commander.stop()
+        time.sleep(0.25)
+
+        if success:
+            Logger.success("Takeoff test successful!", drone.swarmIndex)
 
 
     @property

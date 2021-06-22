@@ -142,7 +142,8 @@ class Drone():
                 if has_converged:
                     convergedDuration += elapsed
                     if convergedDuration >= 1.5:
-                        print("Initial position for drone", self.swarmIndex, "has converged, to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                        message = "Sensors updated & position found. Current position: " + ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z))
+                        Logger.log(message, self.swarmIndex)
                         self.currentPosition = (float(x), float(y), float(z))
                         break
                 else:
@@ -178,7 +179,7 @@ class Drone():
                 y = float(data['kalman.stateY'])
                 z = float(data['kalman.stateZ'])
 
-                has_converged = abs(targetX - x) < threshold and abs(targetY - y) and abs(targetZ - z)
+                has_converged = (abs(targetX - x) < threshold) and (abs(targetY - y) < threshold) and (abs(targetZ - z) < threshold)
                 timed_out = (time.time() - startTime) > timeoutSeconds if timeoutSeconds else False
                 currentTime = time.time()
                 elapsed = 0 if lastTime is None else currentTime - lastTime
@@ -188,7 +189,9 @@ class Drone():
                     timeAtTarget += elapsed
                     commandIssued = False
                     if minTime is None or timeAtTarget >= minTime:
-                        print("Target position for drone", self.swarmIndex, "has converged. Target was:", ("({:.2f}, {:.2f}, {:.2f})".format(targetX, targetY, targetZ)), ", converged to position: ", ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)))
+                        message = "Within threshold of target position " + ("({:.2f}, {:.2f}, {:.2f})".format(targetX, targetY, targetZ)) + \
+                            ". Current position: " + ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z))
+                        Logger.log(message, self.swarmIndex)
                         break
 
                 else:
