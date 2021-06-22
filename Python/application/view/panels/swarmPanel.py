@@ -38,7 +38,7 @@ class SwarmPanel(QFrame):
         testButton.setProperty("class", ["swarmButton", "swarmTestButton"])
         testButton.setCursor(Qt.PointingHandCursor)
         testButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        testButton.setIcon(QIcon(":/images/up_down.png"))
+        testButton.setIcon(QIcon(":/images/up_down_2.png"))
         testButton.setStatusTip("Takeoff & landing test")
         testButton.setIconSize(QSize(25, 25))
         testButton.clicked.connect(self.appController.takeoffTest)

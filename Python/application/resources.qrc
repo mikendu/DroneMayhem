@@ -1,7 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/images">
-        <file alias="window_icon.png">./resources/images/icon_black.png</file>
+        <file alias="window_icon.png">./resources/images/window_icon.png</file>
+        <file alias="white_icon.png">./resources/images/icon_white.png</file>
         <file alias="cancel.png">./resources/images/cancel.png</file>
         <file alias="up_down.png">./resources/images/up_down.png</file>
         <file alias="up_down_2.png">./resources/images/up_down_2.png</file>

@@ -231,3 +231,11 @@ This will only work if all 3 firmwares have been upgraded to the right version (
  and the crazyradio firmware). The modified python has a `Broadcaster` class that allows opening a broadcast link,
 and to use it, you should supply a uri in the form `radiobroadcast://*/55/2M`.
 
+
+
+#6. Building an executable
+From a GitBash terminal with the Python `venv` active, navigate to the `Python/` directory and run the following:
+```shell
+pyinstaller cli.py -y --name Swarm\ Controller --windowed --icon ./application/resources/images/window_icon.ico \
+  && cp -r venv/Lib/site-packages/openvr dist/Swarm\ Controller/openvr
+```
