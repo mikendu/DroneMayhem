@@ -21,7 +21,12 @@ class SwarmController():
         self.availableDrones = []
         self.connectedDrones = []
         self.droneMapping = {}
-        self.broadcaster = None
+        self.broadcasters = []
+
+    def broadcast(self, operation):
+        for broadcaster in self.broadcasters:
+            operation(broadcaster)
+            operation(broadcaster)
 
     def scan(self):
         self.removeDisconnected()
@@ -46,8 +51,11 @@ class SwarmController():
             toConnect = self.availableDrones[:end]
 
         Logger.log("Attempting to open " + str(len(toConnect)) + " drone connections")
-        self.broadcaster = Broadcaster(self.channel)
-        self.broadcaster.open_link()
+        for channel in self.channels:
+            broadcaster = Broadcaster(channel)
+            broadcaster.open_link()
+            self.broadcasters.append(broadcaster)
+
         self.connectedDrones = self.parallel(self.connectToDrone, toConnect)
         Logger.log("Successfully opened " + str(len(self.connectedDrones)) + " drone connections")
 
@@ -72,13 +80,11 @@ class SwarmController():
             self.appController.sequenceUpdated.emit()
 
     def disconnectSwarm(self):
-        if self.broadcaster:
-            self.broadcaster.high_level_commander.stop()
-            self.broadcaster.high_level_commander.stop()
+        self.broadcast(lambda broadcaster: broadcaster.high_level_commander.stop())
+        time.sleep(0.25)
 
-            time.sleep(0.25)
-            self.broadcaster.close_link()
-            self.broadcaster = None
+        self.broadcast(lambda broadcaster: broadcaster.close_link())
+        self.broadcasters = []
 
         for drone in self.connectedDrones:
             drone.crazyflie.cf.high_level_commander.stop()
@@ -119,6 +125,7 @@ class SwarmController():
     def takeoffTest(self, sequential=False):
         mode = "(sequentially)" if sequential else "(in parallel)"
         Logger.log("Running takeoff test " + mode)
+
         try:
             self.connectSwarm(-1)
             self.initializeSensors(True)
@@ -128,29 +135,23 @@ class SwarmController():
                     self.runTakeoffTest(drone)
             else:
                 Logger.log("Taking off")
-                commander = self.broadcaster.high_level_commander
-                light_controller = self.broadcaster.light_controller
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.1, True))
+                self.broadcast(lambda broadcaster: broadcaster.high_level_commander.takeoff(Constants.MIN_HEIGHT, 1.5))
 
-                light_controller.set_color(0, 0, 0, 0.1, True)
-                light_controller.set_color(0, 0, 0, 0.1, True)
-                commander.takeoff(Constants.MIN_HEIGHT, 1.5)
-                commander.takeoff(Constants.MIN_HEIGHT, 1.5)
-
+                time.sleep(1.25)
                 results = self.parallel(self.verifyTakeoff)
 
                 Logger.log("Landing drones...")
-                commander.land(Constants.LANDING_HEIGHT, 2.0)
-                commander.land(Constants.LANDING_HEIGHT, 2.0)
+
+                self.broadcast(lambda broadcaster: broadcaster.high_level_commander.land(Constants.LANDING_HEIGHT, 2.0))
                 time.sleep(2.0)
 
-                light_controller.set_color(0, 0, 0, 0.25, True)
-                light_controller.set_color(0, 0, 0, 0.25, True)
-                commander.stop()
-                commander.stop()
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.25, True))
+                self.broadcast(lambda broadcaster: broadcaster.high_level_commander.stop())
                 time.sleep(0.25)
 
-                anyFailure = all(results)
-                if not anyFailure:
+                noFailure = all(results)
+                if noFailure:
                     Logger.success("Takeoff test successful!")
 
         except ConnectionAbortedError as e:
@@ -204,15 +205,19 @@ class SwarmController():
         min, max = self.addresses
         addressMin = int(min, 16)
         addressMax = int(max, 16)
+        channels = self.channels
+
         uris = []
-        for i in range(addressMin, addressMax + 1):
-            uri = "radio://*/" + str(self.channel) + "/2M/" + format(i, 'X')
-            uris.append(uri)
+
+        for channel in channels:
+            for i in range(addressMin, addressMax + 1):
+                uri = "radio://*/" + str(channel) + "/2M/" + format(i, 'X')
+                uris.append(uri)
         return uris
 
     @property
-    def channel(self):
-        return int(self.appSettings.getValue(SettingsKey.RADIO_CHANNEL))
+    def channels(self):
+        return [int(channel) for channel in self.appSettings.getValue(SettingsKey.RADIO_CHANNELS)]
 
     @property
     def addresses(self):

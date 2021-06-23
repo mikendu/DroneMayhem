@@ -34,7 +34,7 @@ class Drone():
         self.currentPosition = (0, 0, 0)
 
         self.state = DroneState.DISCONNECTED
-
+        self.batteryLevel = None
 
         self.writeEvent = Event()
         self.writeSuccess = False
@@ -56,6 +56,21 @@ class Drone():
 
         self.state = DroneState.INITIALIZING
         self.light_controller.set_color(255, 200, 0, 0.0, True)
+
+    def checkBatteryLevel(self):
+        if not self.address:
+            raise ValueError("Drone has no address!")
+
+        with SyncCrazyflie(self.address, cf=Crazyflie(ro_cache='./cache', rw_cache='./cache')) as scf:
+            log_config = LogConfig(name='Battery Level', period_in_ms=50)
+            log_config.add_variable('pm.batteryLevel', 'uint8_t')
+
+            with SyncLogger(scf, log_config) as logger:
+                for log_entry in logger:
+                    exceptionUtil.checkInterrupt()
+                    data = log_entry[1]
+                    self.batteryLevel = int(data['pm.batteryLevel'])
+                    break
 
     def startTrajectory(self):
         self.crazyflie.cf.high_level_commander.start_trajectory(Drone.TRAJECTORY_ID, 1.0, False)
@@ -92,7 +107,7 @@ class Drone():
 
     def waitForEstimator(self):
         startTime = time.time()
-        log_config = LogConfig(name='Kalman Variance', period_in_ms=100)
+        log_config = LogConfig(name='Kalman Variance & Position', period_in_ms=100)
         log_config.add_variable('kalman.varPX', 'float')
         log_config.add_variable('kalman.varPY', 'float')
         log_config.add_variable('kalman.varPZ', 'float')
@@ -160,7 +175,7 @@ class Drone():
         log_config.add_variable('kalman.stateX', 'float')
         log_config.add_variable('kalman.stateY', 'float')
         log_config.add_variable('kalman.stateZ', 'float')
-        threshold = 0.125
+        threshold = 0.1
 
         timeAtTarget = 0
         lastTime = None
@@ -199,7 +214,7 @@ class Drone():
                     if not commandIssued:
                         distance = vectorMath.distance((x, y, z), (targetX, targetY, targetZ))
                         travelTime = distance / Drone.MAX_VELOCITY
-                        self.commander.go_to(x, y, z, 0, travelTime)
+                        self.commander.go_to(targetX, targetY, targetZ, 0, travelTime)
                         commandIssued = True
 
                     if timed_out:

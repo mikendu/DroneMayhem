@@ -4,8 +4,8 @@ from .settingsKey import SettingsKey
 
 class AppSettings():
 
-    DEFAULT_RADIO_CHANNEL = 55
-    DEFAULT_ADDRESS_RANGE = ['E7E7E7E701', 'E7E7E7E750']
+    DEFAULT_RADIO_CHANNELS = [1, 40, 80, 120]
+    DEFAULT_ADDRESS_RANGE = ['E7E7E7E700', 'E7E7E7E715']
 
     def __init__(self): 
         self.settings = QSettings('DroneMayhem', 'SwarmController')

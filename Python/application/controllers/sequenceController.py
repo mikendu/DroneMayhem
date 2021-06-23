@@ -159,13 +159,8 @@ class SequenceController:
 
         Logger.log("Taking off")
         swarmController = self.appController.swarmController
-        commander = swarmController.broadcaster.high_level_commander
-        light_controller = swarmController.broadcaster.light_controller
-
-        light_controller.set_color(0, 0, 0, 0.1, True)
-        light_controller.set_color(0, 0, 0, 0.1, True)
-        commander.takeoff(Constants.MIN_HEIGHT, 1.5)
-        commander.takeoff(Constants.MIN_HEIGHT, 1.5)
+        swarmController.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.1, True))
+        swarmController.broadcast(lambda broadcaster: broadcaster.high_level_commander.takeoff(Constants.MIN_HEIGHT, 1.5))
 
         for drone in swarmController.connectedDrones:
             drone.state = DroneState.IN_FLIGHT
@@ -252,19 +247,15 @@ class SequenceController:
     def runSequence(self):
         Logger.log("Starting flight paths!")
         swarmController = self.appController.swarmController
-        commander = swarmController.broadcaster.high_level_commander
-        light_controller = swarmController.broadcaster.light_controller
         duration = SequenceController.CURRENT.duration
 
         # Start the automated trajectory
         if self.appController.trajectoryEnabled:
-            commander.start_trajectory(Drone.TRAJECTORY_ID)
-            commander.start_trajectory(Drone.TRAJECTORY_ID)
+            swarmController.broadcast(lambda broadcaster: broadcaster.high_level_commander.start_trajectory(Drone.TRAJECTORY_ID))
 
         # Start the automated LED sequence
         if self.appController.colorSequenceEnabled:
-            light_controller.set_effect(RingEffect.TIMING_EFFECT)
-            light_controller.set_effect(RingEffect.TIMING_EFFECT)
+            swarmController.broadcast(lambda broadcaster: broadcaster.light_controller.set_effect(RingEffect.TIMING_EFFECT))
 
         self.appController.startTimer.emit()
         threadUtil.interruptibleSleep(duration + 0.25)
@@ -275,9 +266,7 @@ class SequenceController:
 
         Logger.log("Landing drones...")
         swarmController = self.appController.swarmController
-        commander = swarmController.broadcaster.high_level_commander
-        commander.land(Constants.LANDING_HEIGHT, 2.0)
-        commander.land(Constants.LANDING_HEIGHT, 2.0)
+        swarmController.broadcast(lambda broadcaster: broadcaster.high_level_commander.land(Constants.LANDING_HEIGHT, 2.0))
 
         for drone in swarmController.connectedDrones:
             if (drone.state == DroneState.IN_FLIGHT):
@@ -286,12 +275,10 @@ class SequenceController:
         self.appController.sequenceUpdated.emit()
         threadUtil.interruptibleSleep(2.0, ignoreInterrupt)
 
-        light_controller = swarmController.broadcaster.light_controller
-        light_controller.set_color(0, 0, 0, 0.25, True)
-        light_controller.set_color(0, 0, 0, 0.25, True)
+        swarmController.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.25, True))
         threadUtil.interruptibleSleep(0.25, ignoreInterrupt)
-        commander.stop()
-        commander.stop()
+
+        swarmController.broadcast(lambda broadcaster: broadcaster.high_level_commander.stop())
         time.sleep(0.25)
 
         for drone in swarmController.connectedDrones:

@@ -2,5 +2,6 @@
 class SettingsKey:
 
     SEQUENCES = "recentSequences"
-    RADIO_CHANNEL = "radioChannel"
+    NUM_CHANNELS = 4
+    RADIO_CHANNELS = "radioChannels"
     RADIO_ADDRESSES = "radioAddresses"

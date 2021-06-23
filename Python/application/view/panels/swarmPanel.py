@@ -25,6 +25,7 @@ class SwarmPanel(QFrame):
         self.appController.scanStarted.connect(self.clearList) 
         self.appController.scanFinished.connect(self.updateList) 
         self.appController.sequenceUpdated.connect(self.updateDroneState)
+        self.appController.swarmUpdated.connect(self.updateDroneState)
         self.clearList()
 
 
@@ -33,6 +34,16 @@ class SwarmPanel(QFrame):
         title = QLabel("Swarm")
         title.setProperty("class", "titleText")
         titleLayout.addWidget(title)
+
+        batteryButton = QPushButton()
+        batteryButton.setProperty("class", ["swarmButton", "swarmBatteryButton"])
+        batteryButton.setCursor(Qt.PointingHandCursor)
+        batteryButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        batteryButton.setIcon(QIcon(":/images/battery_level.png"))
+        batteryButton.setStatusTip("Check drone battery levels")
+        batteryButton.setIconSize(QSize(25, 25))
+        batteryButton.clicked.connect(self.appController.checkBattery)
+        titleLayout.addWidget(batteryButton)
 
         testButton = QPushButton()
         testButton.setProperty("class", ["swarmButton", "swarmTestButton"])
@@ -79,20 +90,24 @@ class SwarmPanel(QFrame):
         channelFrame.setProperty("class", "channelFrame")
         channelLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, channelFrame)
 
-        channelLabel = QLabel("Channel")
+        channelLabel = QLabel("Radio Channels")
         channelLabel.setProperty("class", "channelLabel")
         channelLayout.addWidget(channelLabel)
 
-        channelText = str(self.appSettings.getValue(SettingsKey.RADIO_CHANNEL, AppSettings.DEFAULT_RADIO_CHANNEL))
-        self.channelEdit = QLineEdit()
-        self.channelEdit.setText(channelText)
-        self.channelEdit.setValidator(QIntValidator(0, 127))
-        self.channelEdit.setMaxLength(3)
-        self.channelEdit.setAlignment(Qt.AlignCenter)
-        self.channelEdit.textEdited.connect(self.channelChanged)
-        self.channelEdit.setProperty("class", "channelEdit")
+        channels = self.appSettings.getValue(SettingsKey.RADIO_CHANNELS, AppSettings.DEFAULT_RADIO_CHANNELS)
+        self.channelTextFields = []
+        for i in range(0, SettingsKey.NUM_CHANNELS):
+            channelText = str(channels[i])
+            channelEdit = QLineEdit()
+            channelEdit.setText(channelText)
+            channelEdit.setValidator(QIntValidator(0, 127))
+            channelEdit.setMaxLength(3)
+            channelEdit.setAlignment(Qt.AlignCenter)
+            channelEdit.textEdited.connect(lambda val, bound_index=i: self.channelChanged(bound_index, val))
+            channelEdit.setProperty("class", "channelEdit")
+            self.channelTextFields.append(channelEdit)
+            channelLayout.addWidget(channelEdit)
 
-        channelLayout.addWidget(self.channelEdit)
         settingsLayout.addWidget(channelFrame)
 
     def createAddressSetting(self, settingsLayout):
@@ -100,7 +115,7 @@ class SwarmPanel(QFrame):
         addressFrame.setProperty("class", "addressFrame")
         addressLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, addressFrame)
 
-        addressLabel = QLabel("Address Range")
+        addressLabel = QLabel("Address Range (Per Radio)")
         addressLabel.setProperty("class", "addressLabel")
         addressLayout.addWidget(addressLabel)
 
@@ -127,18 +142,21 @@ class SwarmPanel(QFrame):
 
         settingsLayout.addWidget(addressFrame)
 
-    def channelChanged(self, val):
+    def channelChanged(self, index, val):
+        channelEdit = self.channelTextFields[index]
         try:
             value = int(val)
             if value < 0 or value > 127:
                 raise ValueError("Value outside of acceptable range!")
 
-            self.appSettings.setValue(SettingsKey.RADIO_CHANNEL, value)
-            self.channelEdit.setProperty("class", "channelEdit")
-            self.channelEdit.style().polish(self.channelEdit)
+            channels = self.appSettings.getValue(SettingsKey.RADIO_CHANNELS, AppSettings.DEFAULT_RADIO_CHANNELS)
+            channels[index] = value
+            self.appSettings.setValue(SettingsKey.RADIO_CHANNELS, channels)
+            channelEdit.setProperty("class", "channelEdit")
+            channelEdit.style().polish(channelEdit)
         except ValueError:
-            self.channelEdit.setProperty("class", ["channelEdit", "error"])
-            self.channelEdit.style().polish(self.channelEdit)
+            channelEdit.setProperty("class", ["channelEdit", "error"])
+            channelEdit.style().polish(channelEdit)
             # self.appController.mainWindow.showStatusMessage("Invalid channel!")
 
     def addressChanged(self, text):
@@ -164,7 +182,7 @@ class SwarmPanel(QFrame):
                 minError = True
                 maxError = True
 
-            if addressMin < 0xE7E7E7E701:
+            if addressMin < 0xE7E7E7E700:
                 minError = True
 
             if addressMax > 0xE7E7E7E7100:
@@ -234,8 +252,6 @@ class SwarmPanel(QFrame):
 
         self.cardList.setMaximumWidth(self.width())
 
-
-
     def repositionCards(self):
         numColumns = round(self.width() / 300.0)
         for i in reversed(range(self.listLayout.count())): 
@@ -290,6 +306,9 @@ class DroneCard(QFrame):
         self.setProperty("class", "droneCard")
         outerLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
         innerLayout = layoutUtil.createLayout(LayoutType.VERTICAL)
+        self.batteryLevel = QLabel("50%")
+        self.batteryLevel.setProperty("class", ["batteryLevel"])
+        outerLayout.addWidget(self.batteryLevel)
         outerLayout.addLayout(innerLayout)
         innerLayout.setContentsMargins(25, 12, 25, 12)
 
@@ -302,6 +321,7 @@ class DroneCard(QFrame):
         innerLayout.addWidget(self.addressLabel)
         innerLayout.addWidget(self.createStatusLabel())
         innerLayout.addStretch(1)
+
 
         outerLayout.addStretch(1)
         outerLayout.addWidget(self.createIndicator())
@@ -318,7 +338,29 @@ class DroneCard(QFrame):
         self.indicator.setProperty("class", ["droneStatusIndicator"])
         return self.indicator
 
+    def setBatteryLevel(self, drone):
+        level = drone.batteryLevel
+        levelText = (str(level) + "%") if level else ""
+        self.batteryLevel.setText(levelText)
+
+        if not level:
+            self.batteryLevel.setProperty("class", ["batteryLevel"])
+        elif level < 20:
+            self.batteryLevel.setProperty("class", ["batteryLevel", "red"])
+        elif level < 35:
+            self.batteryLevel.setProperty("class", ["batteryLevel", "orange"])
+        elif level < 50:
+            self.batteryLevel.setProperty("class", ["batteryLevel", "yellow"])
+        elif level > 50:
+            self.batteryLevel.setProperty("class", ["batteryLevel", "green"])
+
+
+        self.batteryLevel.style().polish(self.batteryLevel)
+
+
+
     def setDroneState(self, drone):
+        self.setBatteryLevel(drone)
         if drone.state == DroneState.INITIALIZING:
             self.statusLabel.setText('''Status:  <span style="color:#E2DD52;font-weight:bold">INITIALIZING</span>''')
             self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])

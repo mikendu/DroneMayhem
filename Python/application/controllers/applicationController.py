@@ -23,6 +23,7 @@ class ApplicationController(QObject):
     startTimer = pyqtSignal()
     sequenceStarted = pyqtSignal()
     sequenceUpdated = pyqtSignal()
+    swarmUpdated = pyqtSignal()
     sequenceFinished = pyqtSignal()
     resetTestMode = pyqtSignal()
 
@@ -304,6 +305,19 @@ class ApplicationController(QObject):
         self.sequenceController.clearSelection()
         self.sequenceSelected.emit()
         self.resetTestMode.emit()
+
+    def checkBattery(self):
+
+        if self.sequencePlaying:
+            self.mainWindow.showStatusMessage("Cannot check battery while sequence is running!")
+            return
+
+        if len(self.swarmController.availableDrones) == 0:
+            self.mainWindow.showStatusMessage("No drones found!")
+            return
+
+        self.swarmController.parallel(lambda drone: drone.checkBatteryLevel(), self.swarmController.availableDrones)
+        self.swarmUpdated.emit()
 
     @property
     def positioningEnabled(self):

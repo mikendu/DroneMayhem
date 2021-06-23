@@ -347,6 +347,22 @@ QLabel.droneName {
 .droneStatusIndicator.landing { background: #cf8e2d; }
 .droneStatusIndicator.error { background: #ed3f00; }
 
+.batteryLevel {
+    padding: 0px 15px;
+    font-size: 15px;
+    font-weight: bold;
+    background: #2E2E2E;
+    border-bottom: 1px solid #4B4A4A;
+    border-right: 1px solid #3a3a3a;
+}
+
+
+.batteryLevel.red { color: #ff2414; }
+.batteryLevel.orange { color: #ffa200; }
+.batteryLevel.yellow { color: #f7ef00; }
+.batteryLevel.green { color: #00fa0c; }
+
+
 .swarmButton {
     max-width: 90px;
     max-height: 65px;
@@ -365,6 +381,10 @@ QLabel.droneName {
 
 .killButton:hover { background: #d13328; }
 .killButton:pressed { background: #f75940; }
+
+.swarmBatteryButton:hover { background: #303030; }
+.swarmBatteryButton:pressed { background: #1f1f1f; }
+
 
 /* -- Swarm Settings -- */
 .settingsFrame {
@@ -395,14 +415,14 @@ QLabel.droneName {
 }
 
 .toLabel {
-    max-width: 38px;
+    max-width: 39px;
 }
 
 .addressMin, .addressMax {
-    max-width: 180px;
+    max-width: 175px;
 }
 .channelEdit {
-    max-width: 415px;
+    max-width: 100px;
 }
 
 .settingsFrame QLineEdit.error {
