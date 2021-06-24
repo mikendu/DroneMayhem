@@ -76,7 +76,7 @@ class LogEntry(QFrame):
     def __init__(self, message, logLevel, droneNumber, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.context = "Drone " + str(droneNumber) if droneNumber is not None else "GLOBAL"
+        self.context = "Drone " + str(droneNumber + 1) if droneNumber is not None else "GLOBAL"
         self.logLevel = logLevel
         self.message = message
 

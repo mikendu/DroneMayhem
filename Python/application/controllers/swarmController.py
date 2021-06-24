@@ -30,7 +30,12 @@ class SwarmController():
 
     def scan(self):
         self.removeDisconnected()
-        uris = CfLinkCppDriver.scan_selected(self.uriPool)
+        uris = []
+
+        # Scan a few times to help pick up any and all drones
+        uris.extend(CfLinkCppDriver.scan_selected(self.uriPool))
+        uris.extend(CfLinkCppDriver.scan_selected(self.uriPool))
+        uris.extend(CfLinkCppDriver.scan_selected(self.uriPool))
 
         for uri in uris:
             if uri in self.droneMapping:

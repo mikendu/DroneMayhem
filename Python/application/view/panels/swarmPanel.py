@@ -27,6 +27,7 @@ class SwarmPanel(QFrame):
         self.appController.sequenceUpdated.connect(self.updateDroneState)
         self.appController.swarmUpdated.connect(self.updateDroneState)
         self.clearList()
+        self.updateList()
 
 
     def createTitle(self):
@@ -312,7 +313,7 @@ class DroneCard(QFrame):
         outerLayout.addLayout(innerLayout)
         innerLayout.setContentsMargins(25, 12, 25, 12)
 
-        nameLabel = ElidedLabel("Drone " + str(drone.swarmIndex))
+        nameLabel = ElidedLabel("Drone " + str(drone.swarmIndex + 1))
         nameLabel.setProperty("class", ["droneName"])
 
         self.addressLabel = ElidedLabel("URI (Address):  " + drone.address)

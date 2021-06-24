@@ -197,7 +197,7 @@ class SequenceController:
             layers[layer].append(drone)
 
         layerIndexes = list(layers.keys())
-        layerIndexes.sort()
+        layerIndexes.sort(reverse=True)
 
         delayPerLayer = 0.25 * maxTime
         delay = 0.0
