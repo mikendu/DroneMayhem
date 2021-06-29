@@ -12,6 +12,7 @@ public class AttachmentPoint
     public Vector3 LocalPosition;
     public Transform Parent;
     public Crazyflie Drone;
+    public float AttachmentTime = -1;
 
 
     public Vector3 Position { get { return Parent.TransformPoint(LocalPosition);  } }

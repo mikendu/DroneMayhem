@@ -187,20 +187,10 @@ public class DynamicGuide : Guide
         int n = Keyframes.Count;
         if (n <= 1)
             return;
-
-        float overallStart = (float)Keyframes[0].time;
-        float overallEnd = (float)Keyframes[n - 1].time;
         int sampleCount = Mathf.RoundToInt(1.0f / SAMPLE_INTERVAL);
 
         Dictionary<Crazyflie, List<Vector3>> points = new Dictionary<Crazyflie, List<Vector3>>();
         Dictionary<Crazyflie, List<CubicBezier>> curves = new Dictionary<Crazyflie, List<CubicBezier>>();
-
-        foreach (Crazyflie drone in drones)
-        {
-            //allPoints[drone] = new List<List<Vector3>>();
-            drone.ClearWaypoints(overallStart, overallEnd);
-            curves[drone] = new List<CubicBezier>();
-        }
 
 
         for (int i = 0; i < n - 1; i++)
@@ -222,12 +212,22 @@ public class DynamicGuide : Guide
                 float t = startTime + (j * timeInterval);
                 UpdateTransform(t);
                 foreach (Crazyflie drone in drones)
-                    points[drone].Add(drone.AttachmentPoint.Position);
+                {
+                    float attachmentTime = drone.AttachmentPoint.AttachmentTime;
+                    if (attachmentTime == -1 || t >= attachmentTime)
+                        points[drone].Add(drone.AttachmentPoint.Position);
+                }
             }
 
             foreach (Crazyflie drone in drones)
             {
                 //allPoints[drone].Add(points[drone]);
+                if (points[drone].Count < 3)
+                    continue;
+
+                if (!curves.ContainsKey(drone))
+                    curves[drone] = new List<CubicBezier>();
+
                 List<CubicBezier> paths = BezierFitter.Fit(points[drone], ERROR_THRESHOLD, startTime, endTime);
                 curves[drone].AddRange(paths);
             }
@@ -237,6 +237,11 @@ public class DynamicGuide : Guide
         foreach (Crazyflie drone in drones)
         {
             List<CubicBezier> paths = curves[drone];
+
+            float start = paths[0].startTime;
+            float end = paths[paths.Count - 1].endTime;
+            drone.ClearWaypoints(start, end);
+
             foreach (CubicBezier path in paths)
                 drone.AddWaypoint(path.anchor1, path.control1, path.startTime);
 

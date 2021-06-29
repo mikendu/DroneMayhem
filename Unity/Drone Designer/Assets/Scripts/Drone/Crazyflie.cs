@@ -45,6 +45,7 @@ public class Crazyflie : MonoBehaviour
 
         this.attachmentPoint = point;
         this.attachmentPoint.Drone = this;
+        this.attachmentPoint.AttachmentTime = Time;
     }
 
     public void Release()
@@ -53,6 +54,7 @@ public class Crazyflie : MonoBehaviour
             return;
 
         this.attachmentPoint.Drone = null;
+        this.attachmentPoint.AttachmentTime = -1;
         this.attachmentPoint = null;
     }
 
