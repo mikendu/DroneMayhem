@@ -107,9 +107,11 @@ class SwarmController():
         self.availableDrones = filtered
 
     def initializeSensors(self, uploadGeometry=True):
-        geometryOne = self.appController.baseStationController.geometryOne
-        geometryTwo = self.appController.baseStationController.geometryTwo
-        self.parallel(lambda drone: drone.updateSensors(uploadGeometry, geometryOne, geometryTwo))
+        appSettings = self.appController.appSettings
+        geo_data = appSettings.getValue(SettingsKey.GEO_DATA)
+        calib_data = appSettings.getValue(SettingsKey.CALIB_DATA)
+        numBaseStations = Constants.BASE_STATION_COUNT
+        self.parallel(lambda drone: drone.updateSensors(uploadGeometry, geo_data, calib_data, numBaseStations))
 
     def parallel(self, function, droneCollection=None):
         """

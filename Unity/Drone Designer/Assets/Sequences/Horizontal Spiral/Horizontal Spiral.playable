@@ -1,0 +1,194 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5819526663619332157
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2.0166666507720965
+  JointType: 1
+  Position: {x: -0.004363686, y: 0.8, z: -0.9999948}
+  Tangent: {x: 0.13352415, y: 0.033333182, z: -0.0057790875}
+--- !u!114 &-4795612506905301240
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  JointType: 0
+  Position: {x: 0.25, y: 0.5, z: -1}
+  Tangent: {x: 0.03125, y: 0, z: 0}
+--- !u!114 &-4664063166884419341
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 1.5000000000000013
+  JointType: 1
+  Position: {x: -0.249511, y: 0.7, z: -0.76613516}
+  Tangent: {x: 0.0052811652, y: 0.03333342, z: -0.12608123}
+--- !u!114 &-3504508481171081837
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61bd933f155fe14469690051b5887da3, type: 3}
+  m_Name: Drone 0 Track
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects:
+    - {fileID: -2646041575304873906}
+    - {fileID: -4795612506905301240}
+    - {fileID: -147408464887101765}
+    - {fileID: 4710989226615602345}
+    - {fileID: -4664063166884419341}
+    - {fileID: -5819526663619332157}
+    - {fileID: 5916361897246679979}
+    - {fileID: -1846481966974344993}
+    - {fileID: -1198746382749182011}
+--- !u!114 &-2646041575304873906
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0
+  LightColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &-1846481966974344993
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2.9833333333333334
+  JointType: 0
+  Position: {x: 0.25, y: 0.9, z: -0.5}
+  Tangent: {x: 0.021070354, y: 0.030864798, z: 0.11928287}
+--- !u!114 &-1198746382749182011
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2.9833333492279053
+  LightColor: {r: 0, g: 0.7646501, b: 1, a: 1}
+--- !u!114 &-147408464887101765
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 0.5
+  JointType: 1
+  Position: {x: 0.2500266, y: 0.5, z: -0.75}
+  Tangent: {x: 0.0034477115, y: 0.03333342, z: 0.13360143}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
+  m_Name: Horizontal Spiral
+  m_EditorClassIdentifier: 
+  m_Version: 0
+  m_Tracks:
+  - {fileID: -3504508481171081837}
+  m_FixedDuration: 0
+  m_EditorSettings:
+    m_Framerate: 60
+  m_DurationMode: 0
+  m_MarkerTrack: {fileID: 0}
+--- !u!114 &4710989226615602345
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 1.016666650772096
+  JointType: 1
+  Position: {x: -0.000000029802322, y: 0.6, z: -0.49997312}
+  Tangent: {x: -0.13955206, y: 0.03333336, z: 0.0039533973}
+--- !u!114 &5916361897246679979
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 2.5000000000000018
+  JointType: 1
+  Position: {x: 0.24999505, y: 0.9, z: -0.75436366}
+  Tangent: {x: -0.0011154413, y: 0.033333123, z: 0.13364434}

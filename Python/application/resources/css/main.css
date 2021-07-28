@@ -152,7 +152,9 @@ BaseStationPanel {
 
 BaseStationDisplay {
     background: #1F1F1F;
-    border-top: 1px solid #333333;
+    border-top: 1px solid #555555;
+    border-right: 1px solid #555555;
+    border-bottom: 1px solid #555555;
 }
 BaseStationDisplay > QLabel {
     padding: 25px;
@@ -163,12 +165,24 @@ BaseStationDisplay > QLabel {
 .baseStationIndicator {
     background: #a83116;
     max-width: 30px;
+    border-left: 2px solid #222222;
 }
 
 .baseStationIndicator.connected {
     background: #16a81b;
 }
 
+.calibrationButton {
+    background: #444444;
+    color: white;
+    min-height: 50px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+}
+
+.calibrationButton:hover { background: #5f5f5f; }
+.calibrationButton:pressed { background: #111111; }
 
 /* ---------- WIDGETS: BUTTON BAR ---------- */
 ButtonBar {

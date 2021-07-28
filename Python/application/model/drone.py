@@ -11,7 +11,7 @@ from cflib.localization import LighthouseConfigWriter
 
 from .droneState import DroneState
 from application.common.exceptions import DroneException
-from application.util import exceptionUtil, threadUtil, Logger, calibration, vectorMath
+from application.util import exceptionUtil, threadUtil, Logger, vectorMath
 
 
 class Drone():
@@ -78,10 +78,10 @@ class Drone():
     def disableAutoPing(self):
         self.crazyflie.cf.auto_ping = False
 
-    def updateSensors(self, uploadGeometry, geometryOne, geometryTwo):
+    def updateSensors(self, uploadGeometry, geoData, calibData, numBasestations):
         Logger.log("Updating sensor & positioning data", self.swarmIndex)
-        self.crazyflie.cf.param.set_value('lighthouse.method', '0')
-        self.crazyflie.cf.param.set_value('lighthouse.systemType', '1')
+        self.crazyflie.cf.param.set_value('lighthouse.method', '1')
+        self.crazyflie.cf.param.set_value('lighthouse.systemType', '2')
 
         # PID controller
         self.crazyflie.cf.param.set_value('stabilizer.controller', '0')
@@ -89,7 +89,7 @@ class Drone():
         exceptionUtil.checkInterrupt()
 
         if uploadGeometry:
-            self.writeBaseStationData(geometryOne, geometryTwo)
+            self.writeBaseStationData(geoData, calibData, numBasestations)
             self.resetEstimator()
 
         self.state = DroneState.CONNECTED
@@ -234,12 +234,12 @@ class Drone():
         exceptionUtil.checkInterrupt()
         self.crazyflie.cf.high_level_commander.define_trajectory_compressed(Drone.TRAJECTORY_ID, 0)
 
-    def writeBaseStationData(self, geometryOne, geometryTwo):
-        geo_dict = {0: geometryOne, 1: geometryTwo}
+    def writeBaseStationData(self, geoData, calibData, numBasestations):
         helper = LighthouseMemHelper(self.crazyflie.cf)
-        writer = LighthouseConfigWriter(self.crazyflie.cf, nr_of_base_stations=2)
-        self.write(lambda: helper.write_geos(geo_dict, self.writeComplete))
-        self.write(lambda: writer.write_and_store_config(self.writeComplete, geos=geo_dict, calibs=calibration.CALIBRATION_DATA))
+        writer = LighthouseConfigWriter(self.crazyflie.cf, nr_of_base_stations=numBasestations)
+        self.write(lambda: helper.write_geos(geoData, self.writeComplete))
+        self.write(lambda: helper.write_calibs(calibData, self.writeComplete))
+        self.write(lambda: writer.write_and_store_config(self.writeComplete, geos=geoData, calibs=calibData))
         exceptionUtil.checkInterrupt()
 
     def writeLedTimings(self, color_data):

@@ -6,8 +6,9 @@ from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 
 from application.model import SequenceTestMode
 from application.util import dialogUtil, threadUtil, exceptionUtil, Logger
+from application.common import SettingsKey
+from application.constants import Constants
 from .sequenceController import SequenceController
-from .baseStationController import BaseStationController
 from .swarmController import SwarmController
 
 
@@ -44,8 +45,7 @@ class ApplicationController(QObject):
         self.mainWindow = mainWindow
         self.sequenceController = SequenceController(self, appSettings)
         self.takeoffTestDialog = None
-        
-        self.initializePositioning()
+
         self.initializeSwarm()
         self.scanInProgress = False
         self.sequenceTimer = QTimer()
@@ -66,11 +66,6 @@ class ApplicationController(QObject):
         self.connectionFailed.connect(self.onConnectionFailed)
         self.takeoffTestComplete.connect(self.completeTakeoffTest)
         self.scanForDrones()
-
-
-    def initializePositioning(self):
-        self.vrSystem = openvr.init(openvr.VRApplication_Other)
-        self.baseStationController = BaseStationController(self)
 
     def initializeSwarm(self):
         os.environ["USE_CFLINK"] = "cpp"
@@ -129,6 +124,10 @@ class ApplicationController(QObject):
             self.abortSequence()
 
     def startSequence(self):
+        if not self.positioningReady:
+            self.mainWindow.showStatusMessage("Base stations have not been calibrated properly!")
+            return
+
         if not self.droneRequirementMet:
             message = "Sequence is designed " + str(SequenceController.CURRENT.displayedDroneCount) \
                       + " drone(s)\n but only " + str(self.availableDrones) + " drone(s) are available."
@@ -274,7 +273,19 @@ class ApplicationController(QObject):
         self.mainWindow.showStatusMessage("Done", 500)
         print("Emergency Shutdown Complete")
 
+    def nonModalDialog(self, title, message, showButton=False):
+        self.mainWindow.setEnabled(False)
+        return dialogUtil.nonModalDialog(title, message, self.mainWindow, showButton)
+
+    def acceptDialog(self, dialog):
+        dialog.accept()
+        self.mainWindow.setEnabled(True)
+
     def takeoffTest(self):
+        if not self.positioningReady:
+            self.mainWindow.showStatusMessage("Base stations have not been calibrated properly!")
+            return
+
         if self.sequencePlaying:
             self.mainWindow.showStatusMessage("Cannot run takeoff & land test while a sequence is running.")
             return
@@ -291,14 +302,12 @@ class ApplicationController(QObject):
 
         sequential = (result == 1)
         self.clearSequenceSelection()
-        self.mainWindow.setEnabled(False)
 
-        self.takeoffTestDialog = dialogUtil.nonModalDialog("Takeoff Test", "Running...", self.mainWindow, False)
+        self.takeoffTestDialog = self.nonModalDialog("Takeoff Test", "Running...", False)
         threadUtil.runInBackground(lambda: self.swarmController.takeoffTest(sequential))
 
     def completeTakeoffTest(self):
-        self.takeoffTestDialog.accept()
-        self.takeoffTestDialog = None
+        self.acceptDialog(self.takeoffTestDialog)
         self.mainWindow.setEnabled(True)
 
     def clearSequenceSelection(self):
@@ -330,3 +339,17 @@ class ApplicationController(QObject):
     @property
     def trajectoryEnabled(self):
         return ApplicationController.RUN_SEQUENCE
+
+    @property
+    def positioningReady(self):
+        geo_data = self.appSettings.getValue(SettingsKey.GEO_DATA)
+        calib_data = self.appSettings.getValue(SettingsKey.CALIB_DATA)
+        numBaseStations = Constants.BASE_STATION_COUNT
+        validBasestations = [self.isBaseStationDataValid(i, geo_data, calib_data) for i in range(0, numBaseStations)]
+        return sum(validBasestations) >= numBaseStations
+
+
+    def isBaseStationDataValid(self, index, geo_data, calib_data):
+        geo = geo_data[index] if geo_data and len(geo_data) > index else None
+        calib = calib_data[index] if calib_data and len(calib_data) > index else None
+        return (geo and geo.valid) and (calib and calib.valid)
