@@ -257,6 +257,7 @@ class SequenceController:
         if self.appController.colorSequenceEnabled:
             swarmController.broadcast(lambda broadcaster: broadcaster.light_controller.set_effect(RingEffect.TIMING_EFFECT))
 
+        swarmController.parallel(lambda drone: drone.monitorPositioning())
         self.appController.startTimer.emit()
         threadUtil.interruptibleSleep(duration + 0.25)
 

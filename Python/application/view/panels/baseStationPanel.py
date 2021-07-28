@@ -167,7 +167,7 @@ class BaseStationPanel(QFrame):
 
 
     def isReadyToCalibrate(self, data):
-        if self.LOG_CALIBRATION_CONFIRMED in data and data[self.LOG_CALIBRATION_CONFIRMED]:
+        if self.LOG_CALIBRATION_EXISTS in data and data[self.LOG_CALIBRATION_EXISTS]:
             return True
         return False
 

@@ -222,6 +222,53 @@ class Drone():
                         self.setError()
                         raise DroneException("Drone did not achieve the target position")
 
+    def monitorPositioning(self):
+        self.varPX = 0.0
+        self.varPY = 0.0
+        self.varPZ = 0.0
+
+        log_config = LogConfig(name='Kalman Variance & Position', period_in_ms=100)
+        log_config.add_variable('kalman.varPX', 'float')
+        log_config.add_variable('kalman.varPY', 'float')
+        log_config.add_variable('kalman.varPZ', 'float')
+        log_config.add_variable('kalman.stateX', 'float')
+        log_config.add_variable('kalman.stateY', 'float')
+        log_config.add_variable('kalman.stateZ', 'float')
+
+        self.crazyflie.cf.log.add_config(log_config)
+        log_config.data_received_cb.add_callback(self.updatePositioning)
+        log_config.start()
+
+    def updatePositioning(self, timestamp, data, logconf):
+        alpha = 0.25
+        threshold = 0.0035
+        x, y, z = self.currentPosition
+
+        if 'kalman.varPX' in data:
+            self.varPX = (alpha * self.varPX) + ((1.0 - alpha) * float(data['kalman.varPX']))
+        if 'kalman.varPY' in data:
+            self.varPY = (alpha * self.varPY) + ((1.0 - alpha) * float(data['kalman.varPY']))
+        if 'kalman.varPZ' in data:
+            self.varPZ = (alpha * self.varPZ) + ((1.0 - alpha) * float(data['kalman.varPZ']))
+        if 'kalman.stateX' in data:
+            x = float(data['kalman.stateX'])
+        if 'kalman.stateY' in data:
+            y = float(data['kalman.stateY'])
+        if 'kalman.stateZ' in data:
+            z = float(data['kalman.stateZ'])
+
+        self.currentPosition = (x, y, z)
+        if self.varPX >= threshold or self.varPY >= threshold or self.varPZ >= threshold:
+
+            Logger.error("Position drift detected, landing! Variance - X: " + str(self.varPX) + ", Y: " + str(self.varPY) + ", Z: " + str(self.varPZ))
+            travelTime = abs(z - 0.05) / Drone.MAX_VELOCITY
+            self.commander.land(0.05, travelTime)
+            time.sleep(travelTime + 0.5)
+
+            self.crazyflie.cf.high_level_commander.stop()
+            self.crazyflie.cf.close_link()
+            self.state = DroneState.DISCONNECTED
+
 
     def writeTrajectory(self, data):
         if self.crazyflie is None or len(data) == 0:
