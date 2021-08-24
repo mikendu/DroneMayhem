@@ -18,7 +18,7 @@ class SwarmController():
     def __init__(self, appController, appSettings):
         self.appController = appController
         self.appSettings = appSettings
-        self.availableDrones = []
+        self.allDrones = []
         self.connectedDrones = []
         self.droneMapping = {}
         self.broadcasters = []
@@ -42,18 +42,18 @@ class SwarmController():
                 continue
 
             drone = Drone()
-            drone.swarmIndex = len(self.availableDrones)
+            drone.swarmIndex = len(self.allDrones)
             drone.address = uri
-            self.availableDrones.append(drone)
+            self.allDrones.append(drone)
             self.droneMapping[uri] = drone
 
     def connectSwarm(self, numDrones = None):
         toConnect = []
         if numDrones and (isinstance(numDrones, int) or numDrones.is_integer()):
-            totalCount = len(self.availableDrones)
+            totalCount = len(self.allDrones)
             desiredCount = totalCount if numDrones < 0 else numDrones
             end = max(0, min(desiredCount, totalCount))
-            toConnect = self.availableDrones[:end]
+            toConnect = self.allDrones[:end]
 
         Logger.log("Attempting to open " + str(len(toConnect)) + " drone connections")
         for channel in self.channels:
@@ -98,13 +98,13 @@ class SwarmController():
 
     def removeDisconnected(self):
         filtered = []
-        for drone in self.availableDrones:
+        for drone in self.allDrones:
             if drone.state == DroneState.DISCONNECTED:
                 del self.droneMapping[drone.address]
             else:
                 drone.swarmIndex = len(filtered)
                 filtered.append(drone)
-        self.availableDrones = filtered
+        self.allDrones = filtered
 
     def initializeSensors(self, uploadGeometry=True):
         appSettings = self.appController.appSettings
@@ -230,3 +230,11 @@ class SwarmController():
     def addresses(self):
         [min, max] = self.appSettings.getValue(SettingsKey.RADIO_ADDRESSES, AppSettings.DEFAULT_ADDRESS_RANGE)
         return min, max
+
+    @property
+    def availableDrones(self):
+        return [drone for drone in self.allDrones if drone.enabled]
+
+    def setDronesEnabled(self, enabled):
+        for drone in self.allDrones:
+            drone.enabled = enabled

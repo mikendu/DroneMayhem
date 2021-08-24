@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QScroller, QScrollArea,
 from PyQt5.QtGui import QIcon, QIntValidator
 from PyQt5.QtCore import Qt, QSize
 
-from application.util import layoutUtil
+from application.util import layoutUtil, threadUtil
 from application.model import DroneState, Drone
 from application.view import LayoutType
 from application.view.widgets import Spinner, ElidedLabel
@@ -19,6 +19,7 @@ class SwarmPanel(QFrame):
         
         self.layout = layoutUtil.createLayout(LayoutType.VERTICAL, self)
         self.createTitle()
+        self.createButtonBar()
         self.createDroneList()
         self.createSettings()
 
@@ -77,6 +78,28 @@ class SwarmPanel(QFrame):
         titleLayout.addWidget(refreshButton)
 
         self.layout.addLayout(titleLayout)
+
+
+
+    def createButtonBar(self):
+        buttonBarLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL)
+
+        enableButton = QPushButton("ENABLE ALL")
+        enableButton.setProperty("class", "swarmBarButton")
+        enableButton.setCursor(Qt.PointingHandCursor)
+        enableButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        enableButton.setStatusTip("Enable all drones")
+        enableButton.clicked.connect(lambda: self.appController.setDronesEnabled(True))
+        buttonBarLayout.addWidget(enableButton)
+
+        disableButton = QPushButton("DISABLE ALL")
+        disableButton.setProperty("class", "swarmBarButton")
+        disableButton.setCursor(Qt.PointingHandCursor)
+        disableButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        disableButton.setStatusTip("Disable all drones")
+        disableButton.clicked.connect(lambda: self.appController.setDronesEnabled(False))
+        buttonBarLayout.addWidget(disableButton)
+        self.layout.addLayout(buttonBarLayout)
 
     def createSettings(self):
         settingsFrame = QFrame()
@@ -234,7 +257,7 @@ class SwarmPanel(QFrame):
     def updateList(self):
         layoutUtil.clearLayout(self.listLayout)   
         numColumns = round(self.width() / 300.0)
-        droneList = self.appController.swarmController.availableDrones
+        droneList = self.appController.swarmController.allDrones
 
         for i, drone in enumerate(droneList):
             row = math.floor(i / numColumns)
@@ -275,7 +298,7 @@ class SwarmPanel(QFrame):
 
 
     def updateDroneState(self):
-        droneList = self.appController.swarmController.availableDrones
+        droneList = self.appController.swarmController.allDrones
         droneCount = len(droneList)
         for i in reversed(range(self.listLayout.count())): 
             card = self.listLayout.itemAt(i).widget()
@@ -304,12 +327,11 @@ class DroneCard(QFrame):
         super().__init__(*args, **kwargs)
 
         self.index = drone.swarmIndex
-        self.setProperty("class", "droneCard")
+        self.drone = drone
+
         outerLayout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
         innerLayout = layoutUtil.createLayout(LayoutType.VERTICAL)
-        self.batteryLevel = QLabel("50%")
-        self.batteryLevel.setProperty("class", ["batteryLevel"])
-        outerLayout.addWidget(self.batteryLevel)
+        outerLayout.addLayout(self.createButtons(drone))
         outerLayout.addLayout(innerLayout)
         innerLayout.setContentsMargins(25, 12, 25, 12)
 
@@ -323,10 +345,43 @@ class DroneCard(QFrame):
         innerLayout.addWidget(self.createStatusLabel())
         innerLayout.addStretch(1)
 
-
         outerLayout.addStretch(1)
-        outerLayout.addWidget(self.createIndicator())
+        self.batteryLevel = QLabel("50%")
+        self.batteryLevel.setProperty("class", ["batteryLevel"])
+        outerLayout.addWidget(self.batteryLevel)
+        # outerLayout.addWidget(self.createIndicator())
         self.setDroneState(drone)
+
+    def createButtons(self, drone):
+        layout = layoutUtil.createLayout(LayoutType.VERTICAL)
+        self.toggleButton = QPushButton()
+        self.toggleButton.setProperty("class", ["cardButton", "toggleButton"])
+        self.toggleButton.setCursor(Qt.PointingHandCursor)
+        self.toggleButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.toggleButton.setIcon(QIcon(":/images/check.svg"))
+        self.toggleButton.setStatusTip("Enable/disable drone")
+        self.toggleButton.setIconSize(QSize(21, 21))
+        self.toggleButton.clicked.connect(self.toggle)
+        layout.addWidget(self.toggleButton)
+
+        identifyButton = QPushButton()
+        identifyButton.setProperty("class", ["cardButton", "identifyButton"])
+        identifyButton.setCursor(Qt.PointingHandCursor)
+        identifyButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        identifyButton.setIcon(QIcon(":/images/magnifying.png"))
+        identifyButton.setStatusTip("Identify drone")
+        identifyButton.setIconSize(QSize(25, 25))
+        identifyButton.clicked.connect(self.identifyDrone)
+        layout.addWidget(identifyButton)
+
+        return layout
+
+    def toggle(self):
+        self.drone.enabled = not self.drone.enabled
+        self.updateEnabled(self.drone)
+
+    def identifyDrone(self):
+        threadUtil.runInBackground(lambda: self.drone.identify())
 
     def createStatusLabel(self):
         labelText = '''Status:  <span style="color:#b1b1b1">--</span>'''
@@ -334,14 +389,10 @@ class DroneCard(QFrame):
         self.statusLabel.setProperty("class", ["statusLabel"])
         return self.statusLabel
 
-    def createIndicator(self):
-        self.indicator = QFrame()
-        self.indicator.setProperty("class", ["droneStatusIndicator"])
-        return self.indicator
 
     def setBatteryLevel(self, drone):
         level = drone.batteryLevel
-        levelText = (str(level) + "%") if level else ""
+        levelText = (str(level) + "%") if level else "---"
         self.batteryLevel.setText(levelText)
 
         if not level:
@@ -358,27 +409,39 @@ class DroneCard(QFrame):
 
         self.batteryLevel.style().polish(self.batteryLevel)
 
-
+    def updateEnabled(self, drone):
+        classes = ["droneCard"]
+        if not drone.enabled:
+            classes.append("disabled")
+        self.setProperty("class", classes)
+        self.style().polish(self)
+        self.toggleButton.style().polish(self.toggleButton)
 
     def setDroneState(self, drone):
+        self.updateEnabled(drone)
         self.setBatteryLevel(drone)
         if drone.state == DroneState.INITIALIZING:
             self.statusLabel.setText('''Status:  <span style="color:#E2DD52;font-weight:bold">INITIALIZING</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])
+            # self.indicator.setProperty("class", ["droneStatusIndicator", "initializing"])
         elif drone.state == DroneState.CONNECTED:
             self.statusLabel.setText('''Status:  <span style="color:#16a81b;font-weight:bold">CONNECTED</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "connected"])
+            # self.indicator.setProperty("class", ["droneStatusIndicator", "connected"])
         elif drone.state == DroneState.IN_FLIGHT:
             self.statusLabel.setText('''Status:  <span style="color:#29bcff;font-weight:bold">IN FLIGHT</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "in_flight"])
+            # self.indicator.setProperty("class", ["droneStatusIndicator", "in_flight"])
         elif drone.state == DroneState.LANDING:
             self.statusLabel.setText('''Status:  <span style="color:#e09422;font-weight:bold">LANDING</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "landing"])
+            # self.indicator.setProperty("class", ["droneStatusIndicator", "landing"])
         elif drone.state == DroneState.ERROR:
             self.statusLabel.setText('''Status:  <span style="color:#ed3f00;font-weight:bold">ERROR</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator", "error"])
+            # self.indicator.setProperty("class", ["droneStatusIndicator", "error"])
         else:
             self.statusLabel.setText('''Status:  <span style="color:#b1b1b1;font-weight:bold">NOT CONNECTED</span>''')
-            self.indicator.setProperty("class", ["droneStatusIndicator"])
+            # self.indicator.setProperty("class", ["droneStatusIndicator"])
 
-        self.indicator.style().polish(self.indicator)
+        # self.indicator.style().polish(self.indicator)
+
+    # def createIndicator(self):
+    #     self.indicator = QFrame()
+    #     self.indicator.setProperty("class", ["droneStatusIndicator"])
+    #     return self.indicator

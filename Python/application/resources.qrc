@@ -6,6 +6,8 @@
         <file alias="cancel.png">./resources/images/cancel.png</file>
         <file alias="up_down.png">./resources/images/up_down.png</file>
         <file alias="up_down_2.png">./resources/images/up_down_2.png</file>
+        <file alias="magnifying.png">./resources/images/magnifying_glass.png</file>
+        <file alias="check.svg">./resources/images/check.svg</file>
         <file alias="refresh.svg">./resources/images/refresh.svg</file>
         <file alias="refresh_two.svg">./resources/images/refresh_two.svg</file>
         <file alias="right_button.png">./resources/images/right.png</file>

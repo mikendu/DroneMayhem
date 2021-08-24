@@ -325,8 +325,21 @@ class ApplicationController(QObject):
             self.mainWindow.showStatusMessage("No drones found!")
             return
 
+        # self.batteryDialog = self.nonModalDialog("Battery Check", "Checking battery levels...", False)
+        threadUtil.runInBackground(self.performBatteryCheck)
+
+    def performBatteryCheck(self):
         self.swarmController.parallel(lambda drone: drone.checkBatteryLevel(), self.swarmController.availableDrones)
         self.swarmUpdated.emit()
+
+    def setDronesEnabled(self, enabled):
+        self.swarmController.setDronesEnabled(enabled)
+        self.swarmUpdated.emit()
+
+    def setDroneEnabled(self, drone, enabled):
+        drone.enabled = enabled
+        self.swarmUpdated.emit()
+
 
     @property
     def positioningEnabled(self):
@@ -345,11 +358,11 @@ class ApplicationController(QObject):
         geo_data = self.appSettings.getValue(SettingsKey.GEO_DATA)
         calib_data = self.appSettings.getValue(SettingsKey.CALIB_DATA)
         numBaseStations = Constants.BASE_STATION_COUNT
-        validBasestations = [self.isBaseStationDataValid(i, geo_data, calib_data) for i in range(0, numBaseStations)]
+        validBasestations = [self.isBaseStationDataValid(id, geo_data, calib_data) for id in geo_data]
         return sum(validBasestations) >= numBaseStations
 
 
-    def isBaseStationDataValid(self, index, geo_data, calib_data):
-        geo = geo_data[index] if geo_data and len(geo_data) > index else None
-        calib = calib_data[index] if calib_data and len(calib_data) > index else None
+    def isBaseStationDataValid(self, id, geo_data, calib_data):
+        geo = geo_data[id] if geo_data and id in geo_data else None
+        calib = calib_data[id] if calib_data and id in calib_data else None
         return (geo and geo.valid) and (calib and calib.valid)

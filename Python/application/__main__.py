@@ -1,15 +1,16 @@
 import sys
 import traceback
+import inspect
 
-from PyQt5.QtWidgets import QMainWindow, QStatusBar, QApplication
-from PyQt5.QtCore import Qt, QFile, QTextStream, QTimer, QThreadPool
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtCore import Qt, QFile, QTextStream, QTimer, QThreadPool, QDynamicPropertyChangeEvent, QEvent
+from PyQt5.QtGui import QIcon, QPaintEvent
 
 import application.resource_bundle
 from application.common import AppSettings
 from application.controllers import ApplicationController
 from application.view.panels import MainDashboard
-from application.view.widgets import FileMenu
+from application.view.widgets import FileMenu, CustomStatusBar
 from application.util import dialogUtil
 
 
@@ -26,22 +27,15 @@ class MainWindow(QMainWindow):
         self.initializeController()
         menuBar = FileMenu(self.appController, self)
         dashboard = MainDashboard(self.appController)
-        statusBar = QStatusBar()
-        statusBar.messageChanged.connect(self.onStatusMessageChange)
+        statusBar = CustomStatusBar()
         
         self.setMenuBar(menuBar)
         self.setCentralWidget(dashboard)
         self.setStatusBar(statusBar)
         self.setupWindow()
 
-    def onStatusMessageChange(self, message):
-        self.statusBar().setProperty("class", [])
-        self.statusBar().style().polish(self.statusBar())
-
-    def showStatusMessage(self, message, timeout = 3000):
-        self.statusBar().showMessage(message, timeout)
-        self.statusBar().setProperty("class", "highlighted")
-        self.statusBar().style().polish(self.statusBar())
+    def showStatusMessage(self, message, timeout = 1500):
+        self.statusBar().highlightMessage(message, timeout)
 
     def initializeController(self):
         appSettings = AppSettings()

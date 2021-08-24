@@ -40,6 +40,8 @@ class Drone():
         self.writeSuccess = False
         self.commander = None
         self.light_controller = None
+        self.enabled = True
+        self.occupied = False
 
     def initialize(self, address, disconnectCallback):
         Logger.log("Connecting to address " + address, self.swarmIndex)
@@ -58,9 +60,13 @@ class Drone():
         self.light_controller.set_color(255, 200, 0, 0.0, True)
 
     def checkBatteryLevel(self):
+        if self.occupied:
+            return
+
         if not self.address:
             raise ValueError("Drone has no address!")
 
+        self.occupied = True
         with SyncCrazyflie(self.address, cf=Crazyflie(ro_cache='./cache', rw_cache='./cache')) as scf:
             log_config = LogConfig(name='Battery Level', period_in_ms=50)
             log_config.add_variable('pm.batteryLevel', 'uint8_t')
@@ -71,6 +77,32 @@ class Drone():
                     data = log_entry[1]
                     self.batteryLevel = int(data['pm.batteryLevel'])
                     break
+        self.occupied = False
+
+    def identify(self):
+        if self.occupied:
+            return
+
+        if not self.address:
+            raise ValueError("Drone has no address!")
+
+        try:
+            self.occupied = True
+            with SyncCrazyflie(self.address, cf=Crazyflie(ro_cache='./cache', rw_cache='./cache')) as scf:
+                scf.cf.auto_ping = False
+                light_controller = scf.cf.light_controller
+                light_controller.set_color(0, 0, 0, 0.0, True)
+                time.sleep(0.1)
+
+                for i in range(0, 5):
+                    light_controller.set_color(255, 255, 255, 0.0, False)
+                    time.sleep(0.1)
+                    light_controller.set_color(0, 0, 0, 0.0, False)
+                    time.sleep(0.1)
+        except:
+            self.occupied = False
+        self.occupied = False
+
 
     def startTrajectory(self):
         self.crazyflie.cf.high_level_commander.start_trajectory(Drone.TRAJECTORY_ID, 1.0, False)

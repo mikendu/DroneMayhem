@@ -336,12 +336,29 @@ SwarmPanel {
     background: transparent;
 }
 
+.swarmBarButton {
+    max-height: 45px;
+    color: white;
+    background: #0c0c0c;
+    border: 1px solid #414141;
+    border-top: none;
+    border-right: none;
+}
+
+.swarmBarButton:hover { background: #303030; }
+.swarmBarButton:pressed { background: #1f1f1f; }
+
 DroneCard {
     background: #2E2E2E;
-    border-bottom: 1px solid #4B4A4A;
-    border-right: 1px solid #4B4A4A;
+    border: 1px solid #4B4A4A;
+    border-left: none;
+    border-top: none;
     max-height: 150px;
     min-height: 150px;
+}
+
+DroneCard.disabled {
+    background: #717171;
 }
 
 
@@ -365,9 +382,9 @@ QLabel.droneName {
     padding: 0px 15px;
     font-size: 15px;
     font-weight: bold;
-    background: #2E2E2E;
-    border-bottom: 1px solid #4B4A4A;
-    border-right: 1px solid #3a3a3a;
+    background: #1e1e1e;
+    border: none;
+    border-left: 1px solid #3a3a3a;
 }
 
 
@@ -398,6 +415,26 @@ QLabel.droneName {
 
 .swarmBatteryButton:hover { background: #303030; }
 .swarmBatteryButton:pressed { background: #1f1f1f; }
+
+
+.cardButton {
+    min-width: 50px;
+    border: none;
+    border-right: 1px solid #4B4A4A;
+}
+
+.cardButton:hover { background: #bdbdbd; }
+.cardButton:pressed { background: #4f4f4f; }
+
+.toggleButton { background: green; }
+DroneCard.disabled .toggleButton { background: #414141 }
+DroneCard.disabled .toggleButton:hover { background: #bdbdbd; }
+DroneCard.disabled .toggleButton:pressed { background: #4f4f4f; }
+
+.identifyButton {
+    border-top: 1px solid #4B4A4A;
+    background: #1e1e1e;
+}
 
 
 /* -- Swarm Settings -- */

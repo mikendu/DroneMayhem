@@ -41,15 +41,23 @@ public class DynamicGuideEditor : GuideEditor
     {
         float time = (float)TimelineUtilities.Director.time;
         EditorGUI.BeginChangeCheck();
-        Vector3 updatedPosition = CustomHandles.MoveHandle(guide.transform.position, 0.05f, 0.17f);
+        Vector3 position = guide.transform.position;
+        Quaternion rotation = guide.transform.rotation;
+        Vector3 scale = guide.transform.localScale;
+        Handles.TransformHandle(ref position, ref rotation, ref scale);
+
         if (EditorGUI.EndChangeCheck())
-            guide.SetPosition(updatedPosition, time);
+        {
+            guide.SetPosition(position, time);
+            guide.SetRotation(rotation, time);
+            guide.SetScale(scale, time);
+        }
     }
 
 
     public static void DrawGuideGUI(DynamicGuide guide)
     {
-        Rect toolsRect = new Rect(20, 20, 300, 275);
+        Rect toolsRect = new Rect(20, 20, 300, 305);
         CustomGUI.Window(toolsRect, "Guide Tools", DrawGuideTools, guide);
     }
 
@@ -81,6 +89,10 @@ public class DynamicGuideEditor : GuideEditor
             guide.SetScale(updatedScale, guide.Time);
 
         EditorGUILayout.Space(25);
+
+
+        if (GUILayout.Button("Add Waypoint"))
+            guide.AddWaypoint();
 
         if (GUILayout.Button("Apply"))
             guide.Apply();

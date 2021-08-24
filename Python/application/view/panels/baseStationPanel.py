@@ -1,4 +1,5 @@
 import time
+import pprint
 from threading import Event
 
 from PyQt5.QtWidgets import QFrame, QPushButton, QLabel, QSizePolicy
@@ -80,8 +81,8 @@ class BaseStationPanel(QFrame):
             collectionEvent.wait()
 
             numBaseStations = len(self.angles.keys())
-            if (numBaseStations < 2):
-                self.dialog.setText("Found " + str(numBaseStations) + " basestation(s).\nExpecting at least 2!")
+            if (numBaseStations < Constants.BASE_STATION_COUNT):
+                self.dialog.setText("Found " + str(numBaseStations) + " basestation(s).\nExpecting at least " + str(Constants.BASE_STATION_COUNT))
                 time.sleep(1.5)
                 self.completeCalibration()
                 return
@@ -100,12 +101,23 @@ class BaseStationPanel(QFrame):
                     geo.origin = position_bs_vector
                     geo.valid = True
                     geometries[id] = geo
+                    print('---- Geometry for base station', id)
                     geo.dump()
+                    print()
+
                 else:
                     self.dialog.setText("Could not find valid configuration!")
                     time.sleep(1.5)
                     self.completeCalibration()
                     return
+
+            numBaseStations = len(geometries.keys())
+            if (numBaseStations < Constants.BASE_STATION_COUNT):
+                self.dialog.setText("Calculated position for " + str(numBaseStations) + " basestation(s).\nExpecting at least " + str(
+                    Constants.BASE_STATION_COUNT))
+                time.sleep(1.5)
+                self.completeCalibration()
+                return
 
             self.dialog.setText("Uploading geo data to CF")
             writeEvent = Event()
@@ -128,7 +140,7 @@ class BaseStationPanel(QFrame):
     def onReadComplete(self, event, calib_data):
         self.calibrationData = calib_data
         for id, data in calib_data.items():
-            print('---- Calibration data for base station', id + 1)
+            print('---- Calibration data for base station', id)
             data.dump()
             print()
         event.set()
@@ -141,6 +153,8 @@ class BaseStationPanel(QFrame):
         event.set()
 
     def onAnglesCollected(self, event, angles):
+        # print("\n\n-------- ANGLES --------\n\n")
+        # pprint.pprint(angles, indent=4, width=160)
         self.angles = angles
         event.set()
 
@@ -182,45 +196,57 @@ class BaseStationDisplay(QFrame):
         super().__init__(*args, **kwargs)
 
         self.appController = appController
-        self.indicators = []
+        self.indicators = {}
         appSettings = appController.appSettings
         layout = layoutUtil.createLayout(LayoutType.HORIZONTAL, self)
         layout.addWidget(QLabel("Tracking Status"))
 
         geo_data = appSettings.getValue(SettingsKey.GEO_DATA)
         calib_data = appSettings.getValue(SettingsKey.CALIB_DATA)
-        numBaseStations = Constants.BASE_STATION_COUNT
+        self.printSavedData(geo_data, calib_data)
 
-        for i in range(0, numBaseStations):
-            layout.addWidget(self.createIndicator(i, geo_data, calib_data))
+        for id in geo_data:
+            layout.addWidget(self.createIndicator(id, geo_data, calib_data))
 
     def updateDisplay(self):
-        numBaseStations = Constants.BASE_STATION_COUNT
         appSettings = self.appController.appSettings
         geo_data = appSettings.getValue(SettingsKey.GEO_DATA)
         calib_data = appSettings.getValue(SettingsKey.CALIB_DATA)
-        for i in range(0, numBaseStations):
-            indicator = self.indicators[i]
+
+        for id in geo_data:
+            indicator = self.indicators[id]
             classes = ["baseStationIndicator"]
-            if self.isValid(i, geo_data, calib_data):
+            if self.isValid(id, geo_data, calib_data):
                 classes.append("connected")
 
             indicator.setProperty("class", classes)
             indicator.style().polish(indicator)
 
-    def createIndicator(self, index, geo_data, calib_data):
+    def createIndicator(self, baseStationId, geo_data, calib_data):
         classes = ["baseStationIndicator"]
         indicator = QFrame()
 
-        if self.isValid(index, geo_data, calib_data):
+        if self.isValid(baseStationId, geo_data, calib_data):
             classes.append("connected")
 
         indicator.setProperty("class", classes)
-        self.indicators.append(indicator)
+        self.indicators[baseStationId] = indicator
         return indicator
 
-    def isValid(self, index, geo_data, calib_data):
-        geo = geo_data[index] if geo_data and len(geo_data) > index else None
-        calib = calib_data[index] if calib_data and len(calib_data) > index else None
+    def isValid(self, baseStationId, geo_data, calib_data):
+        geo = geo_data[baseStationId] if geo_data and baseStationId in geo_data else None
+        calib = calib_data[baseStationId] if calib_data and baseStationId in calib_data else None
+        print("\n\nChecking validity for id", baseStationId, ", got geo:", geo, ", got calib:", calib)
         return (geo and geo.valid) and (calib and calib.valid)
+
+    def printSavedData(self, geo_data, calib_data):
+        print("\n\nSAVED GEOS: ")
+        pprint.pprint(geo_data, indent=4, width=160)
+        print()
+        print()
+
+        print("\n\nSAVED CALIBS: ")
+        pprint.pprint(calib_data, indent=4, width=160)
+        print()
+        print()
 
