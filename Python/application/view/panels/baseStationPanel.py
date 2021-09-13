@@ -153,8 +153,9 @@ class BaseStationPanel(QFrame):
         event.set()
 
     def onAnglesCollected(self, event, angles):
-        # print("\n\n-------- ANGLES --------\n\n")
-        # pprint.pprint(angles, indent=4, width=160)
+        print("\n\n-------- ANGLES --------\n\n")
+        pprint.pprint(angles, indent=4, width=160)
+        print()
         self.angles = angles
         event.set()
 
@@ -236,7 +237,6 @@ class BaseStationDisplay(QFrame):
     def isValid(self, baseStationId, geo_data, calib_data):
         geo = geo_data[baseStationId] if geo_data and baseStationId in geo_data else None
         calib = calib_data[baseStationId] if calib_data and baseStationId in calib_data else None
-        print("\n\nChecking validity for id", baseStationId, ", got geo:", geo, ", got calib:", calib)
         return (geo and geo.valid) and (calib and calib.valid)
 
     def printSavedData(self, geo_data, calib_data):

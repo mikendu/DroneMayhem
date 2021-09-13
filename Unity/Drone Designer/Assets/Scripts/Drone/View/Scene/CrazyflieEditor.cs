@@ -144,7 +144,7 @@ public class CrazyflieEditor : Editor
         showTimestamps = EditorPrefs.GetBool(TIMESTAMPS_PREF_KEY, false);
         showEndpoints = EditorPrefs.GetBool(ENDPOINTS_PREF_KEY, false);
 
-        Rect toolsRect = new Rect(20, 20, 300, 250);
+        Rect toolsRect = new Rect(20, 20, 300, 275);
         CustomGUI.Window(toolsRect, "Drone Tools", DrawDroneTools, drone);
     }
 
@@ -177,6 +177,10 @@ public class CrazyflieEditor : Editor
         Vector3 updatedPosition = EditorGUILayout.Vector3Field(new GUIContent("Current Position"), drone.transform.position);
         if (EditorGUI.EndChangeCheck())
             drone.SetWaypoint(updatedPosition, drone.Time);
+
+        EditorGUILayout.Space(30);
+        if (GUILayout.Button("Set Waypoint"))
+            drone.SetWaypoint(drone.transform.position, drone.Time);
 
         EditorGUILayout.Space(10);
 

@@ -249,15 +249,15 @@ public class DynamicGuide : Guide
 
             foreach (CubicBezier path in paths)
             {
-                Vector3 tangent = path.anchor2 - path.control2;
+                //Vector3 tangent = path.anchor2 - path.control2;
                 drone.AddWaypoint(path.anchor1, path.control1, path.startTime);
-                drone.AddWaypoint(path.anchor2, path.anchor2 + tangent, path.endTime);
+                //drone.AddWaypoint(path.anchor2, path.anchor2 + tangent, path.endTime);
             }
 
 
-            //CubicBezier lastCurve = paths[paths.Count - 1];
-            //Vector3 tangentVector = lastCurve.anchor2 - lastCurve.control2;
-            //drone.AddWaypoint(lastCurve.anchor2, lastCurve.anchor2 + tangentVector, lastCurve.endTime);
+            CubicBezier lastCurve = paths[paths.Count - 1];
+            Vector3 tangentVector = lastCurve.anchor2 - lastCurve.control2;
+            drone.AddWaypoint(lastCurve.anchor2, lastCurve.anchor2 + tangentVector, lastCurve.endTime);
 
             drone.UpdateProperties();
             drone.UpdateView();

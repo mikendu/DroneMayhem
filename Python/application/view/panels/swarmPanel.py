@@ -11,6 +11,8 @@ from application.common import AppSettings, SettingsKey
 
 
 class SwarmPanel(QFrame):
+
+    TARGET_CARD_WIDTH = 450.0
     
     def __init__(self, appController, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -256,7 +258,7 @@ class SwarmPanel(QFrame):
 
     def updateList(self):
         layoutUtil.clearLayout(self.listLayout)   
-        numColumns = round(self.width() / 300.0)
+        numColumns = round(self.width() / SwarmPanel.TARGET_CARD_WIDTH)
         droneList = self.appController.swarmController.allDrones
 
         for i, drone in enumerate(droneList):
@@ -277,7 +279,7 @@ class SwarmPanel(QFrame):
         self.cardList.setMaximumWidth(self.width())
 
     def repositionCards(self):
-        numColumns = round(self.width() / 300.0)
+        numColumns = round(self.width() / SwarmPanel.TARGET_CARD_WIDTH)
         for i in reversed(range(self.listLayout.count())): 
             card = self.listLayout.itemAt(i).widget()
             if isinstance(card, Spinner):
@@ -338,7 +340,7 @@ class DroneCard(QFrame):
         nameLabel = ElidedLabel("Drone " + str(drone.swarmIndex + 1))
         nameLabel.setProperty("class", ["droneName"])
 
-        self.addressLabel = ElidedLabel("URI (Address):  " + drone.address)
+        self.addressLabel = ElidedLabel(drone.address)
         innerLayout.addStretch(1)
         innerLayout.addWidget(nameLabel)
         innerLayout.addWidget(self.addressLabel)

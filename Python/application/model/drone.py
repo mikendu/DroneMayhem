@@ -116,7 +116,8 @@ class Drone():
         self.crazyflie.cf.param.set_value('lighthouse.systemType', '2')
 
         # PID controller
-        self.crazyflie.cf.param.set_value('stabilizer.controller', '0')
+        self.crazyflie.cf.param.set_value('stabilizer.controller', '1')
+        self.crazyflie.cf.param.set_value('stabilizer.estimator', '2')
         self.crazyflie.cf.param.set_value('commander.enHighLevel', '1')
         exceptionUtil.checkInterrupt()
 
@@ -150,7 +151,7 @@ class Drone():
         var_y_history = [1000] * 10
         var_x_history = [1000] * 10
         var_z_history = [1000] * 10
-        threshold = 0.001
+        threshold = 0.01
 
         convergedDuration = 0
         lastTime = None
@@ -258,18 +259,18 @@ class Drone():
         self.varPX = 0.0
         self.varPY = 0.0
         self.varPZ = 0.0
-
-        log_config = LogConfig(name='Kalman Variance & Position', period_in_ms=100)
-        log_config.add_variable('kalman.varPX', 'float')
-        log_config.add_variable('kalman.varPY', 'float')
-        log_config.add_variable('kalman.varPZ', 'float')
-        log_config.add_variable('kalman.stateX', 'float')
-        log_config.add_variable('kalman.stateY', 'float')
-        log_config.add_variable('kalman.stateZ', 'float')
-
-        self.crazyflie.cf.log.add_config(log_config)
-        log_config.data_received_cb.add_callback(self.updatePositioning)
-        log_config.start()
+        #
+        # log_config = LogConfig(name='Kalman Variance & Position', period_in_ms=100)
+        # log_config.add_variable('kalman.varPX', 'float')
+        # log_config.add_variable('kalman.varPY', 'float')
+        # log_config.add_variable('kalman.varPZ', 'float')
+        # log_config.add_variable('kalman.stateX', 'float')
+        # log_config.add_variable('kalman.stateY', 'float')
+        # log_config.add_variable('kalman.stateZ', 'float')
+        #
+        # self.crazyflie.cf.log.add_config(log_config)
+        # log_config.data_received_cb.add_callback(self.updatePositioning)
+        # log_config.start()
 
     def updatePositioning(self, timestamp, data, logconf):
         alpha = 0.25
@@ -288,6 +289,13 @@ class Drone():
             y = float(data['kalman.stateY'])
         if 'kalman.stateZ' in data:
             z = float(data['kalman.stateZ'])
+
+        vx = float(data['kalman.varPX'])
+        vy = float(data['kalman.varPY'])
+        vz = float(data['kalman.varPZ'])
+
+        if vx >= 0.001 or vy >= 0.001 or vz >= 0.001:
+            print("Positioning variance: ", (vx, vy, vz))
 
         self.currentPosition = (x, y, z)
         if self.varPX >= threshold or self.varPY >= threshold or self.varPZ >= threshold:

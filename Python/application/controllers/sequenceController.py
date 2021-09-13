@@ -259,7 +259,7 @@ class SequenceController:
 
         swarmController.parallel(lambda drone: drone.monitorPositioning())
         self.appController.startTimer.emit()
-        threadUtil.interruptibleSleep(duration + 0.25)
+        threadUtil.interruptibleSleep(duration + 1.0)
 
     def landDrones(self, ignoreInterrupt=False):
         if not (self.appController.trajectoryEnabled or self.appController.positioningEnabled):
@@ -274,7 +274,7 @@ class SequenceController:
                 drone.state = DroneState.LANDING
 
         self.appController.sequenceUpdated.emit()
-        threadUtil.interruptibleSleep(2.0, ignoreInterrupt)
+        threadUtil.interruptibleSleep(2.5, ignoreInterrupt)
 
         swarmController.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.25, True))
         threadUtil.interruptibleSleep(0.25, ignoreInterrupt)

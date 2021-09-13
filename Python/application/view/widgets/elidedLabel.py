@@ -13,5 +13,5 @@ class ElidedLabel(QLabel):
 
         painter = QPainter(self)
         metrics = QFontMetrics(self.font())
-        elided = metrics.elidedText(self.text(), Qt.ElideRight, maxWidth)
-        painter.drawText(self.rect(), self.alignment(), elided)
+        #elided = metrics.elidedText(self.text(), Qt.ElideRight, maxWidth)
+        painter.drawText(self.rect(), self.alignment(), self.text())

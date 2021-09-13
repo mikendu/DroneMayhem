@@ -24,9 +24,9 @@ class MainDashboard(QFrame):
         layout.addLayout(leftLayout, 20)
 
         self.sequencePanel = SequencePanel(self.appController)
-        layout.addWidget(self.sequencePanel, 40)
+        layout.addWidget(self.sequencePanel, 30)
 
         self.swarmPanel = SwarmPanel(self.appController)
-        layout.addWidget(self.swarmPanel, 40)
+        layout.addWidget(self.swarmPanel, 50)
 
 

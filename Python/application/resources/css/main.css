@@ -205,6 +205,7 @@ ButtonBar .buttonBarTitle {
     font-weight: bold;
     font-size: 15px;
     color: white;
+    min-height: 70px;
 }
 
 .buttonBarButton.enabled {
@@ -337,7 +338,7 @@ SwarmPanel {
 }
 
 .swarmBarButton {
-    max-height: 45px;
+    max-height: 70px;
     color: white;
     background: #0c0c0c;
     border: 1px solid #414141;

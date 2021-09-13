@@ -54,6 +54,7 @@ class SwarmController():
             desiredCount = totalCount if numDrones < 0 else numDrones
             end = max(0, min(desiredCount, totalCount))
             toConnect = self.allDrones[:end]
+            toConnect = list(filter(lambda drone: drone.enabled, toConnect))
 
         Logger.log("Attempting to open " + str(len(toConnect)) + " drone connections")
         for channel in self.channels:
@@ -191,8 +192,6 @@ class SwarmController():
 
         light_controller.set_color(0, 0, 0, 0.1, True)
         commander.takeoff(Constants.MIN_HEIGHT, 1.5)
-        time.sleep(1.25)
-
         success = self.verifyTakeoff(drone)
 
         Logger.log("Landing...", drone.swarmIndex)
