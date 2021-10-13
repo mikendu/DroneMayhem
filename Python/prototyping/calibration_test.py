@@ -8,20 +8,24 @@ os.environ["USE_CFLINK"] = "cpp"
 # if 'USE_CFLINK' in os.environ:
 #     del os.environ['USE_CFLINK']
 
-uri = "radio://*/120/2M/E7E7E7E703"
-# uri = "radio://0/1/2M/E7E7E7E701"
+uri = "radio://*/120/2M/E7E7E7E702"
+# uri = "radio://0/120/2M/E7E7E7E703"
 cflib.crtp.init_drivers()
 
 
-calibrator = Calibrator(uri)
-calibrator.begin()
+# calibrator = Calibrator(uri)
+# calibrator.begin()
+
+calibrator = Calibrator2()
 
 def snapshot(arg):
-    calibrator.takeSample()
+    calibrator.next(uri)
+    # calibrator.takeSample()
 
 keyboard.on_press_key('space', snapshot)
+keyboard.on_press_key('f', lambda evt: calibrator.finish(uri))
 keyboard.wait('escape')
-calibrator.end()
+# calibrator.end()
 print('Done!')
 
 """

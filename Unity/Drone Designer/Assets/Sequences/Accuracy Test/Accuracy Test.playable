@@ -1,5 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8708485793809534727
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 3.299999952316284
+  JointType: 0
+  Position: {x: 0, y: 0.5, z: 0}
+  Tangent: {x: 0.125, y: 0, z: 0}
+--- !u!114 &-6085776344523743437
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Time: 1.100000023841858
+  JointType: 0
+  Position: {x: -0.5, y: 0.5, z: 0}
+  Tangent: {x: 0, y: 0, z: 0}
 --- !u!114 &-3477542613907077459
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -25,48 +57,9 @@ MonoBehaviour:
     m_Objects:
     - {fileID: 5719593300925865228}
     - {fileID: 1950263112181960730}
-    - {fileID: -2486288699730979702}
-    - {fileID: 5405463105334561439}
-    - {fileID: -2396574812885193081}
-    - {fileID: 2202246580095829915}
-    - {fileID: 3047620580356424742}
-    - {fileID: 7275975852272903904}
-    - {fileID: 4788829544738631868}
-    - {fileID: 3147878041164181066}
-    - {fileID: 6956009940729260719}
-    - {fileID: 2924279995793464827}
---- !u!114 &-2486288699730979702
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 1.0166666666666666
-  JointType: 0
-  Position: {x: 0, y: 1, z: 0}
-  Tangent: {x: 0, y: 0, z: 0}
---- !u!114 &-2396574812885193081
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 3
-  JointType: 0
-  Position: {x: -0.5, y: 1, z: 0}
-  Tangent: {x: 0, y: 0, z: 0}
+    - {fileID: -6085776344523743437}
+    - {fileID: 7603060201242207941}
+    - {fileID: -8708485793809534727}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,100 +96,6 @@ MonoBehaviour:
   JointType: 0
   Position: {x: 0, y: 0.5, z: 0}
   Tangent: {x: 0.03125, y: 0, z: 0}
---- !u!114 &2202246580095829915
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 4
-  JointType: 0
-  Position: {x: -0.5, y: 1, z: 0}
-  Tangent: {x: -0.125, y: 0, z: 0}
---- !u!114 &2924279995793464827
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 8
-  LightColor: {r: 1, g: 0.36613372, b: 0, a: 1}
---- !u!114 &3047620580356424742
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 5
-  JointType: 0
-  Position: {x: 0, y: 1, z: 0}
-  Tangent: {x: 0, y: 0, z: 0}
---- !u!114 &3147878041164181066
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 8
-  JointType: 0
-  Position: {x: 0.5, y: 1, z: 0}
-  Tangent: {x: -0.125, y: 0, z: 0}
---- !u!114 &4788829544738631868
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 7
-  JointType: 0
-  Position: {x: 0.5, y: 1, z: 0}
-  Tangent: {x: 0, y: 0, z: 0}
---- !u!114 &5405463105334561439
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 2
-  JointType: 0
-  Position: {x: 0, y: 1, z: 0}
-  Tangent: {x: 0, y: 0.125, z: 0}
 --- !u!114 &5719593300925865228
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -211,21 +110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Time: 0
   LightColor: {r: 0, g: 0.45940614, b: 1, a: 1}
---- !u!114 &6956009940729260719
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56b7c50913b94954ca69bb781cb6f8fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Time: 7
-  LightColor: {r: 0, g: 0.45882368, b: 1, a: 1}
---- !u!114 &7275975852272903904
+--- !u!114 &7603060201242207941
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -237,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc298d5feac66594e8f73fe4aba6d775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Time: 6
+  m_Time: 2.200000047683716
   JointType: 0
-  Position: {x: 0, y: 1, z: 0}
-  Tangent: {x: 0.125, y: 0, z: 0}
+  Position: {x: 0.5, y: 0.5, z: 0}
+  Tangent: {x: -0.125, y: 0, z: 0}

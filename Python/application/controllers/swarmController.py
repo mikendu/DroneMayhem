@@ -1,5 +1,6 @@
 import time
 import sys
+import math
 
 from concurrent.futures import ThreadPoolExecutor, wait
 
@@ -149,6 +150,24 @@ class SwarmController():
                 time.sleep(1.25)
                 results = self.parallel(self.verifyTakeoff)
 
+                self.broadcast(lambda broadcaster: broadcaster.high_level_commander.go_to(x=0.0, y=0.5, z=0.0, yaw=math.radians(180), duration_s=2.0, relative=True))
+                time.sleep(2.0)
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(255, 255, 255, 0.0, False))
+                time.sleep(0.25)
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.0, False))
+
+                self.broadcast(lambda broadcaster: broadcaster.high_level_commander.go_to(x=0.0, y=-1.0, z=0.0, yaw=math.radians(-360), duration_s=3.0, relative=True))
+                time.sleep(3.0)
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(255, 255, 255, 0.0, False))
+                time.sleep(0.25)
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.0, False))
+
+                self.broadcast(lambda broadcaster: broadcaster.high_level_commander.go_to(x=0.0, y=0.5, z=0.0, yaw=math.radians(0), duration_s=2.0, relative=True))
+                time.sleep(2.0)
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(255, 255, 255, 0.0, False))
+                time.sleep(0.25)
+                self.broadcast(lambda broadcaster: broadcaster.light_controller.set_color(0, 0, 0, 0.0, False))
+
                 Logger.log("Landing drones...")
 
                 self.broadcast(lambda broadcaster: broadcaster.high_level_commander.land(Constants.LANDING_HEIGHT, 2.0))
@@ -193,6 +212,24 @@ class SwarmController():
         light_controller.set_color(0, 0, 0, 0.1, True)
         commander.takeoff(Constants.MIN_HEIGHT, 1.5)
         success = self.verifyTakeoff(drone)
+
+        commander.go_to(x=0.0, y=0.5, z=0.0, yaw=math.radians(180), duration_s=2.0, relative=True)
+        time.sleep(2.0)
+        light_controller.set_color(255, 255, 255, 0.0, False)
+        time.sleep(0.25)
+        light_controller.set_color(0, 0, 0, 0.0, False)
+
+        commander.go_to(x=0.0, y=-1.0, z=0.0, yaw=math.radians(-360), duration_s=3.0, relative=True)
+        time.sleep(3.0)
+        light_controller.set_color(255, 255, 255, 0.0, False)
+        time.sleep(0.25)
+        light_controller.set_color(0, 0, 0, 0.0, False)
+
+        commander.go_to(x=0.0, y=0.5, z=0.0, yaw=math.radians(180), duration_s=2.0, relative=True)
+        time.sleep(2.0)
+        light_controller.set_color(255, 255, 255, 0.0, False)
+        time.sleep(0.25)
+        light_controller.set_color(0, 0, 0, 0.0, False)
 
         Logger.log("Landing...", drone.swarmIndex)
         commander.land(Constants.LANDING_HEIGHT, 2.0)

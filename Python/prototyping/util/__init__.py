@@ -14,6 +14,8 @@ from cflib.localization import LighthouseConfigWriter
 from cflib.localization import LighthouseBsGeoEstimator
 from cflib.localization import LighthouseSweepAngleAverageReader
 
+from .calibrator_v2 import *
+
 class GeometryBuffer:
 
     def __init__(self, size):
@@ -105,6 +107,7 @@ class Calibrator:
         self.updateQueue(data, dataKey='stateEstimate.z', mapKey='positionZ')
         self.updateQueue(data, dataKey='stateEstimate.yaw', mapKey='yaw')
 
+        # print("inc_x:", data['stateEstimate.x'])
         if 'lighthouse.bsReceive' in data:
             self.handleBaseStationStatus(data['lighthouse.bsReceive'])
 
@@ -183,6 +186,7 @@ class Calibrator:
 
     def writeNewGeometry(self, correctedPoses):
         print("Writing new geometry to crazyflie...")
+        tmpGeo = {}
         for id in correctedPoses:
             if id not in self.geometryBuffers:
                 self.geometryBuffers[id] = GeometryBuffer(Calibrator.ROLLING_QUEUE_SIZE)
@@ -191,11 +195,23 @@ class Calibrator:
             position, rotation = correctedPoses[id]
             buffer.add(position, rotation)
 
+            geo = LighthouseBsGeometry()
+            position, rotation = correctedPoses[id]
+            geo.rotation_matrix = rotation
+            geo.origin = position
+            geo.valid = True
+            tmpGeo[id] = geo
+
+
         geometries = self.geometry
-        self.writeGeometry(geometries)
+        # self.writeGeometry(geometries)
+        self.writeGeometry(tmpGeo)
 
 
     def writeGeometry(self, geometries):
+        if len(geometries) == 0:
+            return
+
         numBasestations = len(geometries)
         helper = LighthouseMemHelper(self.cf)
         writer = LighthouseConfigWriter(self.cf, nr_of_base_stations=numBasestations)
@@ -219,23 +235,84 @@ class Calibrator:
 
 
     def correctPoses(self, estimatedPoses, dronePose):
-        print("Applying position correction...")
+        # print("Applying position correction...")
         x, y, z, yaw = dronePose
         dronePosition = np.array([x, y, z])
         correctedPoses = {}
 
         for id in estimatedPoses:
-            print("\tapplying correction for base station", str(id) + "...")
+            # print("\tapplying correction for base station", str(id) + "...")
             position, rotationMatrix = estimatedPoses[id]
             correctionMatrix = MathHelper.getYawMatrix(yaw)
             correctedPosition = np.add(np.matmul(correctionMatrix, position), dronePosition)
             correctedRotation = np.matmul(correctionMatrix, rotationMatrix)
 
             positionError, rotationError = self.calculatePoseError(id, correctedPosition, correctedRotation)
-            print("\tERROR STATS[", id, "] | Position error: {:.1f}%, rotation error: {:.1f}%".format((positionError * 100), (rotationError * 100)))
+            sumError = positionError + rotationError
+            print("\n\n\t\t\t--> ERROR STATS[", id, "] | Position error: {:.1f}%, rotation error: {:.1f}%, Sum: {:.1f}%".format((positionError * 100), (rotationError * 100), (sumError * 100)), "\n\n")
             if positionError > Calibrator.ERROR_THRESHOLD or rotationError > Calibrator.ERROR_THRESHOLD:
                 print("\tskipping data for base station", id, "due to high error margin.", file=sys.stderr)
+                # print("\n\n")
+                # print("\n z Data:\n",self.queueMap['positionX'], '\n')
+                # print("\n y Data:\n",self.queueMap['positionY'], '\n')
+                # print("\n z Data:\n",self.queueMap['positionZ'], '\n')
+                # print("\n Yaw Data:\n",self.queueMap['yaw'], '\n')
+                # print("\n\n")
                 continue
+
+            correctedPoses[id] = (correctedPosition, correctedRotation)
+            deltaX = deltaY = deltaZ = deltaYaw = 0
+
+            minError = 900000000000.0
+            print("Finding error compensation...")
+
+            # yaw
+            for i in range(-10, 11):
+                if i == 0:
+                    continue
+
+                # x
+                for j in range(-10, 11):
+                    if j == 0:
+                        continue
+
+                    # y
+                    for k in range(-10, 11):
+                        if k == 0:
+                            continue
+
+                        # z
+                        for l in range(-10, 11):
+                            if l == 0:
+                                continue
+
+                            newYaw = yaw + float(i)
+                            newX = x + (j * 0.01)
+                            newY = y + (k * 0.01)
+                            newZ = z + (l * 0.01)
+                            newPosition = np.array([newX, newY, newZ])
+                            correctionMatrix = MathHelper.getYawMatrix(newYaw)
+                            correctedPosition = np.add(np.matmul(correctionMatrix, position), newPosition)
+                            correctedRotation = np.matmul(correctionMatrix, rotationMatrix)
+                            positionError, rotationError = self.calculatePoseError(id, correctedPosition,
+                                                                                   correctedRotation)
+                            errorSum = positionError + rotationError
+                            if (errorSum < minError):
+                                minError = errorSum
+                                deltaX = (j * 0.01)
+                                deltaY = (k * 0.01)
+                                deltaZ = (l * 0.01)
+                                deltaYaw = float(i)
+
+            print("\n\n\t\t\tMinimizing delta is ({:.2f}, {:.2f}, {:.2f}, {:.2f}) with error sum: {:.1f}%".format(deltaX, deltaY, deltaZ, deltaYaw, (minError * 100)))
+            newYaw = yaw + deltaYaw
+            newX = x + deltaX
+            newY = y + deltaY
+            newZ = z + deltaZ
+            newPosition = np.array([newX, newY, newZ])
+            correctionMatrix = MathHelper.getYawMatrix(newYaw)
+            correctedPosition = np.add(np.matmul(correctionMatrix, position), newPosition)
+            correctedRotation = np.matmul(correctionMatrix, rotationMatrix)
 
             correctedPoses[id] = (correctedPosition, correctedRotation)
 
@@ -271,7 +348,7 @@ class Calibrator:
         self.clearBuffer('positionY')
         self.clearBuffer('positionZ')
         time.sleep(0.25)
-        print("\twaiting for sensor to converge...")
+        # print("\twaiting for sensor to converge...")
         while not self.hasValidPosition():
             time.sleep(0.25)
 
@@ -279,7 +356,7 @@ class Calibrator:
         buffer = []
 
         for i in range(0, sampleCount):
-            print("\ttaking position sample...")
+            #print("\ttaking position sample...")
             x = self.getAverage('positionX')
             y = self.getAverage('positionY')
             z = self.getAverage('positionZ')
@@ -310,10 +387,11 @@ class Calibrator:
     def hasValidPosition(self):
         varianceX = self.getAverage('varianceX')
         varianceY = self.getAverage('varianceY')
+        #print("Variance. X:",  varianceX, ", Y:", varianceY)
         return (varianceX < Calibrator.VARIANCE_THRESHOLD) and (varianceY < Calibrator.VARIANCE_THRESHOLD)
 
     def findBaseStationPoses(self):
-        sampleSize = 5
+        sampleSize = 1
         buffers = [
             GeometryBuffer(sampleSize),
             GeometryBuffer(sampleSize),
@@ -349,14 +427,14 @@ class Calibrator:
 
         for id in sorted(self.sweepAngles.keys()):
 
-            print("\testimating position and rotation of base station", str(id) + "...")
+            #print("\testimating position and rotation of base station", str(id) + "...")
             averagedAngles = self.sweepAngles[id][1]
             rotationMatrix, positionVector = estimator.estimate_geometry(averagedAngles)
             valid = estimator.sanity_check_result(positionVector)
             if valid:
                 geometries[id] = (positionVector, rotationMatrix)
 
-        print("Estimation step complete.")
+        #print("Estimation step complete.")
         return geometries
 
     def collectAngles(self):
@@ -368,19 +446,19 @@ class Calibrator:
         self.anglesEvent.wait()
 
     def onAnglesCollected(self, angles):
-        print("Base station data collected.")
+        # print("Base station data collected.")
         self.sweepAngles = angles
         self.anglesEvent.set()
 
     def readSavedGeometry(self):
-        print("Reading geometry...")
+        # print("Reading geometry...")
         self.readEvent = Event()
         helper = LighthouseMemHelper(self.cf)
         helper.read_all_geos(self.onGeometryRead)
         self.readEvent.wait()
 
     def onGeometryRead(self, geometries):
-        print("Saved geometry read.")
+        # print("Saved geometry read.")
         self.savedGeometry = geometries
         self.readEvent.set()
 

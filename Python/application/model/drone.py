@@ -112,7 +112,7 @@ class Drone():
 
     def updateSensors(self, uploadGeometry, geoData, calibData, numBasestations):
         Logger.log("Updating sensor & positioning data", self.swarmIndex)
-        self.crazyflie.cf.param.set_value('lighthouse.method', '1')
+        self.crazyflie.cf.param.set_value('lighthouse.method', '0')
         self.crazyflie.cf.param.set_value('lighthouse.systemType', '2')
 
         # PID controller
@@ -151,7 +151,7 @@ class Drone():
         var_y_history = [1000] * 10
         var_x_history = [1000] * 10
         var_z_history = [1000] * 10
-        threshold = 0.01
+        threshold = 0.001
 
         convergedDuration = 0
         lastTime = None

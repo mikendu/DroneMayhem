@@ -35,10 +35,13 @@ The distance from the center to the perimeter of the circle is around 0.5 m
 """
 import math
 import time
+import os
 
 import cflib.crtp
 from cflib.crazyflie.swarm import CachedCfFactory
 from cflib.crazyflie.swarm import Swarm
+from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
+from cflib.crazyflie import Crazyflie
 
 """
 radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1
@@ -47,18 +50,22 @@ radio://*/55/2M/E7E7E7E701?safelink=1&autoping=1
 -- Drone 3 	|	 Connecting to address radio://*/55/2M/E7E7E7E706?safelink=1&autoping=1
 """
 
+os.environ["USE_CFLINK"] = "cpp"
+cflib.crtp.init_drivers()
+
+
 # Change uris according to your setup
-URI0 = 'radio://0/55/2M/E7E7E7E701'
-URI1 = 'radio://0/55/2M/E7E7E7E704'
-URI2 = 'radio://0/55/2M/E7E7E7E705'
-URI3 = 'radio://0/55/2M/E7E7E7E706'
+URI0 = 'radio://0/80/2M/E7E7E7E701'
+URI1 = 'radio://0/40/2M/E7E7E7E704'
+URI2 = 'radio://0/1/2M/E7E7E7E702'
+URI3 = 'radio://0/1/2M/E7E7E7E701'
 
 # d: diameter of circle
 # z: altitude
-params0 = {'d': 1.0, 'z': 0.3}
-params1 = {'d': 1.0, 'z': 0.3}
-params3 = {'d': 1.0, 'z': 0.3}
-params4 = {'d': 1.0, 'z': 0.3}
+params0 = {'y': 0.6, 'delay': 0.0}
+params1 = {'y': 0.2, 'delay': 0.5}
+params3 = {'y': -0.2, 'delay': 1.0}
+params4 = {'y': -0.6, 'delay': 1.5}
 
 
 uris = {
@@ -77,66 +84,67 @@ params = {
 
 
 def reset_estimator(scf):
+
+    scf.cf.light_controller.set_color(255, 0, 0, 0.0, True)
     cf = scf.cf
+    cf.param.set_value('lighthouse.method', '0')
+    cf.param.set_value('lighthouse.systemType', '2')
+    cf.param.set_value('stabilizer.controller', '1')
+    cf.param.set_value('stabilizer.estimator', '2')
+    cf.param.set_value('commander.enHighLevel', '1')
+    time.sleep(1.5)
+
+
     cf.param.set_value('kalman.resetEstimation', '1')
     time.sleep(0.1)
     cf.param.set_value('kalman.resetEstimation', '0')
-    time.sleep(2)
+    time.sleep(2.0)
+
+    scf.cf.light_controller.set_color(0, 255, 0, 0.0, True)
 
 
-def poshold(cf, t, z):
-    steps = t * 10
-
-    for r in range(steps):
-        cf.commander.send_hover_setpoint(0, 0, 0, z)
-        time.sleep(0.1)
-
+NUM_CYCLES = 6
+HEIGHT = 1.0
+X = -0.25
 
 def run_sequence(scf, params):
+
     cf = scf.cf
+    delay = params['delay']
+    y = params['y']
 
-    # Number of setpoints sent per second
-    fs = 4
-    fsi = 1.0 / fs
+    # Takeoff
+    cf.high_level_commander.takeoff(HEIGHT, 4.5)
+    time.sleep(4.75)
 
-    # Compensation for unknown error :-(
-    comp = 1.3
+    # Initial Position
+    cf.high_level_commander.go_to(X, y, HEIGHT, 0.0, 2.0)
+    time.sleep(2.0)
+    scf.cf.light_controller.set_color(0, 127, 255, 0.0, True)
 
-    # Base altitude in meters
-    base = 0.15
+    # Delay
+    time.sleep(delay)
 
-    d = params['d']
-    z = params['z']
+    # Wave Sequence
+    for i in range(0, NUM_CYCLES):
+        # Step 1 forward
+        cf.high_level_commander.go_to(X + 0.5, y, HEIGHT, 0.0, 1.25)
+        time.sleep(1.25)
 
-    poshold(cf, 2, base)
+        # Step 2 backward
+        cf.high_level_commander.go_to(X - 0.5, y, HEIGHT, 0.0, 1.25)
+        time.sleep(1.25)
 
-    ramp = fs * 2
-    for r in range(ramp):
-        cf.commander.send_hover_setpoint(0, 0, 0, base + r * (z - base) / ramp)
-        time.sleep(fsi)
+    # Final Position
+    cf.high_level_commander.go_to(X, y, HEIGHT, 0.0, 1.25)
+    time.sleep(1.25)
 
-    poshold(cf, 2, z)
+    # Landing
+    cf.high_level_commander.land(0.0, 4.5)
+    time.sleep(4.75)
 
-    for _ in range(2):
-        # The time for one revolution
-        circle_time = 8
-
-        steps = circle_time * fs
-        for _ in range(steps):
-            cf.commander.send_hover_setpoint(d * comp * math.pi / circle_time,
-                                             0, 360.0 / circle_time, z)
-            time.sleep(fsi)
-
-    poshold(cf, 2, z)
-
-    for r in range(ramp):
-        cf.commander.send_hover_setpoint(0, 0, 0,
-                                         base + (ramp - r) * (z - base) / ramp)
-        time.sleep(fsi)
-
-    poshold(cf, 1, base)
-
-    cf.commander.send_stop_setpoint()
+    # Stop
+    cf.high_level_commander.stop()
 
 
 if __name__ == '__main__':
@@ -145,4 +153,5 @@ if __name__ == '__main__':
     factory = CachedCfFactory(rw_cache='./cache')
     with Swarm(uris, factory=factory) as swarm:
         swarm.parallel(reset_estimator)
+        time.sleep(5.0)
         swarm.parallel(run_sequence, args_dict=params)
