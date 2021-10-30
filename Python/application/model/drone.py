@@ -123,7 +123,10 @@ class Drone():
 
         if uploadGeometry:
             self.writeBaseStationData(geoData, calibData, numBasestations)
+            Logger.log("Base station data written to drone", self.swarmIndex)
             self.resetEstimator()
+            Logger.log("Estimator reset finished", self.swarmIndex)
+
 
         self.state = DroneState.CONNECTED
         self.light_controller.set_color(0, 255, 0, 0.0, True)
@@ -139,6 +142,10 @@ class Drone():
         self.waitForEstimator()
 
     def waitForEstimator(self):
+        Logger.log("Sleeping for 1 second to allow position estimation to reset", self.swarmIndex)
+        time.sleep(1.0)
+        Logger.log("Position monitoring starting", self.swarmIndex)
+
         startTime = time.time()
         log_config = LogConfig(name='Kalman Variance & Position', period_in_ms=100)
         log_config.add_variable('kalman.varPX', 'float')
@@ -152,9 +159,10 @@ class Drone():
         var_x_history = [1000] * 10
         var_z_history = [1000] * 10
         threshold = 0.001
-
-        convergedDuration = 0
-        lastTime = None
+        #
+        # convergedDuration = 0
+        # lastTime = None
+        logCount = 0
 
         with SyncLogger(self.crazyflie, log_config) as logger:
             for log_entry in logger:
@@ -179,24 +187,31 @@ class Drone():
                 x = data['kalman.stateX']
                 y = data['kalman.stateY']
                 z = data['kalman.stateZ']
-                has_valid_data = z < 0.25
+                has_valid_data = z < 0.5
+
+                if (logCount == 0):
+                    Logger.log("Current drone position: " + ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z)), self.swarmIndex)
+
+                logCount = ((logCount + 1) % 5)
+
 
                 has_converged = (max_x - min_x) < threshold and (max_y - min_y) < threshold and (max_z - min_z) < threshold and has_valid_data
                 timed_out = (time.time() - startTime) > Drone.ESTIMATOR_TIMEOUT_SEC
-                currentTime = time.time()
-                elapsed = 0 if lastTime is None else currentTime - lastTime
-                lastTime = currentTime
+                # currentTime = time.time()
+                # elapsed = 0 if lastTime is None else currentTime - lastTime
+                # lastTime = currentTime
 
                 if has_converged:
-                    convergedDuration += elapsed
-                    if convergedDuration >= 1.5:
-                        message = "Sensors updated & position found. Current position: " + ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z))
-                        Logger.log(message, self.swarmIndex)
-                        self.currentPosition = (float(x), float(y), float(z))
-                        break
+                    # convergedDuration += elapsed
+                    # if convergedDuration >= 1.5:
+                    message = "Sensors updated & position found. Current position: " + ("({:.2f}, {:.2f}, {:.2f})".format(x, y, z))
+                    Logger.log(message, self.swarmIndex)
+                    self.currentPosition = (float(x), float(y), float(z))
+                    break
                 else:
-                    convergedDuration = 0
+                    # convergedDuration = 0
                     if timed_out:
+                        Logger.error("Timed out while waiting for valid position data", self.swarmIndex)
                         message = "Invalid position data received. Height: " + str(z)
                         Logger.error(message, self.swarmIndex)
                         self.setError()
