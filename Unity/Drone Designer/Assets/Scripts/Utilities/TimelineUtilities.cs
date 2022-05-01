@@ -207,6 +207,22 @@ public class TimelineUtilities : MonoBehaviour
 
     }
 
+    [MenuItem("Drone Tools/Import Sequence", false, 2)]
+    static void ImportSequence()
+    {
+        // Choose folder for new sequence
+        string path = EditorUtility.OpenFilePanel("Import Existing Sequence", Application.dataPath + "/Expanded Sequences/Imported", "json");
+        if (string.IsNullOrEmpty(path))
+            return;
+
+
+        if (File.Exists(path))
+        {
+            string data = File.ReadAllText(path);
+            BezierImporter.Import(data);
+        }
+    }
+
 
     [MenuItem("Drone Tools/Export Sequence %&s", false, 2)]
     public static void SaveSequence()

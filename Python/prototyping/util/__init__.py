@@ -1,20 +1,4 @@
-import sys
-import numpy as np
-import math
-import time
-import collections
-from threading import Event
-
-from cflib.crazyflie import Crazyflie
-from cflib.crazyflie.mem import LighthouseBsGeometry
-from cflib.crazyflie.mem import LighthouseMemHelper
-from cflib.crazyflie.log import LogConfig
-from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
-from cflib.localization import LighthouseConfigWriter
-from cflib.localization import LighthouseBsGeoEstimator
-from cflib.localization import LighthouseSweepAngleAverageReader
-
-from .calibrator_v2 import *
+from prototyping.util.backup.calibrator_v2 import *
 
 class GeometryBuffer:
 

@@ -1,4 +1,4 @@
-import os
+                                    import os
 import struct
 
 import cflib.crtp
@@ -30,24 +30,20 @@ import numpy as np
 
 
 
-def signal_handler(sig, frame):
-    print('Interrupt signal received, exiting!')
-    sys.exit(0)
-
 
 
 os.environ["USE_CFLINK"] = "cpp"
 # if 'USE_CFLINK' in os.environ:
 #     del os.environ['USE_CFLINK']
 
-uri = "radio://*/44/2M/E7E7E7E7E7"
+uri = "radio://*/80/2M/E7E7E7E701"
 # uri = "radio://0/1/2M/E7E7E7E701"
 cflib.crtp.init_drivers()
 
 
 with SyncCrazyflie(uri, cf=Crazyflie(ro_cache='./cache',rw_cache='./cache')) as scf:
     cf = scf.cf
-    cf.param.set_value('lighthouse.method', '1')
+    cf.param.set_value('lighthouse.method', '0')
     cf.param.set_value('lighthouse.systemType', '2')
     cf.param.set_value('stabilizer.controller', '1')
     cf.param.set_value('stabilizer.estimator', '2')
@@ -57,21 +53,21 @@ with SyncCrazyflie(uri, cf=Crazyflie(ro_cache='./cache',rw_cache='./cache')) as 
     commander = cf.high_level_commander
 
     print('Taking off...')
-    commander.takeoff(0.25, 1.5)
-    time.sleep(2.5)
-
-    commander.go_to(0, 0.25, 0.25, 0, 1.0)
+    commander.takeoff(0.5, 1.5)
     time.sleep(1.5)
 
-    commander.go_to(0, -0.25, 0.25, 0, 1.0)
-    time.sleep(1.5)
+    commander.go_to(0, 0.5, 0.5, 0, 1.0)
+    time.sleep(1.0)
 
-    commander.go_to(0, 0.0, 0.25, 0, 1.0)
-    time.sleep(1.5)
+    commander.go_to(0, -0.5, 0.5, 0, 1.0)
+    time.sleep(1.0)
+
+    commander.go_to(0, 0.0, 0.5, 0, 1.0)
+    time.sleep(1.0)
 
     print('Landing')
     commander.land(0.025, 1.5)
-    time.sleep(2.5)
+    time.sleep(1.5)
     commander.stop()
 
     print('Sequence done!!')
