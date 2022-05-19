@@ -398,7 +398,7 @@ print("Done!")
 
 
 color_data = None
-with open('../../Sequences/Straight Line.json') as jsonFile:
+with open('../../../Sequences/Straight Line.json') as jsonFile:
     seq_data = json.load(jsonFile)
     color_data = seq_data['Tracks'][0]['LedTimings']
 

@@ -8,10 +8,11 @@ PyQt5
 vispy
 pyinstaller
 cmake
-cflinkcpp
+cflinkcppclear
 munkres
 pylint
+cflib
 
 
 ###### Local Packages ######`
--e crazyflie-lib-python
+# -e crazyflie-lib-python

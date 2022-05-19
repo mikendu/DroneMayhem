@@ -1,0 +1,31 @@
+TODOS
+-----------------
+
+- Use Robust Mode: https://www.bitcraze.io/2021/06/robust-kalman-filter-for-ultra-wideband-localization/
+    - set robustTwr to true
+    - set robustTdoa to true
+
+
+Multi-Position Calibration:
+- https://www.bitcraze.io/2022/01/improved-lighthouse-geometry-estimation/
+- https://github.com/bitcraze/crazyflie-lib-python/pull/297
+
+
+Wireshark Debugging
+- https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/wireshark/wireshark/
+- https://www.bitcraze.io/2022/02/using-wireshark-with-the-crazyflie/
+
+
+Compressed Trajectories (Official):
+- https://github.com/bitcraze/crazyflie-lib-python/pull/268
+- https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level_compressed.py
+
+
+
+
+
+REFERENCE
+--------------------------
+Log Variables: https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/api/logs/#kalman
+Parameters: https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/api/params/
+Simulation: https://www.bitcraze.io/2021/12/simulation-possibilities/

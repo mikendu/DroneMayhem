@@ -25,7 +25,7 @@ class BezierNodeTest : MonoBehaviour
     public bool DrawScaledMarker = true;
 
     public bool playing = false;
-    public bool ApplyScaling = true;
+    public bool EnforceContinuitity = true;
 
     private float totalTime;
 
@@ -50,7 +50,7 @@ class BezierNodeTest : MonoBehaviour
             var currentSegment = Segments[i];
             var nextNode = (i < (Segments.Count - 1)) ? Segments[i + 1].HeadNode : LastNode;
             nextNode.Generate();
-            currentSegment.Generate(nextNode, ApplyScaling);
+            currentSegment.Generate(nextNode, EnforceContinuitity);
             totalTime += currentSegment.Time;
         }
     }
