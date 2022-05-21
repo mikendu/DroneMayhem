@@ -82,18 +82,20 @@ The Crazyradio driver needs to be updated to work with the C++ link, and the new
 support the broadcasting feature.
 
 ## Setup radio Driver & libusb
-To run on Windows using the C++ radio library (`crazyflie-link-cpp`), the `libusbK` radio driver **must**
+~~To run on Windows using the C++ radio library (`crazyflie-link-cpp`), the `libusbK` radio driver **must**
 be installed (not the `libusb-win32` driver that is recommended by default). The `WinUSB` driver will
-work as well, but the `libusbK` works with the default Python link, where as `WinUSB does not:
-- `libusb-win32`: supports Python link, does **not** support C++ link or radio bootloader scripts
-- `WinUSB`: supports C++ link and radio bootloader, does **not** support Python link
-- `libusbK`: supports all 3
+work as well, but the `libusbK` works with the default Python link, where as `WinUSB does not:~~
+- ~~`libusb-win32`: supports Python link, does **not** support C++ link or radio bootloader scripts~~
+- ~~`WinUSB`: supports C++ link and radio bootloader, does **not** support Python link~~
+- ~~`libusbK`: supports all 3~~
 
-The C++ link will seg-fault if the `WinUSB` or `libusbK` driver is not used, and updating the driver can be done using 
-Zadig (see instructions on crazyflie website).
+~~The C++ link will seg-fault if the `WinUSB` or `libusbK` driver is not used, and updating the driver can be done using 
+Zadig (see instructions on crazyflie website).~~
 
-Additionally, the `libusb-1.0.dll` file in `C:\Windows\System32` must be replaced with the one from
-`firmware-tools/` in the repository, and this must be done before attempting to flash or connect to the radio.
+~~Additionally, the `libusb-1.0.dll` file in `C:\Windows\System32` must be replaced with the one from
+`firmware-tools/` in the repository, and this must be done before attempting to flash or connect to the radio.~~
+
+The recommended `libusb-win32` driver should work just fine.
 
 
 ## Building  crazyradio-firmware
@@ -184,46 +186,49 @@ address for the crazyflie.
 ## Building crazyflie-firmware
 After setting up the Python environment & building the libraries for the software,
 the firmware on the individual drones needs to be flashed.
-A pre-built binary exists at `Python/firmware-tools/crazyflie-firmware/cf2.bin`, but if for whatever reason a new version needs
-to be built, see the [README instructions](./crazyflie-firmware/README.md) in the module.
+A pre-built binary exists at `Python/firmware-tools/binaries/cf2.bin`, but if for whatever reason a new version needs
+to be built, see the [build instructions](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/)
+to generate a binary, then copy the output from `Python\crazyflie-firmware\build` to the `binaries` folder above.
 
 ## Flashing crazyflie firmwares
-Navigate to the `Python/firmware-tools/` directory using a GitBash Shell (or Cygwin). There you will find a `loader` 
+
+Flash using the "Automatically enter bootloader mode" instructions described on this [page](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/)
+
+~~Navigate to the `Python/firmware-tools/` directory using a GitBash Shell (or Cygwin). There you will find a `loader` 
 helper script, which can be called to flash the two firmwares sequentially. This must be called from a bash shell,
 with the Python virtual env active, and you must also provide two arguments, one for the channel (01 - 127), and one for
 the address "index", ex 01, 02, 03, etc. The address index will be used to construct a URI in the form `E7E7E7E7XX`, where
 the `XX` is replaced by the address index. Both arguments must be two at least two digits (do not omit the leading zeros). 
-Example:
+Example:~~
 ```shell
 ./loader 55 01
 ```
 
 ### Flashing the firmware directly
-If the above script fails for whatever reason, you can flash the firmware directly to the drone using the following commands
-(**note:** be sure to update the channel & address in the commands below)
+~~If the above script fails for whatever reason, you can flash the firmware directly to the drone using the following commands
+(**note:** be sure to update the channel & address in the commands below)~~
 
-To flash the main crazyflie firmware, a Git Bash shell, navigate to `Python/firmware-tools/` in the repository and run
+~~To flash the main crazyflie firmware, a Git Bash shell, navigate to `Python/firmware-tools/` in the repository and run~~
 ```bash
 python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2.bin stm32-fw
 ```
 
-Flashing the NRF 24 firmware follows a very similar process. From the same directory, run:
+~~Flashing the NRF 24 firmware follows a very similar process. From the same directory, run:~~
 ```bash
 python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2_nrf-2021.03.bin nrf51-fw
 ```
 
-Lastly, flashing the Lighthouse FPGA firmware is similar as well:
+~~Lastly, flashing the Lighthouse FPGA firmware is similar as well:~~
 ```shell
 python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash lighthouse.bin deck-bcLighthouse4-fw
 ```
-***NOTE:** For both of these steps, make sure to update the channel/address to match the crazyflie that is currently being flashed.*
+~~***NOTE:** For both of these steps, make sure to update the channel/address to match the crazyflie that is currently being flashed.*~~
 
 
 
 
 
-
-#5. Other Notes
+# 6. Other Notes
 
 ## Broadcasting
 To broadcast to all crazyflies on the channel, send a broadcast message with address `FFE7E7E7E7`.
