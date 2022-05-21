@@ -22,3 +22,12 @@
 [submodule "crazyflie-lib-python"]
 	path = crazyflie-lib-python
 	url = https://github.com/bitcraze/crazyflie-lib-python
+[submodule "Python/crazyflie-firmware"]
+	path = Python/crazyflie-firmware
+	url = https://github.com/bitcraze/crazyflie-firmware
+[submodule "Python/crazyflie-lib-python"]
+	path = Python/crazyflie-lib-python
+	url = https://github.com/bitcraze/crazyflie-lib-python
+[submodule "Python/crazyflie-clients-python"]
+	path = Python/crazyflie-clients-python
+	url = https://github.com/bitcraze/crazyflie-clients-python
