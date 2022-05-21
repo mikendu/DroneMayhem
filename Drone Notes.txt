@@ -9,6 +9,15 @@ TODOS
 Multi-Position Calibration:
 - https://www.bitcraze.io/2022/01/improved-lighthouse-geometry-estimation/
 - https://github.com/bitcraze/crazyflie-lib-python/pull/297
+- https://www.bitcraze.io/2022/03/multiple-base-stations-with-lighthouse/
+
+Get Position (Official):
+- https://github.com/bitcraze/crazyflie-lib-python/pull/265/files
+
+
+Compressed Trajectories (Official):
+- https://github.com/bitcraze/crazyflie-lib-python/pull/268
+- https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level_compressed.py
 
 
 Wireshark Debugging
@@ -16,9 +25,6 @@ Wireshark Debugging
 - https://www.bitcraze.io/2022/02/using-wireshark-with-the-crazyflie/
 
 
-Compressed Trajectories (Official):
-- https://github.com/bitcraze/crazyflie-lib-python/pull/268
-- https://github.com/bitcraze/crazyflie-lib-python/blob/master/examples/autonomy/autonomous_sequence_high_level_compressed.py
 
 
 

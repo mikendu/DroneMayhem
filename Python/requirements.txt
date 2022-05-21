@@ -8,7 +8,7 @@ PyQt5
 vispy
 pyinstaller
 cmake
-cflinkcppclear
+cflinkcpp
 munkres
 pylint
 cflib
