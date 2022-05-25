@@ -31,3 +31,6 @@
 [submodule "Python/crazyflie-clients-python"]
 	path = Python/crazyflie-clients-python
 	url = https://github.com/bitcraze/crazyflie-clients-python
+[submodule "Python/crazyflie2-nrf-firmware"]
+	path = Python/crazyflie2-nrf-firmware
+	url = https://github.com/bitcraze/crazyflie2-nrf-firmware

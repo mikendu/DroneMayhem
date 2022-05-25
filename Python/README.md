@@ -192,37 +192,39 @@ to generate a binary, then copy the output from `Python\crazyflie-firmware\build
 
 ## Flashing crazyflie firmwares
 
-Flash using the "Automatically enter bootloader mode" instructions described on this [page](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/)
-
-~~Navigate to the `Python/firmware-tools/` directory using a GitBash Shell (or Cygwin). There you will find a `loader` 
+Navigate to the `Python/firmware-tools/` directory using a GitBash Shell (or Cygwin). There you will find a `loader` 
 helper script, which can be called to flash the two firmwares sequentially. This must be called from a bash shell,
 with the Python virtual env active, and you must also provide two arguments, one for the channel (01 - 127), and one for
 the address "index", ex 01, 02, 03, etc. The address index will be used to construct a URI in the form `E7E7E7E7XX`, where
 the `XX` is replaced by the address index. Both arguments must be two at least two digits (do not omit the leading zeros). 
-Example:~~
+Example:
 ```shell
 ./loader 55 01
 ```
 
 ### Flashing the firmware directly
-~~If the above script fails for whatever reason, you can flash the firmware directly to the drone using the following commands
-(**note:** be sure to update the channel & address in the commands below)~~
+If the above script fails for whatever reason, you can flash the firmware directly to the drone using the following commands
+(**note:** be sure to update the channel & address in the commands below). Alternative forms for the commands are
+provided, which use the local `cfloader.py` script instead of the installed module (due to Python resolution errors).
 
-~~To flash the main crazyflie firmware, a Git Bash shell, navigate to `Python/firmware-tools/` in the repository and run~~
+To flash the main crazyflie firmware, a Git Bash shell, navigate to `Python/firmware-tools/` in the repository and run
 ```bash
 python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2.bin stm32-fw
+python cfloader.py -w radio://0/55/2M/E7E7E7E7E7 flash cf2.bin stm32-fw
 ```
 
-~~Flashing the NRF 24 firmware follows a very similar process. From the same directory, run:~~
+Flashing the NRF 24 firmware follows a very similar process. From the same directory, run:
 ```bash
-python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2_nrf-2021.03.bin nrf51-fw
+python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash cf2_nrf.bin nrf51-fw
+python cfloader.py -w radio://0/55/2M/E7E7E7E7E7 flash cf2_nrf.bin nrf51-fw
 ```
 
-~~Lastly, flashing the Lighthouse FPGA firmware is similar as well:~~
+Lastly, flashing the Lighthouse FPGA firmware is similar as well:
 ```shell
 python -m cfloader -w radio://0/55/2M/E7E7E7E7E7 flash lighthouse.bin deck-bcLighthouse4-fw
+python cfloader.py -w radio://0/55/2M/E7E7E7E7E7 flash lighthouse.bin deck-bcLighthouse4-fw
 ```
-~~***NOTE:** For both of these steps, make sure to update the channel/address to match the crazyflie that is currently being flashed.*~~
+***NOTE:** For both of these steps, make sure to update the channel/address to match the crazyflie that is currently being flashed.*
 
 
 
@@ -236,9 +238,14 @@ This will only work if all 3 firmwares have been upgraded to the right version (
  and the crazyradio firmware). The modified python has a `Broadcaster` class that allows opening a broadcast link,
 and to use it, you should supply a uri in the form `radiobroadcast://*/55/2M`.
 
+## Address Ranges
+
+- Preferred Channel: 55
+- Address Range: [00001 - 99999]
+- Address Increment: 1000
 
 
-#6. Building an executable
+# 7. Building an executable
 From a GitBash terminal with the Python `venv` active, navigate to the `Python/` directory and run the following:
 ```shell
 pyinstaller cli.py -y --name Swarm\ Controller --windowed --icon ./application/resources/images/window_icon.ico \

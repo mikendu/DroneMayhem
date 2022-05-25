@@ -25,10 +25,28 @@ Wireshark Debugging
 - https://www.bitcraze.io/2022/02/using-wireshark-with-the-crazyflie/
 
 
+PRE-CHECK
+
+Does RSSI Test, scans channels for best
+Sets Radio channel for all Crazyflies
 
 
+READINESS CHECK
+- Link Quality
+- Battery Level/Battery Check
+- Propeller Test
 
+- Calibration Received?
+- Position Converged
 
+- On Failure, prompt options, continue, abort, use only successful drones, etc
+
+ROBUST TEST SEQUENCE
+- Up
+- Right + 0.5 (relative), Yaw + 180 (relative), Lights Blue
+- Left - 1.0 (relative), Yaw - 360 (relative), Lights Red
+- Right + 0.5 (relative), Yaw + 180 (relative), Lights Off
+- Down
 
 REFERENCE
 --------------------------

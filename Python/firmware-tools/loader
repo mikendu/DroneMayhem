@@ -1,19 +1,21 @@
 #!/bin/bash
 
-URI="radio://0/$1/2M/E7E7E7E7$2"
-export USE_CFLINK=cpp
+#URI="radio://0/$1/2M/E7E7E7E7$2"
+URI="radio://0/$1/2M"
+#export USE_CFLINK=cpp
+#export USE_CFLINK=none
 
-echo "URI: $URI"
-echo "Flashing main firmware..."
-python -m cfloader -w $URI flash binaries/cf2.bin stm32-fw
-echo "Main firmware flashed, sleeping for 1 second...\n\n"
+echo "URI: $URI" && \
+echo "Flashing main firmware..." && \
+python cfloader.py -w $URI flash ./binaries/cf2.bin stm32-fw && \
+echo "Main firmware flashed, sleeping for 1 second...\n\n" && \
+sleep 1 && \
+
+echo "Flashing NRF51 firmware..." && \
+python cfloader.py -w $URI flash ./binaries/cf2_nrf.bin nrf51-fw && \
+echo "NRF51 firmware flashed, sleeping for 1 second...\n\n" && \
 sleep 1
 
-echo "Flashing NRF51 firmware..."
-python -m cfloader -w $URI flash old\ binaries/cf2_nrf-2021.03.bin nrf51-fw
-echo "NRF51 firmware flashed, sleeping for 1 second...\n\n"
-sleep 1
-
-echo "Flashing Lighthouse FPGA firmware..."
-python -m cfloader -w $URI flash old\ binaries/lighthouse.bin deck-bcLighthouse4-fw
-echo "Done!"
+#echo "Flashing Lighthouse FPGA firmware..."
+#python -m cfloader -w $URI flash old\ binaries/lighthouse.bin deck-bcLighthouse4-fw
+#echo "Done!"

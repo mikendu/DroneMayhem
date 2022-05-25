@@ -12,7 +12,10 @@ cflinkcpp
 munkres
 pylint
 cflib
-
+matplotlib
+sip
+PyQt5-sip
+# cfloader - comes thru cfclient, dont install separately
 
 ###### Local Packages ######`
 # -e crazyflie-lib-python
